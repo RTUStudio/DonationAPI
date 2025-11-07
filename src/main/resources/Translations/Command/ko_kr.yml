@@ -1,0 +1,15 @@
+donation:
+  name: "후원"
+  commands:
+    register:
+      name: "등록"
+      description: "스트리머를 등록합니다"
+      usage: "/후원 등록 [플랫폼] [아이디]"
+    unregister:
+      name: "등록해제"
+      description: "스트리머를 등록해제합니다"
+      usage: "/후원 등록해제 [플랫폼] [아이디]"
+    info:
+      name: "정보"
+      description: "등록된 스트리머 목록을 확인합니다"
+      usage: "/후원 정보"

@@ -1,0 +1,18 @@
+register:
+  success: "등록에 성공했습니다."
+  fail: "등록에 실패했습니다."
+unregister:
+  success: "등록 해제에 성공했습니다."
+  fail: "등록 해제에 실패했습니다."
+reason: "사유: {message}"
+info:
+  querying: "룸 정보 조회 중..."
+  empty: "조회 실패 또는 빈 응답입니다."
+  header-id: "룸 ID: {id}"
+  header-count: "사용자 수: {count}/{limit}"
+  header-created: "생성 시각: {createdAt}"
+  header-updated: "갱신 시각: {updatedAt}"
+  users-title: "사용자 목록:"
+  users-empty: "사용자 목록: (비어 있음)"
+  user-item: " - {name}"
+  user-created-suffix: " (등록: {createdAt})"
