@@ -3,12 +3,12 @@ donation:
   commands:
     register:
       name: "등록"
-      description: "스트리머를 등록합니다"
-      usage: "/후원 등록 [플랫폼] [아이디]"
+      description: "선택한 서비스의 스트리머를 등록합니다"
+      usage: "/후원 등록 [서비스] [플랫폼] [아이디]"
     unregister:
       name: "등록해제"
-      description: "스트리머를 등록해제합니다"
-      usage: "/후원 등록해제 [플랫폼] [아이디]"
+      description: "선택한 서비스의 스트리머를 등록해제합니다"
+      usage: "/후원 등록해제 [서비스] [플랫폼] [아이디]"
     info:
       name: "정보"
       description: "등록된 스트리머 목록을 확인합니다"

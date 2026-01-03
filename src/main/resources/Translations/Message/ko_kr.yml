@@ -1,9 +1,11 @@
 register:
   success: "등록에 성공했습니다."
   fail: "등록에 실패했습니다."
+  unsupported: "지원하지 않는 서비스/플랫폼입니다."
 unregister:
   success: "등록 해제에 성공했습니다."
   fail: "등록 해제에 실패했습니다."
+  unsupported: "지원하지 않는 서비스/플랫폼입니다."
 reason: "사유: {message}"
 info:
   querying: "룸 정보 조회 중..."

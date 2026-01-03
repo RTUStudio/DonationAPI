@@ -1,0 +1,8 @@
+package kr.rtustudio.donation.service.chzzk.net.data;
+
+import org.jetbrains.annotations.NotNull;
+
+public record UserInformationRequest(
+        @NotNull String accessToken
+) {
+}
