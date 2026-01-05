@@ -4,26 +4,29 @@ import kr.rtustudio.donation.common.Donation;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.service.Services;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @ToString
+@RequiredArgsConstructor
 public class DonationEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
 
+    @Nullable
+    private final Player player;
     private final Donation donation;
+
     @Setter
     private boolean isCancelled = false;
-
-    public DonationEvent(Donation donation) {
-        this.donation = donation;
-    }
 
     public static HandlerList getHandlerList() {
         return handlers;

@@ -30,7 +30,7 @@ public class BukkitDonationAPI extends RSPlugin {
     protected void enable() {
         instance = this;
 
-        initStorage("Key");
+        initStorage("User");
 
         registerConfiguration(GlobalConfig.class, "Global");
         registerConfiguration(SSAPIConfig.class, "Configs/Services", "SSAPI");
@@ -54,7 +54,7 @@ public class BukkitDonationAPI extends RSPlugin {
         donationAPI = new DonationAPI();
         Consumer<Donation> handler = donation -> {
             verbose(donation.toString());
-            CraftScheduler.sync(() -> Bukkit.getPluginManager().callEvent(new DonationEvent(donation)));
+            CraftScheduler.sync(() -> Bukkit.getPluginManager().callEvent(new DonationEvent(null, donation)));
         };
         donationAPI.startSSAPI(getConfiguration(SSAPIConfig.class), handler);
         donationAPI.startChzzk(getConfiguration(ChzzkConfig.class), handler);

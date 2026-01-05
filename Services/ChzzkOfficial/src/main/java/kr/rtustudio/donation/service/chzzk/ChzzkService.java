@@ -24,7 +24,7 @@ public class ChzzkService implements Service {
 
     @Override
     public Services getType() {
-        return Services.CHZZK_OFFICIAL;
+        return Services.CHZZK;
     }
 
     @Override

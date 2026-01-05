@@ -1,15 +1,56 @@
 donation:
-  name: "후원"
+  name: "후원API"
+  description: "후원 API 명령어"
+  usage: "/후원API <치지직/치지직(SSAPI)> <연동/등록/등록해제> <ID>"
   commands:
-    register:
-      name: "등록"
-      description: "선택한 서비스의 스트리머를 등록합니다"
-      usage: "/후원 등록 [서비스] [플랫폼] [아이디]"
-    unregister:
-      name: "등록해제"
-      description: "선택한 서비스의 스트리머를 등록해제합니다"
-      usage: "/후원 등록해제 [서비스] [플랫폼] [아이디]"
-    info:
-      name: "정보"
-      description: "등록된 스트리머 목록을 확인합니다"
-      usage: "/후원 정보"
+    ssapi-chzzk:
+      name: "치지직(SSAPI)"
+      description: "치지직 SSAPI 명령어"
+      usage: "/후원API 치지직(SSAPI) <연동/등록/등록해제> <ID>"
+      commands:
+        register:
+          name: "등록"
+          description: "SSAPI를 사용하여 치지직 스트리머를 등록합니다"
+          usage: "/후원API 치지직(SSAPI) 등록 <ID>"
+        unregister:
+          name: "등록해제"
+          description: "SSAPI를 사용하여 치지직 스트리머를 등록해제합니다"
+          usage: "/후원API 치지직(SSAPI) 등록해제 <ID>"
+        connect:
+          name: "연동"
+          description: "SSAPI를 사용하여 치지직과 마인크래프트를 연동합니다"
+          usage: "/후원API 치지직(SSAPI) 연동 <ID>"
+    ssapi-soop:
+      name: "숲(SSAPI)"
+      description: "숲 SSAPI 명령어"
+      usage: "/후원API 숲(SSAPI) <연동/등록/등록해제> <ID>"
+      commands:
+        register:
+          name: "등록"
+          description: "SSAPI를 사용하여 숲 스트리머를 등록합니다"
+          usage: "/후원API 숲(SSAPI) 등록 <ID>"
+        unregister:
+          name: "등록해제"
+          description: "SSAPI를 사용하여 숲 스트리머를 등록해제합니다"
+          usage: "/후원API 숲(SSAPI) 등록해제 <ID>"
+        connect:
+          name: "연동"
+          description: "SSAPI를 사용하여 숲과 마인크래프트를 연동합니다"
+          usage: "/후원API 숲(SSAPI) 연동 <ID>"
+    chzzk:
+      name: "치지직"
+      description: "치지직 공식 연동 명령어"
+      usage: "/후원API 치지직 <연동/등록/등록해제>"
+      commands:
+        register:
+          name: "등록"
+          description: "치지직 계정을 서비스롸 연동하는 범용 링크를 출력합니다"
+          usage: "/후원API 치지직 등록"
+        unregister:
+          name: "등록해제"
+          description: "치지직과 연동된 서비스 목록 페이지 링크를 출력합니다"
+          usage: "/후원API 치지직 등록해제"
+        connect:
+          name: "연동"
+          description: "치지직과 마인크래프트를 서비스롸 연동하는 전용 링크를 출력합니다"
+          usage: "/후원API 치지직 연동"

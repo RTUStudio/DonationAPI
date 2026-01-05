@@ -16,6 +16,14 @@ public class DonationAPI {
     private SSAPIService ssapiService;
     private ChzzkService chzzkService;
 
+    public SSAPIService getSSAPI() {
+        return ssapiService;
+    }
+
+    public ChzzkService getChzzk() {
+        return chzzkService;
+    }
+
     public void startSSAPI(SSAPIConfig config, Consumer<Donation> handler) {
         if (ssapiService != null) return;
         ssapiService = new SSAPIService(config);

@@ -74,9 +74,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Common"))
-    implementation(project(path = ":ChzzkOfficial", configuration = "shadow"))
-    implementation(project(path = ":SSAPI", configuration = "shadow"))
+    implementation(project(":Services:Common"))
+    implementation(project(path = ":Services:ChzzkOfficial", configuration = "shadow"))
+    implementation(project(path = ":Services:SSAPI", configuration = "shadow"))
 
     // Plugin API
     val plugin_api = if (paper_plugin.toBoolean()) {

@@ -1,5 +1,10 @@
 rootProject.name = "DonationAPI"
 
-include("Common")
-include("SSAPI")
-include("ChzzkOfficial")
+include("Platform:Bukkit")
+
+include("Services:Common")
+include("Services:SSAPI")
+include("Services:ChzzkOfficial")
+include("Services:Toonation")
+include("Services:Youtube")
+include("Services:SOOPOfficial")

@@ -10,7 +10,7 @@ import java.util.List;
 public enum Services {
 
     SSAPI(Platform.CHZZK, Platform.SOOP),
-    CHZZK_OFFICIAL(Platform.CHZZK);
+    CHZZK(Platform.CHZZK);
 
     @Getter
     private final List<Platform> platforms;
