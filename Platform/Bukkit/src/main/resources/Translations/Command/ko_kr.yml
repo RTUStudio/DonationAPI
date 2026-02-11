@@ -1,0 +1,55 @@
+chzzk:
+  name: "치지직"
+donation:
+  name: "후원API"
+  description: "후원 API 명령어"
+  usage: "/후원API <SSAPI/치지직> <치지직/숲> <연동/연동해제> <ID>"
+  commands:
+    ssapi:
+      name: "SSAPI"
+      description: "SSAPI 통합 명령어"
+      usage: "/후원API SSAPI <치지직/숲> <연동/연동해제> <ID>"
+      commands:
+        chzzk:
+          name: "치지직"
+          description: "SSAPI 치지직 명령어"
+          usage: "/후원API SSAPI 치지직 <연동/연동해제> <스트리머ID>"
+          commands:
+            connect:
+              name: "연동"
+              description: "SSAPI를 사용하여 치지직 스트리머와 연동합니다"
+              usage: "/후원API SSAPI 치지직 연동 <스트리머ID>"
+            disconnect:
+              name: "연동해제"
+              description: "SSAPI 치지직 연동을 해제합니다"
+              usage: "/후원API SSAPI 치지직 연동해제"
+        soop:
+          name: "숲"
+          description: "SSAPI 숲 명령어"
+          usage: "/후원API SSAPI 숲 <연동/연동해제> <스트리머ID>"
+          commands:
+            connect:
+              name: "연동"
+              description: "SSAPI를 사용하여 숲 스트리머와 연동합니다"
+              usage: "/후원API SSAPI 숲 연동 <스트리머ID>"
+            disconnect:
+              name: "연동해제"
+              description: "SSAPI 숲 연동을 해제합니다"
+              usage: "/후원API SSAPI 숲 연동해제"
+    chzzk:
+      name: "치지직"
+      description: "치지직 공식 연동 명령어"
+      usage: "/후원API 치지직 <연동/등록/등록해제>"
+      commands:
+        register:
+          name: "등록"
+          description: "치지직 계정을 서비스롸 연동하는 범용 링크를 출력합니다"
+          usage: "/후원API 치지직 등록"
+        unregister:
+          name: "등록해제"
+          description: "치지직과 연동된 서비스 목록 페이지 링크를 출력합니다"
+          usage: "/후원API 치지직 등록해제"
+        connect:
+          name: "연동"
+          description: "치지직과 마인크래프트를 서비스롸 연동하는 전용 링크를 출력합니다"
+          usage: "/후원API 치지직 연동"

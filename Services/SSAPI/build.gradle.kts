@@ -1,6 +1,7 @@
 dependencies {
     implementation(project(":Services:Common"))
     compileOnly("com.squareup.okhttp3:okhttp:4.12.0")
+
     compileOnly("org.xerial.snappy:snappy-java:1.1.10.8")
     implementation("io.socket:socket.io-client:2.1.2")
 

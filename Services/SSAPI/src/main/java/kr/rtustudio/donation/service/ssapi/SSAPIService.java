@@ -12,6 +12,7 @@ import kr.rtustudio.donation.service.ssapi.configuration.SSAPIConfig;
 import kr.rtustudio.donation.service.ssapi.data.DonationData;
 import kr.rtustudio.donation.service.ssapi.data.ResponseResult;
 import kr.rtustudio.donation.service.ssapi.data.RoomInfo;
+import kr.rtustudio.donation.service.ssapi.data.SSPlayer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.xerial.snappy.Snappy;
@@ -40,13 +41,14 @@ public class SSAPIService implements kr.rtustudio.donation.service.Service {
     private static final String JSON = "application/json; charset=utf-8";
 
     private final SSAPIConfig config;
+    private final Consumer<Donation> donationHandler;
+    private final Consumer<SSPlayer> registerHandler;
 
     private HttpClient client;
     private Socket socket;
     private ScheduledExecutorService executor;
     private ExecutorService httpExecutor;
     private volatile boolean loginFailed = false;
-    private Consumer<Donation> donationHandler;
 
     private static ResponseResult parseApiResponse(String payload) {
         try {
@@ -67,9 +69,8 @@ public class SSAPIService implements kr.rtustudio.donation.service.Service {
     }
 
     @Override
-    public void start(Consumer<Donation> donationHandler) {
+    public void start() {
         if (!config.isEnabled()) return;
-        this.donationHandler = donationHandler;
         this.client =
                 HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
         this.executor = Executors.newSingleThreadScheduledExecutor();
@@ -123,7 +124,7 @@ public class SSAPIService implements kr.rtustudio.donation.service.Service {
 
         socket.connect();
 
-        int retryDelay = config.getSocket().getLoginRetryDelay();
+        int retryDelay = config.getLoginRetryDelay();
         executor.scheduleAtFixedRate(() -> {
             if (socket.connected() && loginFailed) emitLogin();
         }, retryDelay, retryDelay, TimeUnit.MILLISECONDS);
@@ -203,6 +204,7 @@ public class SSAPIService implements kr.rtustudio.donation.service.Service {
             return null;
         }
         return new Donation(
+                null,
                 getType(),
                 platform,
                 DonationType.CHAT,

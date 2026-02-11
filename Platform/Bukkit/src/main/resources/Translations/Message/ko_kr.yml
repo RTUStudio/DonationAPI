@@ -1,0 +1,46 @@
+# 연결 관련 메시지
+connect:
+  success: "<green>연동에 성공했습니다.</green>"
+  fail: "<red>연동에 실패했습니다.</red>"
+  unsupported: "<red>지원하지 않는 플랫폼입니다.</red>"
+
+disconnect:
+  success: "<green>연동이 해제되었습니다.</green>"
+  fail: "<red>연동 해제에 실패했습니다.</red>"
+
+connection:
+  success: "<green>{service} 서비스와 연결되었습니다. (스트리머: {streamer})</green>"
+  failed: "<red>{service} 서비스 연결에 실패했습니다.</red>"
+
+# SSAPI 관련 메시지
+ssapi:
+  connect:
+    success: "<green>SSAPI 연동에 성공했습니다.</green>"
+    failure: "<red>SSAPI 연동에 실패했습니다.</red>"
+    unsupported: "<red>지원하지 않는 플랫폼입니다.</red>"
+
+# 치지직 관련 메시지
+chzzk:
+  official:
+    auth_required: "<yellow>치지직 공식 API는 웹 인증이 필요합니다. 인증 페이지를 확인해주세요.</yellow>"
+  connect:
+    success: "<green>치지직 연동에 성공했습니다.</green>"
+    failure: "<red>치지직 연동에 실패했습니다.</red>"
+    warning: "<red>링크를 열기 전에 방송에서 화면을 가려주세요</red>"
+    link: "<white>이 메세지를 클릭하면 API 연동 주소가 복사됩니다</white>"
+
+# 서비스 관련 메시지
+service:
+  not_implemented: "<red>아직 구현되지 않은 기능입니다.</red>"
+  already_connected: "<yellow>이미 연결되어 있습니다.</yellow>"
+  not_connected: "<yellow>연결되어 있지 않습니다.</yellow>"
+
+# 사용법 메시지
+usage:
+  ssapi_chzzk: "<yellow>사용법: /후원API ssapi-chzzk <스트리머ID></yellow>"
+  ssapi_soop: "<yellow>사용법: /후원API ssapi-soop <스트리머ID></yellow>"
+  chzzk_official: "<yellow>사용법: /후원API chzzk-official</yellow>"
+  chzzk_unofficial: "<yellow>사용법: /후원API chzzk-unofficial <스트리머ID></yellow>"
+  soop: "<yellow>사용법: /후원API soop</yellow>"
+  youtube: "<yellow>사용법: /후원API youtube <주소></yellow>"
+  toonation: "<yellow>사용법: /후원API toonation <주소></yellow>"

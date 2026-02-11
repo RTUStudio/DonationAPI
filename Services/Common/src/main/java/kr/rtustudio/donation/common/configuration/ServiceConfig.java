@@ -6,11 +6,9 @@ public interface ServiceConfig {
 
     Socket getSocket();
 
-    public interface Socket {
+    interface Socket {
 
         int getTimeout();
-
-        int getLoginRetryDelay();
 
         boolean isKeepaliveEnabled();
 

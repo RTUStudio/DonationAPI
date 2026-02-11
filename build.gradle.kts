@@ -7,11 +7,7 @@ plugins {
 
 val project_version: String by project
 val project_group: String by project
-val project_author: String by project
 val minecraft_version: String by project
-val plugin_main: String by project
-val api_version: String by project
-val paper_plugin: String by project
 val rsf_version: String by project
 
 version = project_version
@@ -38,12 +34,13 @@ allprojects {
         compileOnly("com.google.code.gson:gson:2.13.1")
         compileOnly("com.google.guava:guava:33.4.8-jre")
         compileOnly("org.apache.commons:commons-lang3:3.18.0")
-        compileOnly("org.slf4j:slf4j-api:2.0.16")
-        compileOnly("org.jetbrains:annotations:24.1.0")
+        compileOnly("it.unimi.dsi:fastutil:8.5.18")
 
         // Lombok
         compileOnly("org.projectlombok:lombok:1.18.38")
         annotationProcessor("org.projectlombok:lombok:1.18.38")
+        compileOnly("org.slf4j:slf4j-api:2.0.16")
+        compileOnly("org.jetbrains:annotations:24.1.0")
     }
 
     tasks.jar {
@@ -74,29 +71,11 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Services:Common"))
+    // Platform:Bukkit에 모든 것이 포함됨
+    implementation(project(path = ":Platform:Bukkit", configuration = "shadow"))
+
     implementation(project(path = ":Services:ChzzkOfficial", configuration = "shadow"))
     implementation(project(path = ":Services:SSAPI", configuration = "shadow"))
-
-    // Plugin API
-    val plugin_api = if (paper_plugin.toBoolean()) {
-        "io.papermc.paper:paper-api:${api_version}-R0.1-SNAPSHOT"
-    } else {
-        "org.spigotmc:spigot-api:${api_version}-R0.1-SNAPSHOT"
-    }
-    compileOnly(plugin_api)
-
-    // RSFramework
-    compileOnly("kr.rtustudio:framework-api:${rsf_version}")
-    compileOnly(fileTree("libs") { include("*.jar") })
-
-    // Kyori Adventure
-    compileOnly("net.kyori:adventure-platform-bukkit:4.4.1")
-    compileOnly("net.kyori:adventure-text-minimessage:4.16.0")
-
-    // Dependency
-    compileOnly("me.clip:placeholderapi:2.11.6")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.10.1")
 }
 
 tasks.shadowJar {
@@ -106,22 +85,6 @@ tasks.shadowJar {
         copy {
             from(archiveFile.get().asFile)
             into(file("$rootDir/builds"))
-            System.out.println(rootDir)
         }
-    }
-}
-
-tasks.processResources {
-    val props = mapOf(
-        "version" to version,
-        "name" to rootProject.name,
-        "main" to plugin_main,
-        "api_version" to api_version.substringBeforeLast("."),
-        "author" to project_author
-    )
-    inputs.properties(props)
-    filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
-        expand(props)
     }
 }
