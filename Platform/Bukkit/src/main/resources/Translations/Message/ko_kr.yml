@@ -25,7 +25,8 @@ chzzk:
     success: "<green>치지직 연동에 성공했습니다.</green>"
     failure: "<red>치지직 연동에 실패했습니다.</red>"
     warning: "<red>링크를 열기 전에 방송에서 화면을 가려주세요</red>"
-    link: "<white>이 메세지를 클릭하면 API 연동 주소가 복사됩니다</white>"
+    link: "<white>이 메세지를 클릭하면 API 연동 페이지 링크가 복사됩니다!</white>"
+    copied: "클릭하면 링크가 복사됩니다"
 
 # 서비스 관련 메시지
 service:

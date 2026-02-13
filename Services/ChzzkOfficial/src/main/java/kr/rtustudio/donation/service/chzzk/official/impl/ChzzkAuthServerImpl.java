@@ -94,8 +94,6 @@ public class ChzzkAuthServerImpl implements ChzzkAuthServer, ChzzkEventHandlerHo
                     }
                 }
 
-                log.info("ChzzkOfficial user registered: {}", result.user());
-
                 // 유저 인증 성공 이벤트 호출
                 if (chzzk instanceof ChzzkEventHandlerHolder holder) {
                     holder.getHandlers().forEach(handler -> handler.onUserRegistered(chzzk, result.user()));

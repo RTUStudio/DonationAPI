@@ -4,6 +4,10 @@ import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
 import kr.rtustudio.donation.bukkit.configuration.service.ChzzkConfig;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
+import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 
 /**
  * 치지직 공식 연동 명령어
@@ -29,7 +33,11 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
         String authUrl = config.getBaseUri() + "/auth/login/chzzk?user=" + player().getUniqueId();
 
         chat().announce(message().get(player(), "chzzk.connect.warning"));
-        chat().announce("<click:copy_to_clipboard:'" + authUrl + "'>" + message().get(player(), "chzzk.connect.link") + "</click>");
+
+        Component linkMessage = ComponentFormatter.mini(message().get(player(), "chzzk.connect.link"))
+                .clickEvent(ClickEvent.copyToClipboard(authUrl))
+                .hoverEvent(HoverEvent.showText(ComponentFormatter.mini(message().get(player(), "chzzk.connect.copied"))));
+        chat().announce(linkMessage);
 
         return Result.SUCCESS;
     }

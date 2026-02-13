@@ -51,6 +51,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
             playerManager.markConnected(uuid, getService());
             announce(uuid, data);
             onRegister(uuid, data);
+            plugin.getLogger().info("%s connected to %s(%s)".formatted(uuid, getService(), data.platform()));
             return true;
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to connect player " + uuid + " to " + getService() + ": " + e.getMessage());
@@ -112,7 +113,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
     private void announce(UUID uuid, T data) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null || !player.isOnline()) return;
-        announce(player, getService(), data.platform(), data.streamerId());
+        announce(player, getService(), data.platform(), data.channelId());
     }
 
     private void announce(Player player, Services service, Platform platform, String streamerId) {

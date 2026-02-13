@@ -1,7 +1,6 @@
 package kr.rtustudio.donation.bukkit.platform;
 
 import kr.rtustudio.donation.service.Services;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * 등록된 모든 후원 플랫폼을 관리합니다.
  */
-@Slf4j(topic = "DonationAPI")
 public class PlatformRegistry {
 
     private final Map<Services, DonationPlatform<?>> platforms = new ConcurrentHashMap<>();
@@ -25,7 +23,6 @@ public class PlatformRegistry {
     public void register(DonationPlatform<?> platform) {
         platforms.put(platform.getService(), platform);
         platform.initialize();
-        log.info("Registered platform: {}", platform.getService());
     }
 
     /**

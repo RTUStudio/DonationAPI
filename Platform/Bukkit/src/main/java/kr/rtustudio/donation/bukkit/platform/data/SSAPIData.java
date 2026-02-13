@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 public record SSAPIData(
         UUID uuid,
-        String streamerId,
+        String channelId,
         Platform platform
 ) implements UserData {
 }

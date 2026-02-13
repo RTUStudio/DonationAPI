@@ -96,16 +96,11 @@ public class SSAPIService extends AbstractService<SSPlayer> {
         }
 
         socket.on(Socket.EVENT_CONNECT, args -> {
-            log.info("Socket connected");
-            if (args.length > 0) log.info(Arrays.toString(args));
             loginFailed = true;
             emitLogin();
         });
 
-        socket.on(Socket.EVENT_DISCONNECT, args -> {
-            log.info("Socket disconnected");
-            loginFailed = true;
-        });
+        socket.on(Socket.EVENT_DISCONNECT, args -> loginFailed = true);
 
         socket.on("login", args -> loginFailed = false);
 

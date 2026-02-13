@@ -31,5 +31,5 @@ public interface UserData {
      *
      * @return 스트리머 ID
      */
-    String streamerId();
+    String channelId();
 }

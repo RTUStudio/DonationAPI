@@ -41,13 +41,10 @@ public class ChzzkSubscriber implements ChzzkEventHandler {
             return;
         }
 
-        log.info("Registering player {} and connecting session...", uuid);
-
         try {
             chzzk.getCurrentChannel().ifPresent(channel ->
                     chzzk.getToken().ifPresent(token -> {
                         registeredPlayers.put(channel.id(), uuid);
-                        log.info("Player {} registered with channel {}", uuid, channel.id());
                         Consumer<ChzzkPlayer> handler = service.getRegisterHandler();
                         if (handler != null) handler.accept(new ChzzkPlayer(uuid, channel.id(), token));
                     })

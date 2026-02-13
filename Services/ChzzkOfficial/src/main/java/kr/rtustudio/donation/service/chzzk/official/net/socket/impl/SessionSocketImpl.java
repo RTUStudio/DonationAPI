@@ -68,7 +68,6 @@ public class SessionSocketImpl implements SessionSocket {
 
         // 연결
         socket.on("connect", objects -> {
-            log.info("Connect Status: {}", Arrays.toString(objects));
         });
 
         socket.on("connect_error", objects -> {
@@ -99,22 +98,18 @@ public class SessionSocketImpl implements SessionSocket {
                 case "connected" -> {
                     ConnectedMessage message = Constants.GSON.fromJson(element, ConnectedMessage.class);
                     this.sessionKey = message.data().sessionKey();
-                    log.info("Connected Session: {}", message);
                     handler.onConnected(this, message);
                 }
                 case "subscribed" -> {
                     EventSubscribedMessage message = Constants.GSON.fromJson(element, EventSubscribedMessage.class);
-                    log.info("Subscribe Event: {}", message);
                     handler.onEventSubscribed(this, message);
                 }
                 case "unsubscribed" -> {
                     EventUnsubscribedMessage message = Constants.GSON.fromJson(element, EventUnsubscribedMessage.class);
-                    log.info("Unsubscribed Event: {}", message);
                     handler.onEventUnsubscribed(this, message);
                 }
                 case "revoked" -> {
                     EventRevokedMessage message = Constants.GSON.fromJson(element, EventRevokedMessage.class);
-                    log.info("Revoked Event: {}", message);
                     handler.onEventRevoked(this, message);
                 }
             }
@@ -144,13 +139,11 @@ public class SessionSocketImpl implements SessionSocket {
     @Override
     public void connect() {
         socket.connect();
-        log.info("Connect socket with url: {}", url);
     }
 
     @Override
     public void disconnect() {
         socket.disconnect();
-        log.info("Disconnect socket with Session Key: {}", sessionKey);
     }
 
     @Override

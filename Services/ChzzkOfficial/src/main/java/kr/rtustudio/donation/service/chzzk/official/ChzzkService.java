@@ -45,7 +45,6 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> {
                 .addChzzkEventHandler(subscriber)
                 .build();
         authServer.start();
-        log.info("Auth server started ({}:{})", config.getHost(), config.getPort());
     }
 
     public boolean reconnect(@NotNull UUID uuid, @NotNull ChzzkToken token) {
@@ -53,8 +52,6 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> {
             log.warn("Cannot reconnect: service not started");
             return false;
         }
-
-        log.info("Reconnecting player {} with saved token...", uuid);
 
         Chzzk chzzk = Chzzk.builder()
                 .clientId(config.getClientId())
@@ -66,7 +63,6 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> {
 
         try {
             chzzk.refreshToken();
-            log.info("Token refreshed for player {}", uuid);
         } catch (Exception e) {
             log.error("Failed to refresh token for player {}, token may be expired", uuid, e);
             return false;
