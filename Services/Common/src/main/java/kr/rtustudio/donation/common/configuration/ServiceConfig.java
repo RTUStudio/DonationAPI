@@ -4,20 +4,6 @@ public interface ServiceConfig {
 
     boolean isEnabled();
 
-    Socket getSocket();
+    SocketOption getSocket();
 
-    interface Socket {
-
-        int getTimeout();
-
-        boolean isKeepaliveEnabled();
-
-        int getKeepaliveInterval();
-
-        boolean isReconnectionEnabled();
-
-        int getReconnectionDelay();
-
-        int getReconnectionMaxDelay();
-    }
 }

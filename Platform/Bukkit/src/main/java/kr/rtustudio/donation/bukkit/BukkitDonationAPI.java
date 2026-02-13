@@ -2,21 +2,23 @@ package kr.rtustudio.donation.bukkit;
 
 import kr.rtustudio.donation.bukkit.command.MainCommand;
 import kr.rtustudio.donation.bukkit.configuration.GlobalConfig;
-import kr.rtustudio.donation.bukkit.configuration.service.ChzzkOfficialConfig;
+import kr.rtustudio.donation.bukkit.configuration.service.ChzzkConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.SSAPIConfig;
 import kr.rtustudio.donation.bukkit.event.DonationEvent;
 import kr.rtustudio.donation.bukkit.integration.DonationPlaceholder;
-import kr.rtustudio.donation.bukkit.listener.PlayerJoinQuit;
+import kr.rtustudio.donation.bukkit.handler.PlayerJoinQuit;
 import kr.rtustudio.donation.bukkit.manager.DonationPlayerManager;
 import kr.rtustudio.donation.bukkit.manager.PlatformConnectionManager;
 import kr.rtustudio.donation.bukkit.platform.ConfigurableDonationPlatform;
+import kr.rtustudio.donation.bukkit.platform.Event;
 import kr.rtustudio.donation.bukkit.platform.PlatformRegistry;
-import kr.rtustudio.donation.bukkit.platform.data.ChzzkOfficialData;
 import kr.rtustudio.donation.bukkit.platform.data.SSAPIData;
 import kr.rtustudio.donation.common.Donation;
 import kr.rtustudio.donation.common.DonationAPI;
 import kr.rtustudio.donation.service.Services;
+import kr.rtustudio.donation.service.chzzk.official.ChzzkService;
 import kr.rtustudio.donation.service.chzzk.official.data.ChzzkPlayer;
+import kr.rtustudio.donation.service.ssapi.SSAPIService;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
 import kr.rtustudio.framework.bukkit.api.scheduler.CraftScheduler;
@@ -69,18 +71,34 @@ public class BukkitDonationAPI extends RSPlugin {
     private void initializeConfigurations() {
         registerConfiguration(GlobalConfig.class, "Global");
         registerConfiguration(SSAPIConfig.class, "Configs/Services", "SSAPI");
-        registerConfiguration(ChzzkOfficialConfig.class, "Configs/Services", "Chzzk");
+        registerConfiguration(ChzzkConfig.class, "Configs/Services", "Chzzk");
     }
 
     private void initializePlatforms() {
+        playerManager = new DonationPlayerManager(this);
         platformRegistry = new PlatformRegistry();
 
         // 치지직 공식
         platformRegistry.register(
                 ConfigurableDonationPlatform.builder()
                         .service(Services.ChzzkOfficial)
-                        .config(ChzzkOfficialConfig.class)
-                        .data(ChzzkOfficialData.class)
+                        .config(ChzzkConfig.class)
+                        .data(ChzzkPlayer.class)
+                        .on(Event.REGISTER, (uuid, player) -> {
+                            Player bukkit = Bukkit.getPlayer(uuid);
+                            if (bukkit == null || !bukkit.isOnline()) return;
+                            String message = getConfiguration().getMessage()
+                                    .get(bukkit, "connection.success")
+                                    .replace("{service}", Services.ChzzkOfficial.name())
+                                    .replace("{streamer}", player.channelId());
+                            PlayerChat.of(this).announce(bukkit, message);
+                        })
+                        .on(Event.RECONNECT, (uuid, player) -> {
+                            if (donationAPI == null) return false;
+                            ChzzkService chzzk = donationAPI.get(Services.ChzzkOfficial, ChzzkService.class);
+                            if (chzzk == null) return false;
+                            return chzzk.reconnect(uuid, player.token());
+                        })
                         .build(this)
         );
 
@@ -94,7 +112,6 @@ public class BukkitDonationAPI extends RSPlugin {
         );
 
         connectionManager = new PlatformConnectionManager(platformRegistry);
-        playerManager = new DonationPlayerManager(this);
     }
 
     private void initializeListeners() {
@@ -124,8 +141,13 @@ public class BukkitDonationAPI extends RSPlugin {
         donationAPI = new DonationAPI();
         Consumer<Donation> donationHandler = this::handleDonation;
 
-        donationAPI.startSSAPI(getConfiguration(SSAPIConfig.class), donationHandler, null);
-        donationAPI.startChzzk(getConfiguration(ChzzkOfficialConfig.class), donationHandler, this::handleChzzkRegistration);
+        donationAPI.register(new SSAPIService(
+                getConfiguration(SSAPIConfig.class), donationHandler, null
+        ));
+        donationAPI.register(new ChzzkService(
+                getConfiguration(ChzzkConfig.class), donationHandler,
+                player -> connectionManager.connect(player.uuid(), Services.ChzzkOfficial, player)
+        ));
     }
 
     private void handleDonation(Donation donation) {
@@ -143,24 +165,5 @@ public class BukkitDonationAPI extends RSPlugin {
             );
             Bukkit.getPluginManager().callEvent(event);
         });
-    }
-
-    private void handleChzzkRegistration(ChzzkPlayer player) {
-        ChzzkOfficialData data = new ChzzkOfficialData(
-                player.uuid(),
-                player.channelId(),
-                player.token().accessToken(),
-                player.token().refreshToken()
-        );
-        if (!connectionManager.connect(player.uuid(), Services.ChzzkOfficial, data)) return;
-
-        Player bukkitPlayer = Bukkit.getPlayer(player.uuid());
-        if (bukkitPlayer == null || !bukkitPlayer.isOnline()) return;
-
-        String message = getConfiguration().getMessage()
-                .get(bukkitPlayer, "connection.success")
-                .replace("{service}", Services.ChzzkOfficial.name())
-                .replace("{streamer}", player.channelId());
-        PlayerChat.of(this).announce(bukkitPlayer, message);
     }
 }

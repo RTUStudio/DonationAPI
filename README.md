@@ -68,44 +68,86 @@ port: 12345
 
 ## 📖 명령어 사용법
 
-### SSAPI 연동
+모든 명령어는 `/후원API <서비스> <연동/연동해제>` 형태입니다.
 
-**치지직 연결**
-```
-/후원API ssapi-chzzk <스트리머ID>
-```
+### 명령어 목록
 
-**숲 연결**
-```
-/후원API ssapi-soop <스트리머ID>
-```
+| 명령어 | 설명 | 상태 |
+|--------|------|------|
+| `/후원API SSAPI(치지직) 연동 <스트리머ID>` | SSAPI를 사용하여 치지직 스트리머와 연동 | ✅ |
+| `/후원API SSAPI(치지직) 연동해제` | SSAPI 치지직 연동 해제 | ✅ |
+| `/후원API SSAPI(숲) 연동 <스트리머ID>` | SSAPI를 사용하여 숲 스트리머와 연동 | ✅ |
+| `/후원API SSAPI(숲) 연동해제` | SSAPI 숲 연동 해제 | ✅ |
+| `/후원API 치지직(공식) 연동` | 치지직 공식 API를 사용하여 연동 (OAuth 인증) | ✅ |
+| `/후원API 치지직(공식) 연동해제` | 치지직 공식 API 연동 해제 | ✅ |
+| `/후원API 치지직(비공식) 연동 <스트리머ID>` | 치지직 비공식 API를 사용하여 연동 | 🚧 |
+| `/후원API 치지직(비공식) 연동해제` | 치지직 비공식 API 연동 해제 | 🚧 |
+| `/후원API 숲 연동` | 숲과 연동 | 🚧 |
+| `/후원API 숲 연동해제` | 숲 연동 해제 | 🚧 |
+| `/후원API 유튜브 연동 <주소>` | 유튜브와 연동 | 🚧 |
+| `/후원API 유튜브 연동해제` | 유튜브 연동 해제 | 🚧 |
+| `/후원API 투네이션 연동 <주소>` | 투네이션과 연동 | 🚧 |
+| `/후원API 투네이션 연동해제` | 투네이션 연동 해제 | 🚧 |
+| `/후원API 이벤트 <플레이어> <가격> <내용>` | 후원 이벤트를 강제로 발생 (테스트용) | ✅ |
 
-**연결 해제**
-```
-/후원API ssapi-chzzk
-/후원API ssapi-soop
-```
-
-### 치지직 공식 연동
-
-**연결**
-```
-/후원API chzzk-official
-```
-- 웹 인증 페이지로 이동하여 인증 완료
-
-**연결 해제**
-```
-/후원API chzzk-official
-```
-
-### 기타 플랫폼
+### 명령어 구조
 
 ```
-/후원API chzzk-unofficial <스트리머ID>  # 치지직 비공식 (개발 예정)
-/후원API soop                          # 숲 공식 (개발 예정)
-/후원API youtube <주소>                # 유튜브 (개발 예정)
-/후원API toonation <주소>              # 투네이션 (개발 예정)
+/후원API
+├── SSAPI(치지직) ─── 연동 <스트리머ID>
+│                └── 연동해제
+├── SSAPI(숲) ────── 연동 <스트리머ID>
+│                └── 연동해제
+├── 치지직(공식) ──── 연동
+│                └── 연동해제
+├── 치지직(비공식) ── 연동 <스트리머ID>
+│                └── 연동해제
+├── 숲 ──────────── 연동
+│                └── 연동해제
+├── 유튜브 ────────── 연동 <주소>
+│                └── 연동해제
+├── 투네이션 ──────── 연동 <주소>
+│                └── 연동해제
+└── 이벤트 <플레이어> <가격> <내용>
+```
+
+### 패키지 구조
+
+```
+command/
+├── MainCommand.java
+├── chzzk/
+│   ├── OfficialCommand.java        (chzzk)
+│   ├── UnofficialCommand.java      (chzzk-unofficial)
+│   ├── official/
+│   │   ├── ConnectCommand.java
+│   │   └── DisconnectCommand.java
+│   └── unofficial/
+│       ├── ConnectCommand.java
+│       └── DisconnectCommand.java
+├── ssapi/
+│   ├── chzzk/
+│   │   ├── SSAPIChzzkCommand.java  (ssapi-chzzk)
+│   │   ├── ConnectCommand.java
+│   │   └── DisconnectCommand.java
+│   └── soop/
+│       ├── SSAPISoopCommand.java   (ssapi-soop)
+│       ├── ConnectCommand.java
+│       └── DisconnectCommand.java
+├── soop/
+│   ├── SoopCommand.java            (soop)
+│   ├── ConnectCommand.java
+│   └── DisconnectCommand.java
+├── youtube/
+│   ├── YoutubeCommand.java         (youtube)
+│   ├── ConnectCommand.java
+│   └── DisconnectCommand.java
+├── toonation/
+│   ├── ToonationCommand.java       (toonation)
+│   ├── ConnectCommand.java
+│   └── DisconnectCommand.java
+└── event/
+    └── EventCommand.java           (event)
 ```
 
 ## 📦 DonationEvent 사용법

@@ -3,7 +3,7 @@ package kr.rtustudio.donation.bukkit.manager;
 import kr.rtustudio.donation.bukkit.platform.AbstractDonationPlatform;
 import kr.rtustudio.donation.bukkit.platform.DonationPlatform;
 import kr.rtustudio.donation.bukkit.platform.PlatformRegistry;
-import kr.rtustudio.donation.bukkit.platform.data.UserData;
+import kr.rtustudio.donation.service.data.UserData;
 import kr.rtustudio.donation.service.Services;
 import lombok.RequiredArgsConstructor;
 

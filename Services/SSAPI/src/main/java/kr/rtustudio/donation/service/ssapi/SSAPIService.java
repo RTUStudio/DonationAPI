@@ -7,13 +7,14 @@ import kr.rtustudio.donation.common.Donation;
 import kr.rtustudio.donation.common.DonationType;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.common.Response;
+import kr.rtustudio.donation.service.AbstractService;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.ssapi.configuration.SSAPIConfig;
 import kr.rtustudio.donation.service.ssapi.data.DonationData;
 import kr.rtustudio.donation.service.ssapi.data.ResponseResult;
 import kr.rtustudio.donation.service.ssapi.data.RoomInfo;
 import kr.rtustudio.donation.service.ssapi.data.SSPlayer;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.xerial.snappy.Snappy;
 
@@ -30,8 +31,7 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 @Slf4j(topic = "DonationAPI/SSAPI")
-@RequiredArgsConstructor
-public class SSAPIService implements kr.rtustudio.donation.service.Service {
+public class SSAPIService extends AbstractService<SSPlayer> {
 
     private static final Gson GSON = new Gson();
     private static final String SOCKET_URL = "https://socket.ssapi.kr/";
@@ -40,9 +40,13 @@ public class SSAPIService implements kr.rtustudio.donation.service.Service {
     private static final String USER = ROOM + "user/";
     private static final String JSON = "application/json; charset=utf-8";
 
+    @Getter
     private final SSAPIConfig config;
-    private final Consumer<Donation> donationHandler;
-    private final Consumer<SSPlayer> registerHandler;
+
+    public SSAPIService(SSAPIConfig config, Consumer<Donation> donationHandler, Consumer<SSPlayer> registerHandler) {
+        super(donationHandler, registerHandler);
+        this.config = config;
+    }
 
     private HttpClient client;
     private Socket socket;
@@ -111,9 +115,9 @@ public class SSAPIService implements kr.rtustudio.donation.service.Service {
                     if (args[0] instanceof byte[] compressed) {
                         String json = Snappy.uncompressString(compressed);
                         DonationData donationData = GSON.fromJson(json, DonationData.class);
-                        if (this.donationHandler != null) {
+                        if (getDonationHandler() != null) {
                             Donation donation = toDonation(donationData);
-                            if (donation != null) this.donationHandler.accept(donation);
+                            if (donation != null) getDonationHandler().accept(donation);
                         } else log.error("parse failed: {}", json);
                     } else log.error("cast failed: {}", Arrays.toString(args));
                 } else log.error("empty payload: {}", Arrays.toString(args));

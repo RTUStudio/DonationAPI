@@ -1,6 +1,6 @@
 package kr.rtustudio.donation.bukkit.platform;
 
-import kr.rtustudio.donation.bukkit.platform.data.UserData;
+import kr.rtustudio.donation.service.data.UserData;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.service.Services;
 

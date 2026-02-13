@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
 import kr.rtustudio.donation.bukkit.component.PlatformStatusComponent;
 import kr.rtustudio.donation.bukkit.entity.DonationPlayerEntity;
-import kr.rtustudio.donation.bukkit.handler.DonationModule;
+import kr.rtustudio.donation.bukkit.module.DonationModule;
 import kr.rtustudio.donation.bukkit.platform.DonationPlatform;
 import kr.rtustudio.donation.bukkit.system.PlatformStatusSystem;
 import kr.rtustudio.donation.common.Platform;

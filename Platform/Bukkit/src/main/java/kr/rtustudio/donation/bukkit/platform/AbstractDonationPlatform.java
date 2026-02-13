@@ -2,7 +2,8 @@ package kr.rtustudio.donation.bukkit.platform;
 
 import com.google.gson.Gson;
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
-import kr.rtustudio.donation.bukkit.platform.data.UserData;
+import kr.rtustudio.donation.bukkit.manager.DonationPlayerManager;
+import kr.rtustudio.donation.service.data.UserData;
 import kr.rtustudio.framework.bukkit.api.platform.JSON;
 import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
 import kr.rtustudio.framework.bukkit.api.storage.Storage;
@@ -23,6 +24,8 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
 
     @Getter
     protected final BukkitDonationAPI plugin;
+    protected final DonationPlayerManager playerManager;
+    protected final Storage storage;
     protected final PlayerChat chat;
     protected final Gson gson;
 
@@ -30,6 +33,8 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
 
     protected AbstractDonationPlatform(BukkitDonationAPI plugin, Gson serializer) {
         this.plugin = plugin;
+        this.playerManager = plugin.getPlayerManager();
+        this.storage = plugin.getStorage();
         this.chat = PlayerChat.of(plugin);
         this.gson = serializer;
     }
@@ -39,7 +44,8 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
         try {
             connections.put(uuid, data);
             save(uuid, data);
-            plugin.getPlayerManager().markConnected(uuid, getService());
+            playerManager.markConnected(uuid, getService());
+            onRegister(uuid, data);
             return true;
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to connect player " + uuid + " to " + getService() + ": " + e.getMessage());
@@ -50,20 +56,8 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
     @Override
     public void disconnect(UUID uuid) {
         connections.remove(uuid);
-        deleteFromStorage(uuid);
-        plugin.getPlayerManager().markDisconnected(uuid, getService());
-    }
-
-    private void deleteFromStorage(UUID uuid) {
-        Storage storage = plugin.getStorage();
-        String storageName = getService().getStorage();
-        JSON query = JSON.of("uuid", uuid.toString());
-
-        storage.get(storageName, query).thenAccept(result -> {
-            if (result != null && !result.isEmpty()) {
-                storage.set(storageName, query, JSON.of());
-            }
-        });
+        delete(uuid);
+        playerManager.markDisconnected(uuid, getService());
     }
 
     @Override
@@ -75,7 +69,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
         connections.clear();
     }
 
-    public T getConnectionData(UUID uuid) {
+    public T getConnection(UUID uuid) {
         return connections.get(uuid);
     }
 
@@ -85,28 +79,39 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
 
     @Override
     public boolean isActive(UUID uuid) {
-        return isConnected(uuid) && plugin.getPlayerManager().isActive(uuid, getService());
+        return isConnected(uuid) && playerManager.isActive(uuid, getService());
     }
 
-    protected abstract Class<T> getDataClass();
+    protected abstract Class<T> dataClass();
 
     @Override
     public void load(UUID uuid) {
-        Storage storage = plugin.getStorage();
-        storage.get(getService().getStorage(), JSON.of("uuid", uuid.toString()))
+        String storageName = getService().getStorage();
+        storage.get(storageName, JSON.of("uuid", uuid.toString()))
                 .thenAccept(result -> {
                     if (result.isEmpty()) {
-                        plugin.getPlayerManager().resetDonationStatus(uuid, getService());
+                        playerManager.resetDonationStatus(uuid, getService());
                         return;
                     }
-                    T data = gson.fromJson(result.getFirst(), getDataClass());
-                    connections.put(uuid, data);
-                    plugin.getPlayerManager().markConnected(uuid, getService());
+                    T data = gson.fromJson(result.getFirst(), dataClass());
+                    if (onReconnect(uuid, data)) {
+                        connections.put(uuid, data);
+                        playerManager.markConnected(uuid, getService());
+                    } else {
+                        connections.remove(uuid);
+                        playerManager.resetDonationStatus(uuid, getService());
+                    }
                 });
     }
 
+    protected void onRegister(UUID uuid, T data) {
+    }
+
+    protected boolean onReconnect(UUID uuid, T data) {
+        return true;
+    }
+
     protected void save(UUID uuid, T data) {
-        Storage storage = plugin.getStorage();
         String storageName = getService().getStorage();
         JSON query = JSON.of("uuid", uuid.toString());
 
@@ -115,6 +120,17 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
                 storage.add(storageName, gson.toJsonTree(data).getAsJsonObject());
             } else {
                 storage.set(storageName, query.get(), gson.toJsonTree(data).getAsJsonObject());
+            }
+        });
+    }
+
+    private void delete(UUID uuid) {
+        String storageName = getService().getStorage();
+        JSON query = JSON.of("uuid", uuid.toString());
+
+        storage.get(storageName, query).thenAccept(result -> {
+            if (result != null && !result.isEmpty()) {
+                storage.set(storageName, query, JSON.of());
             }
         });
     }

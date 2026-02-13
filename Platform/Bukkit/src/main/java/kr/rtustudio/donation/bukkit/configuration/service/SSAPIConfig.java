@@ -2,7 +2,7 @@ package kr.rtustudio.donation.bukkit.configuration.service;
 
 import kr.rtustudio.configurate.objectmapping.meta.Comment;
 import kr.rtustudio.donation.bukkit.platform.ConfigurableDonationPlatform;
-import kr.rtustudio.donation.common.configuration.ServiceConfig;
+import kr.rtustudio.donation.common.configuration.SocketOption;
 import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
 import lombok.Getter;
 
@@ -23,7 +23,7 @@ public class SSAPIConfig extends ConfigurationPart implements kr.rtustudio.donat
     private int loginRetryDelay = 1000;
 
     @Getter
-    public class Socket extends ConfigurationPart implements ServiceConfig.Socket {
+    public class Socket extends ConfigurationPart implements SocketOption {
         @Comment("소켓 연결 타임아웃 (ms)")
         private int timeout = 3000;
 
