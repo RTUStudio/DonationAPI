@@ -3,11 +3,15 @@ package kr.rtustudio.donation.bukkit.platform;
 import com.google.gson.Gson;
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
 import kr.rtustudio.donation.bukkit.manager.DonationPlayerManager;
+import kr.rtustudio.donation.common.Platform;
+import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.data.UserData;
 import kr.rtustudio.framework.bukkit.api.platform.JSON;
 import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
 import kr.rtustudio.framework.bukkit.api.storage.Storage;
 import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,6 +49,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
             connections.put(uuid, data);
             save(uuid, data);
             playerManager.markConnected(uuid, getService());
+            announce(uuid, data);
             onRegister(uuid, data);
             return true;
         } catch (Exception e) {
@@ -102,6 +107,21 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
                         playerManager.resetDonationStatus(uuid, getService());
                     }
                 });
+    }
+
+    private void announce(UUID uuid, T data) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null || !player.isOnline()) return;
+        announce(player, getService(), data.platform(), data.streamerId());
+    }
+
+    private void announce(Player player, Services service, Platform platform, String streamerId) {
+        String message = plugin.getConfiguration().getMessage()
+                .get(player, "connection.success")
+                .replace("{service}", service.name())
+                .replace("{platform}", platform.name())
+                .replace("{streamer}", streamerId);
+        chat.announce(player, message);
     }
 
     protected void onRegister(UUID uuid, T data) {

@@ -13,6 +13,11 @@ public record ChzzkPlayer(UUID uuid, String channelId, ChzzkToken token) impleme
         return Platform.CHZZK;
     }
 
+    @Override
+    public String streamerId() {
+        return channelId;
+    }
+
     @NotNull
     public String accessToken() {
         return token.accessToken();

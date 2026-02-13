@@ -25,4 +25,11 @@ public interface UserData {
      * @return 유저 플랫폼
      */
     Platform platform();
+
+    /**
+     * 스트리머 식별자를 반환합니다.
+     *
+     * @return 스트리머 ID
+     */
+    String streamerId();
 }

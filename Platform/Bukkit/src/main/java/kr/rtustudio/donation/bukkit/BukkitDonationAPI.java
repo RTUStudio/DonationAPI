@@ -20,11 +20,9 @@ import kr.rtustudio.donation.service.chzzk.official.ChzzkService;
 import kr.rtustudio.donation.service.chzzk.official.data.ChzzkPlayer;
 import kr.rtustudio.donation.service.ssapi.SSAPIService;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
-import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
 import kr.rtustudio.framework.bukkit.api.scheduler.CraftScheduler;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
 
@@ -84,15 +82,6 @@ public class BukkitDonationAPI extends RSPlugin {
                         .service(Services.ChzzkOfficial)
                         .config(ChzzkConfig.class)
                         .data(ChzzkPlayer.class)
-                        .on(Event.REGISTER, (uuid, player) -> {
-                            Player bukkit = Bukkit.getPlayer(uuid);
-                            if (bukkit == null || !bukkit.isOnline()) return;
-                            String message = getConfiguration().getMessage()
-                                    .get(bukkit, "connection.success")
-                                    .replace("{service}", Services.ChzzkOfficial.name())
-                                    .replace("{streamer}", player.channelId());
-                            PlayerChat.of(this).announce(bukkit, message);
-                        })
                         .on(Event.RECONNECT, (uuid, player) -> {
                             if (donationAPI == null) return false;
                             ChzzkService chzzk = donationAPI.get(Services.ChzzkOfficial, ChzzkService.class);
