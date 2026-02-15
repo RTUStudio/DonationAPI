@@ -9,7 +9,7 @@ disconnect:
   fail: "<red>연동 해제에 실패했습니다.</red>"
 
 connection:
-  success: "<green>{service} 서비스와 연결되었습니다. (스트리머: {streamer})</green>"
+  success: "<green>{service} 서비스와 연결되었습니다. (스트리머: {id})</green>"
   failed: "<red>{service} 서비스 연결에 실패했습니다.</red>"
 
 # SSAPI 관련 메시지
@@ -22,8 +22,18 @@ ssapi:
 # 치지직 관련 메시지
 chzzk:
   connect:
-    success: "<green>치지직 연동에 성공했습니다.</green>"
-    failure: "<red>치지직 연동에 실패했습니다.</red>"
+    success: "<green>Chzzk 연동에 성공했습니다.</green>"
+    failure: "<red>Chzzk 연동에 실패했습니다.</red>"
+    warning: "<red>링크를 열기 전에 방송에서 화면을 가려주세요</red>"
+    link: "<white>이 메세지를 클릭하면 API 연동 페이지 링크가 복사됩니다!</white>"
+    copied: "클릭하면 링크가 복사됩니다"
+
+# SOOP 관련 메시지
+soop:
+  connect:
+    success: "<green>SOOP 연동에 성공했습니다.</green>"
+    failure: "<red>SOOP 연동에 실패했습니다.</red>"
+    broadcast_required: "<red>SOOP 페이지에서 방송이 켜져있어야 연동이 가능합니다.</red>"
     warning: "<red>링크를 열기 전에 방송에서 화면을 가려주세요</red>"
     link: "<white>이 메세지를 클릭하면 API 연동 페이지 링크가 복사됩니다!</white>"
     copied: "클릭하면 링크가 복사됩니다"
@@ -34,13 +44,6 @@ service:
   already_connected: "<yellow>이미 연결되어 있습니다.</yellow>"
   not_connected: "<yellow>연결되어 있지 않습니다.</yellow>"
 
-# 사용법 메시지
-usage:
-  ssapi_chzzk: "<yellow>사용법: /후원API ssapi-chzzk <스트리머ID></yellow>"
-  ssapi_soop: "<yellow>사용법: /후원API ssapi-soop <스트리머ID></yellow>"
-  chzzk_official: "<yellow>사용법: /후원API chzzk-official</yellow>"
-  chzzk_unofficial: "<yellow>사용법: /후원API chzzk-unofficial <스트리머ID></yellow>"
-  soop: "<yellow>사용법: /후원API soop</yellow>"
-  youtube: "<yellow>사용법: /후원API youtube <주소></yellow>"
-  toonation: "<yellow>사용법: /후원API toonation <주소></yellow>"
-  event: "<yellow>사용법: /후원API 이벤트 <플레이어> <가격> <내용></yellow>"
+# 후원 알림 메시지
+donation:
+  notify: "<gold>[{service}]</gold> <yellow>{nickname}</yellow><white>님이 </white><aqua>{amount}원</aqua><white>을 후원했습니다: {message}</white>"

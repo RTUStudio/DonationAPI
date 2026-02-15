@@ -24,10 +24,7 @@ public class EventCommand extends RSCommand<BukkitDonationAPI> {
     protected Result execute(RSCommandData data) {
         if (player() == null) return Result.ONLY_PLAYER;
 
-        if (data.length() < 4) {
-            chat().announce(message().get(player(), "usage.event"));
-            return Result.WRONG_USAGE;
-        }
+        if (data.length() < 4) return Result.WRONG_USAGE;
 
         String targetPlayerName = data.args(1);
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
@@ -49,7 +46,7 @@ public class EventCommand extends RSCommand<BukkitDonationAPI> {
 
         Donation donation = new Donation(
                 targetPlayer.getUniqueId(),
-                Services.ChzzkOfficial,
+                Services.Chzzk,
                 Platform.CHZZK,
                 DonationType.CHAT,
                 targetPlayer.getName(),

@@ -1,14 +1,14 @@
 package kr.rtustudio.donation.bukkit.configuration.service;
 
 import kr.rtustudio.configurate.objectmapping.meta.Comment;
-import kr.rtustudio.donation.bukkit.platform.ConfigurableDonationPlatform;
+import kr.rtustudio.donation.bukkit.platform.ServiceBuilder;
 import kr.rtustudio.donation.common.configuration.SocketOption;
 import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
 import lombok.Getter;
 
 @Getter
 @SuppressWarnings({"unused", "FieldMayBeFinal", "InnerClassMayBeStatic"})
-public class SSAPIConfig extends ConfigurationPart implements kr.rtustudio.donation.service.ssapi.configuration.SSAPIConfig, ConfigurableDonationPlatform.EnabledConfig {
+public class SSAPIConfig extends ConfigurationPart implements kr.rtustudio.donation.service.ssapi.configuration.SSAPIConfig, ServiceBuilder.EnabledConfig {
 
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;

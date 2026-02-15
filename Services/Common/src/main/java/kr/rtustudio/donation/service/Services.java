@@ -10,8 +10,7 @@ import java.util.List;
 public enum Services {
 
     SSAPI("SSAPI", Platform.CHZZK, Platform.SOOP),
-    ChzzkOfficial("ChzzkOfficial", Platform.CHZZK),
-    ChzzkUnofficial("ChzzkUnofficial", Platform.CHZZK),
+    Chzzk("Chzzk", Platform.CHZZK),
     SOOP("SOOP", Platform.SOOP),
     Youtube("Youtube", Platform.YOUTUBE),
     Toonation("Toonation", Platform.TOONATION);

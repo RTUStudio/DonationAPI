@@ -2,7 +2,7 @@ package kr.rtustudio.donation.bukkit.platform;
 
 import com.google.gson.Gson;
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
-import kr.rtustudio.donation.bukkit.manager.DonationPlayerManager;
+import kr.rtustudio.donation.bukkit.manager.DonationManager;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.data.UserData;
@@ -28,7 +28,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
 
     @Getter
     protected final BukkitDonationAPI plugin;
-    protected final DonationPlayerManager playerManager;
+    protected final DonationManager donationManager;
     protected final Storage storage;
     protected final PlayerChat chat;
     protected final Gson gson;
@@ -37,7 +37,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
 
     protected AbstractDonationPlatform(BukkitDonationAPI plugin, Gson serializer) {
         this.plugin = plugin;
-        this.playerManager = plugin.getPlayerManager();
+        this.donationManager = plugin.getDonationManager();
         this.storage = plugin.getStorage();
         this.chat = PlayerChat.of(plugin);
         this.gson = serializer;
@@ -48,7 +48,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
         try {
             connections.put(uuid, data);
             save(uuid, data);
-            playerManager.markConnected(uuid, getService());
+            donationManager.markConnected(uuid, getService());
             announce(uuid, data);
             onRegister(uuid, data);
             plugin.getLogger().info("%s connected to %s(%s)".formatted(uuid, getService(), data.platform()));
@@ -63,7 +63,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
     public void disconnect(UUID uuid) {
         connections.remove(uuid);
         delete(uuid);
-        playerManager.markDisconnected(uuid, getService());
+        donationManager.markDisconnected(uuid, getService());
     }
 
     @Override
@@ -85,7 +85,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
 
     @Override
     public boolean isActive(UUID uuid) {
-        return isConnected(uuid) && playerManager.isActive(uuid, getService());
+        return isConnected(uuid) && donationManager.isActive(uuid, getService());
     }
 
     protected abstract Class<T> dataClass();
@@ -96,16 +96,16 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
         storage.get(storageName, JSON.of("uuid", uuid.toString()))
                 .thenAccept(result -> {
                     if (result.isEmpty()) {
-                        playerManager.resetDonationStatus(uuid, getService());
+                        donationManager.resetDonationStatus(uuid, getService());
                         return;
                     }
                     T data = gson.fromJson(result.getFirst(), dataClass());
                     if (onReconnect(uuid, data)) {
                         connections.put(uuid, data);
-                        playerManager.markConnected(uuid, getService());
+                        donationManager.markConnected(uuid, getService());
                     } else {
                         connections.remove(uuid);
-                        playerManager.resetDonationStatus(uuid, getService());
+                        donationManager.resetDonationStatus(uuid, getService());
                     }
                 });
     }
@@ -121,7 +121,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
                 .get(player, "connection.success")
                 .replace("{service}", service.name())
                 .replace("{platform}", platform.name())
-                .replace("{streamer}", streamerId);
+                .replace("{id}", streamerId);
         chat.announce(player, message);
     }
 

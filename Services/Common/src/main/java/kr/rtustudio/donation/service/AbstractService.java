@@ -4,6 +4,7 @@ import kr.rtustudio.donation.common.Donation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -17,7 +18,6 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public abstract class AbstractService<R> implements Service {
 
-    private final Consumer<Donation> donationHandler;
-    private final Consumer<R> registerHandler;
+    protected final ServiceHandler<R> handler;
 
 }

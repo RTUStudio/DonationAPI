@@ -1,14 +1,14 @@
 package kr.rtustudio.donation.bukkit.configuration.service;
 
 import kr.rtustudio.configurate.objectmapping.meta.Comment;
-import kr.rtustudio.donation.bukkit.platform.ConfigurableDonationPlatform;
+import kr.rtustudio.donation.bukkit.platform.ServiceBuilder;
 import kr.rtustudio.donation.common.configuration.SocketOption;
 import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
 import lombok.Getter;
 
 @Getter
 @SuppressWarnings({"unused", "FieldMayBeFinal", "InnerClassMayBeStatic"})
-public class ChzzkConfig extends ConfigurationPart implements kr.rtustudio.donation.service.chzzk.official.configuration.ChzzkConfig, ConfigurableDonationPlatform.EnabledConfig {
+public class ChzzkConfig extends ConfigurationPart implements kr.rtustudio.donation.service.chzzk.configuration.ChzzkConfig, ServiceBuilder.EnabledConfig {
 
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;
@@ -26,7 +26,7 @@ public class ChzzkConfig extends ConfigurationPart implements kr.rtustudio.donat
     private String host = "0.0.0.0";
 
     @Comment("포트")
-    private int port = 12345;
+    private int port = 20260;
 
     @Comment("소켓 옵션")
     private Socket socket = new Socket();

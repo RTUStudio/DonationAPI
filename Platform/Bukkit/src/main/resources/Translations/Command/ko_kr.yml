@@ -1,100 +1,67 @@
 donation:
   name: "후원API"
   description: "후원 API 명령어"
-  usage: "/후원API <서비스> <연동/연동해제>"
   commands:
     ssapi-chzzk:
       name: "SSAPI(치지직)"
       description: "SSAPI 치지직 명령어"
-      usage: "/후원API SSAPI(치지직) <연동/연동해제> <스트리머ID>"
       commands:
         connect:
           name: "연동"
           description: "SSAPI를 사용하여 치지직 스트리머와 연동합니다"
-          usage: "/후원API SSAPI(치지직) 연동 <스트리머ID>"
         disconnect:
           name: "연동해제"
           description: "SSAPI 치지직 연동을 해제합니다"
-          usage: "/후원API SSAPI(치지직) 연동해제"
     ssapi-soop:
       name: "SSAPI(숲)"
       description: "SSAPI 숲 명령어"
-      usage: "/후원API SSAPI(숲) <연동/연동해제> <스트리머ID>"
       commands:
         connect:
           name: "연동"
           description: "SSAPI를 사용하여 숲 스트리머와 연동합니다"
-          usage: "/후원API SSAPI(숲) 연동 <스트리머ID>"
         disconnect:
           name: "연동해제"
           description: "SSAPI 숲 연동을 해제합니다"
-          usage: "/후원API SSAPI(숲) 연동해제"
     chzzk:
       name: "치지직"
-      description: "치지직 공식 API 명령어"
-      usage: "/후원API 치지직 <연동/연동해제>"
+      description: "치지직 API 명령어"
       commands:
         connect:
           name: "연동"
           description: "치지직 API를 사용하여 연동합니다"
-          usage: "/후원API 치지직 연동"
         disconnect:
           name: "연동해제"
           description: "치지직 API 연동을 해제합니다"
-          usage: "/후원API 치지직 연동해제"
-    chzzk-unofficial:
-      name: "치지직(비공식)"
-      description: "치지직 비공식 API 명령어"
-      usage: "/후원API 치지직(비공식) <연동/연동해제> <스트리머ID>"
-      commands:
-        connect:
-          name: "연동"
-          description: "치지직 비공식 API를 사용하여 연동합니다"
-          usage: "/후원API 치지직(비공식) 연동 <스트리머ID>"
-        disconnect:
-          name: "연동해제"
-          description: "치지직 비공식 API 연동을 해제합니다"
-          usage: "/후원API 치지직(비공식) 연동해제"
     soop:
       name: "숲"
-      description: "숲 명령어"
-      usage: "/후원API 숲 <연동/연동해제>"
+      description: "숲 API 명령어"
       commands:
         connect:
           name: "연동"
           description: "숲과 연동합니다"
-          usage: "/후원API 숲 연동"
         disconnect:
           name: "연동해제"
           description: "숲 연동을 해제합니다"
-          usage: "/후원API 숲 연동해제"
     youtube:
       name: "유튜브"
       description: "유튜브 명령어"
-      usage: "/후원API 유튜브 <연동/연동해제> <주소>"
       commands:
         connect:
           name: "연동"
           description: "유튜브와 연동합니다"
-          usage: "/후원API 유튜브 연동 <주소>"
         disconnect:
           name: "연동해제"
           description: "유튜브 연동을 해제합니다"
-          usage: "/후원API 유튜브 연동해제"
     toonation:
       name: "투네이션"
       description: "투네이션 명령어"
-      usage: "/후원API 투네이션 <연동/연동해제> <주소>"
       commands:
         connect:
           name: "연동"
           description: "투네이션과 연동합니다"
-          usage: "/후원API 투네이션 연동 <주소>"
         disconnect:
           name: "연동해제"
           description: "투네이션 연동을 해제합니다"
-          usage: "/후원API 투네이션 연동해제"
     event:
       name: "이벤트"
       description: "후원 이벤트를 강제로 발생시킵니다"
-      usage: "/후원API 이벤트 <플레이어> <가격> <내용>"

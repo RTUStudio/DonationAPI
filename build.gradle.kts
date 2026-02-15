@@ -74,7 +74,8 @@ dependencies {
     // Platform:Bukkit에 모든 것이 포함됨
     implementation(project(path = ":Platform:Bukkit", configuration = "shadow"))
 
-    implementation(project(path = ":Services:ChzzkOfficial", configuration = "shadow"))
+    implementation(project(path = ":Services:Chzzk", configuration = "shadow"))
+    implementation(project(path = ":Services:SOOP", configuration = "shadow"))
     implementation(project(path = ":Services:SSAPI", configuration = "shadow"))
 }
 

@@ -14,12 +14,14 @@ public class PlayerJoinQuit extends RSListener<BukkitDonationAPI> {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        getPlugin().getPlayerManager().load(event.getPlayer().getUniqueId());
+        getPlugin().getDonationManager().load(event.getPlayer().getUniqueId());
         getPlugin().getConnectionManager().loadAll(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        getPlugin().getPlayerManager().unload(event.getPlayer().getUniqueId());
+        java.util.UUID uuid = event.getPlayer().getUniqueId();
+        getPlugin().disconnectServices(uuid);
+        getPlugin().getDonationManager().unload(uuid);
     }
 }

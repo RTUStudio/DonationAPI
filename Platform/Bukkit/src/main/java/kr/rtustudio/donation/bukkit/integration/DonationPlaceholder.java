@@ -1,7 +1,7 @@
 package kr.rtustudio.donation.bukkit.integration;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
-import kr.rtustudio.donation.bukkit.manager.DonationPlayerManager;
+import kr.rtustudio.donation.bukkit.manager.DonationManager;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.framework.bukkit.api.integration.wrapper.PlaceholderWrapper;
@@ -14,8 +14,7 @@ import org.bukkit.OfflinePlayer;
  *
  * <p>사용 가능한 플레이스홀더:
  * <ul>
- *   <li>%donationapi_chzzk_official% - 치지직 공식 연결 상태</li>
- *   <li>%donationapi_chzzk_unofficial% - 치지직 비공식 연결 상태</li>
+ *   <li>%donationapi_chzzk% - 치지직 연결 상태</li>
  *   <li>%donationapi_ssapi_chzzk% - SSAPI 치지직 연결 상태</li>
  *   <li>%donationapi_ssapi_soop% - SSAPI 숲 연결 상태</li>
  *   <li>%donationapi_soop% - 숲 연결 상태</li>
@@ -25,11 +24,11 @@ import org.bukkit.OfflinePlayer;
  */
 public class DonationPlaceholder extends PlaceholderWrapper<BukkitDonationAPI> {
 
-    private final DonationPlayerManager playerManager;
+    private final DonationManager donationManager;
 
     public DonationPlaceholder(BukkitDonationAPI plugin) {
         super(plugin);
-        this.playerManager = plugin.getPlayerManager();
+        this.donationManager = plugin.getDonationManager();
     }
 
     @Override
@@ -42,18 +41,11 @@ public class DonationPlaceholder extends PlaceholderWrapper<BukkitDonationAPI> {
         if (params.length >= 2) {
             String type = params[1].toLowerCase();
             return switch (key) {
-                case "chzzk" -> switch (type) {
-                    case "official" ->
-                            String.valueOf(playerManager.isActive(player.getUniqueId(), Services.ChzzkOfficial));
-                    case "unofficial" ->
-                            String.valueOf(playerManager.isActive(player.getUniqueId(), Services.ChzzkUnofficial));
-                    default -> "";
-                };
                 case "ssapi" -> switch (type) {
                     case "chzzk" ->
-                            String.valueOf(playerManager.isActive(player.getUniqueId(), Services.SSAPI, Platform.CHZZK));
+                            String.valueOf(donationManager.isActive(player.getUniqueId(), Services.SSAPI, Platform.CHZZK));
                     case "soop" ->
-                            String.valueOf(playerManager.isActive(player.getUniqueId(), Services.SSAPI, Platform.SOOP));
+                            String.valueOf(donationManager.isActive(player.getUniqueId(), Services.SSAPI, Platform.SOOP));
                     default -> "";
                 };
                 default -> "";
@@ -61,9 +53,10 @@ public class DonationPlaceholder extends PlaceholderWrapper<BukkitDonationAPI> {
         }
 
         return switch (key) {
-            case "soop" -> String.valueOf(playerManager.isActive(player.getUniqueId(), Services.SOOP));
-            case "toonation" -> String.valueOf(playerManager.isActive(player.getUniqueId(), Services.Toonation));
-            case "youtube" -> String.valueOf(playerManager.isActive(player.getUniqueId(), Services.Youtube));
+            case "chzzk" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Chzzk));
+            case "soop" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.SOOP));
+            case "toonation" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Toonation));
+            case "youtube" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Youtube));
             default -> "";
         };
     }

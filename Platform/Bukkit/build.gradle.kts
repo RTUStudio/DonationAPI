@@ -23,7 +23,8 @@ dependencies {
     implementation(project(":Platform:Common"))
 
     compileOnly(project(":Services:Common"))
-    compileOnly(project(":Services:ChzzkOfficial"))
+    compileOnly(project(":Services:Chzzk"))
+    compileOnly(project(":Services:SOOP"))
     compileOnly(project(":Services:SSAPI"))
     
     // Plugin API

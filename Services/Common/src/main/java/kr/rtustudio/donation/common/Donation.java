@@ -11,11 +11,11 @@ public record Donation(
         @Nullable UUID uniqueId,
         @NotNull Services service,
         @NotNull Platform platform,
-        @Nullable DonationType type,
-        @Nullable String streamer,
-        @Nullable String donator,
-        @Nullable String nickname,
-        @Nullable String message,
+        @NotNull DonationType type,
+        @NotNull String streamer,
+        @NotNull String donator,
+        @NotNull String nickname,
+        @NotNull String message,
         int amount
 ) {
     public Donation {

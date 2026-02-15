@@ -8,12 +8,13 @@ import kr.rtustudio.donation.common.DonationType;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.common.Response;
 import kr.rtustudio.donation.service.AbstractService;
+import kr.rtustudio.donation.service.ServiceHandler;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.ssapi.configuration.SSAPIConfig;
 import kr.rtustudio.donation.service.ssapi.data.DonationData;
 import kr.rtustudio.donation.service.ssapi.data.ResponseResult;
 import kr.rtustudio.donation.service.ssapi.data.RoomInfo;
-import kr.rtustudio.donation.service.ssapi.data.SSPlayer;
+import kr.rtustudio.donation.service.ssapi.data.SSAPIPlayer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.xerial.snappy.Snappy;
@@ -27,11 +28,11 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
 
 @Slf4j(topic = "DonationAPI/SSAPI")
-public class SSAPIService extends AbstractService<SSPlayer> {
+public class SSAPIService extends AbstractService<SSAPIPlayer> {
 
     private static final Gson GSON = new Gson();
     private static final String SOCKET_URL = "https://socket.ssapi.kr/";
@@ -43,8 +44,8 @@ public class SSAPIService extends AbstractService<SSPlayer> {
     @Getter
     private final SSAPIConfig config;
 
-    public SSAPIService(SSAPIConfig config, Consumer<Donation> donationHandler, Consumer<SSPlayer> registerHandler) {
-        super(donationHandler, registerHandler);
+    public SSAPIService(SSAPIConfig config, ServiceHandler<SSAPIPlayer> handler) {
+        super(handler);
         this.config = config;
     }
 
@@ -110,9 +111,9 @@ public class SSAPIService extends AbstractService<SSPlayer> {
                     if (args[0] instanceof byte[] compressed) {
                         String json = Snappy.uncompressString(compressed);
                         DonationData donationData = GSON.fromJson(json, DonationData.class);
-                        if (getDonationHandler() != null) {
+                        if (getHandler() != null && getHandler().donation() != null) {
                             Donation donation = toDonation(donationData);
-                            if (donation != null) getDonationHandler().accept(donation);
+                            if (donation != null) getHandler().donation().accept(donation);
                         } else log.error("parse failed: {}", json);
                     } else log.error("cast failed: {}", Arrays.toString(args));
                 } else log.error("empty payload: {}", Arrays.toString(args));
@@ -136,12 +137,12 @@ public class SSAPIService extends AbstractService<SSPlayer> {
         }
     }
 
-    public CompletableFuture<Response> register(Platform platform, String user) {
-        return sendUserRequest("PUT", platform, user);
+    public CompletableFuture<Response> register(UUID uuid, Platform platform, String user) {
+        return sendUserRequest("PUT", uuid, platform, user);
     }
 
-    public CompletableFuture<Response> unregister(Platform platform, String user) {
-        return sendUserRequest("DELETE", platform, user);
+    public CompletableFuture<Response> unregister(UUID uuid, Platform platform, String user) {
+        return sendUserRequest("DELETE", uuid, platform, user);
     }
 
     public CompletableFuture<RoomInfo> info() {
@@ -238,13 +239,13 @@ public class SSAPIService extends AbstractService<SSPlayer> {
         return CompletableFuture.completedFuture(Response.FAILURE);
     }
 
-    private CompletableFuture<Response> sendUserRequest(String method, Platform platform, String user) {
+    private CompletableFuture<Response> sendUserRequest(String method, UUID uuid, Platform platform, String user) {
         if (!config.isEnabled()) return disabled();
-        return CompletableFuture.supplyAsync(() -> doUserRequest(method, platform, user), httpExecutor)
+        return CompletableFuture.supplyAsync(() -> doUserRequest(method, uuid, platform, user), httpExecutor)
                 .thenApply(this::toResult);
     }
 
-    private ResponseResult doUserRequest(String method, Platform platform, String user) {
+    private ResponseResult doUserRequest(String method, UUID uuid, Platform platform, String user) {
         if (platform == null || user == null || user.isBlank()) {
             return new ResponseResult(1, "invalid arguments");
         }
@@ -277,7 +278,12 @@ public class SSAPIService extends AbstractService<SSPlayer> {
             }
             ResponseResult api = parseApiResponse(payload);
             if (api != null) {
-                if (api.error() == 0) return api;
+                if (api.succeeded()) {
+                    // 등록 성공 시 success 핸들러 호출
+                    if ("PUT".equals(method) && getHandler() != null && getHandler().success() != null && uuid != null)
+                        getHandler().success().accept(new SSAPIPlayer(uuid, user, platform));
+                    return api;
+                }
                 log.error("{} failed API {} {}: {}", method.toLowerCase(), url, code, api.message());
                 return api;
             }

@@ -1,8 +1,7 @@
 package kr.rtustudio.donation.bukkit.command;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
-import kr.rtustudio.donation.bukkit.command.chzzk.OfficialCommand;
-import kr.rtustudio.donation.bukkit.command.chzzk.UnofficialCommand;
+import kr.rtustudio.donation.bukkit.command.chzzk.ChzzkCommand;
 import kr.rtustudio.donation.bukkit.command.event.EventCommand;
 import kr.rtustudio.donation.bukkit.command.soop.SoopCommand;
 import kr.rtustudio.donation.bukkit.command.ssapi.chzzk.SSAPIChzzkCommand;
@@ -25,8 +24,7 @@ public class MainCommand extends RSCommand<BukkitDonationAPI> {
         super(plugin, "donation");
         registerCommand(new SSAPIChzzkCommand(plugin));
         registerCommand(new SSAPISoopCommand(plugin));
-        registerCommand(new OfficialCommand(plugin));
-        registerCommand(new UnofficialCommand(plugin));
+        registerCommand(new ChzzkCommand(plugin));
         registerCommand(new SoopCommand(plugin));
         registerCommand(new YoutubeCommand(plugin));
         registerCommand(new ToonationCommand(plugin));

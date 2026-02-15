@@ -1,7 +1,6 @@
 package kr.rtustudio.donation.bukkit.command.ssapi.chzzk;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
-import kr.rtustudio.donation.bukkit.platform.data.SSAPIData;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.common.Response;
 import kr.rtustudio.donation.service.Services;
@@ -42,12 +41,9 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
             return Result.FAILURE;
         }
 
-        api.register(Platform.CHZZK, streamerId).thenAccept(response -> {
+        api.register(player().getUniqueId(), Platform.CHZZK, streamerId).thenAccept(response -> {
             String messageKey = switch (response) {
-                case Response.SUCCESS -> {
-                    saveConnection(streamerId);
-                    yield "connect.success";
-                }
+                case Response.SUCCESS -> "connect.success";
                 case Response.UNSUPPORTED -> "connect.unsupported";
                 default -> "connect.fail";
             };
@@ -60,27 +56,6 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
         return Result.SUCCESS;
     }
 
-    private void saveConnection(String streamerId) {
-        SSAPIData connectionData = new SSAPIData(
-                player().getUniqueId(),
-                streamerId,
-                Platform.CHZZK
-        );
-        boolean success = getPlugin().getConnectionManager().connect(
-                player().getUniqueId(),
-                Services.SSAPI,
-                connectionData
-        );
-
-        if (success) {
-            String msg = message().get(player(), "connection.success")
-                    .replace("{service}", Services.SSAPI.name())
-                    .replace("{streamer}", streamerId);
-            chat().announce(msg);
-        } else {
-            chat().announce(message().get(player(), "connect.fail"));
-        }
-    }
 
     @Override
     protected List<String> tabComplete(RSCommandData data) {

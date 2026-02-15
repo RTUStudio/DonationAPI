@@ -19,7 +19,7 @@ public interface DonationPlatform<T extends UserData> {
     /**
      * 플랫폼이 속한 서비스 타입을 반환합니다.
      *
-     * @return 서비스 타입 (예: SSAPI, ChzzkOfficial)
+     * @return 서비스 타입 (예: SSAPI, Chzzk, SOOP)
      */
     Services getService();
 
