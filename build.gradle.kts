@@ -99,6 +99,7 @@ dependencies {
     implementation(project(path = ":Services:SOOP", configuration = "shadow"))
     implementation(project(path = ":Services:SSAPI", configuration = "shadow"))
     implementation(project(path = ":Services:Cime", configuration = "shadow"))
+    implementation(project(path = ":Services:Toonation", configuration = "shadow"))
     implementation(project(path = ":Services:Youtube", configuration = "shadow"))
 }
 
