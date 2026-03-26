@@ -2,36 +2,21 @@ package kr.rtustudio.donation.service.youtube.core;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@ToString
 public class LiveBroadcastDetails {
     @SerializedName("isLiveNow")
     @Expose
     public Boolean isLiveNow;
+
     @SerializedName("startTimestamp")
     @Expose
     public String startTimestamp;
+
     @SerializedName("endTimestamp")
     @Expose
     public String endTimestamp;
-
-    public Boolean getLiveNow() {
-        return isLiveNow;
-    }
-
-    public String getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    public String getEndTimestamp() {
-        return endTimestamp;
-    }
-
-    @Override
-    public String toString() {
-        return "LiveBroadcastDetails{" +
-                "isLiveNow=" + isLiveNow +
-                ", startTimestamp='" + startTimestamp + '\'' +
-                ", endTimestamp='" + endTimestamp + '\'' +
-                '}';
-    }
 }

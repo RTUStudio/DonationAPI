@@ -6,7 +6,6 @@ import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.common.net.PollingClient;
 import kr.rtustudio.donation.service.youtube.YoutubeService;
 import kr.rtustudio.donation.service.youtube.core.ChatItem;
-import kr.rtustudio.donation.service.youtube.core.ChatItemType;
 import kr.rtustudio.donation.service.youtube.core.IdType;
 import kr.rtustudio.donation.service.youtube.core.YouTubeLiveChat;
 import kr.rtustudio.donation.service.youtube.data.YoutubePlayer;
@@ -57,46 +56,41 @@ public class YoutubeClient extends PollingClient {
     }
 
     private void handleChatItem(ChatItem item) {
-        if (subscribers.isEmpty()) return;
+        if (subscribers.isEmpty() || service.getHandler().donation() == null) return;
 
-        if (item.getType() == ChatItemType.PAID_MESSAGE || item.getType() == ChatItemType.PAID_STICKER || item.getType() == ChatItemType.TICKER_PAID_MESSAGE) {
-            String amountStr = item.getPurchaseAmount() != null ? item.getPurchaseAmount().replaceAll("[^0-9]", "") : "";
-            int amount = 0;
-            if (!amountStr.isEmpty()) {
-                amount = Integer.parseInt(amountStr);
-            }
-            if (service.getHandler().donation() != null) {
-                for (UUID subUuid : subscribers) {
-                    Donation donation = new Donation(
-                            subUuid,
-                            service.getType(),
-                            Platform.YOUTUBE,
-                            DonationType.CHAT,
-                            "",
-                            item.getAuthorChannelID() != null ? item.getAuthorChannelID() : "unknown",
-                            item.getAuthorName(),
-                            item.getMessage(),
-                            amount
-                    );
-                    service.getHandler().donation().accept(donation);
+        int amount = 0;
+        boolean isDonation = false;
+
+        switch (item.getType()) {
+            case PAID_MESSAGE, PAID_STICKER, TICKER_PAID_MESSAGE -> {
+                String amountStr = item.getPurchaseAmount() != null ? item.getPurchaseAmount().replaceAll("[^0-9]", "") : "";
+                if (!amountStr.isEmpty()) {
+                    amount = Integer.parseInt(amountStr);
                 }
+                isDonation = true;
             }
-        } else if (item.getType() == ChatItemType.NEW_MEMBER_MESSAGE) {
-            if (service.getHandler().donation() != null) {
-                for (UUID subUuid : subscribers) {
-                    Donation donation = new Donation(
-                            subUuid,
-                            service.getType(),
-                            Platform.YOUTUBE,
-                            DonationType.CHAT,
-                            "",
-                            item.getAuthorChannelID() != null ? item.getAuthorChannelID() : "unknown",
-                            item.getAuthorName(),
-                            item.getMessage(),
-                            0
-                    );
-                    service.getHandler().donation().accept(donation);
-                }
+            case NEW_MEMBER_MESSAGE -> {
+                isDonation = true;
+            }
+            default -> {}
+        }
+
+        if (isDonation) {
+            String channelId = item.getAuthorChannelID() != null ? item.getAuthorChannelID() : "unknown";
+            
+            for (UUID subUuid : subscribers) {
+                Donation donation = new Donation(
+                        subUuid,
+                        service.getType(),
+                        Platform.YOUTUBE,
+                        DonationType.CHAT,
+                        "",
+                        channelId,
+                        item.getAuthorName(),
+                        item.getMessage(),
+                        amount
+                );
+                service.getHandler().donation().accept(donation);
             }
         }
     }
