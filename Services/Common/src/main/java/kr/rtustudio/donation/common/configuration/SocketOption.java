@@ -4,13 +4,18 @@ public interface SocketOption {
 
     int getTimeout();
 
-    boolean isKeepaliveEnabled();
+    KeepaliveOption getKeepalive();
 
-    int getKeepaliveInterval();
+    ReconnectionOption getReconnection();
 
-    boolean isReconnectionEnabled();
+    interface KeepaliveOption {
+        boolean isEnabled();
+        int getInterval();
+    }
 
-    int getReconnectionDelay();
-
-    int getReconnectionMaxDelay();
+    interface ReconnectionOption {
+        boolean isEnabled();
+        int getDelay();
+        int getMaxDelay();
+    }
 }

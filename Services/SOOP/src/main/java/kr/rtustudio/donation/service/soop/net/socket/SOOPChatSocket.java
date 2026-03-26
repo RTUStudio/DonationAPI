@@ -1,5 +1,6 @@
 package kr.rtustudio.donation.service.soop.net.socket;
 
+import kr.rtustudio.donation.common.configuration.SocketOption;
 import kr.rtustudio.donation.service.soop.data.SOOPDonationMessage;
 import kr.rtustudio.donation.service.soop.net.data.ChatInfoResponse;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class SOOPChatSocket extends WebSocketListener {
     private final @NotNull String ticket;
     private final int chatNo;
     private final @NotNull String wsUrl;
+    private final @NotNull SocketOption socketOption;
     private final @NotNull SOOPChatSocketHandler handler;
     private @Nullable WebSocket webSocket;
     private @Nullable ScheduledFuture<?> keepAliveFuture;
@@ -41,12 +43,15 @@ public class SOOPChatSocket extends WebSocketListener {
 
     @Getter
     private volatile boolean connected = false;
+    @Getter
+    private volatile boolean joined = false;
 
-    public SOOPChatSocket(@NotNull ChatInfoResponse chatInfo, @NotNull SOOPChatSocketHandler handler) {
+    public SOOPChatSocket(@NotNull ChatInfoResponse chatInfo, @NotNull SocketOption socketOption, @NotNull SOOPChatSocketHandler handler) {
         this.bjId = chatInfo.bjId();
         this.ticket = chatInfo.ticket();
         this.chatNo = chatInfo.chatNo();
         this.wsUrl = buildWebSocketUrl(chatInfo.chatIp(), chatInfo.chatPort(), chatInfo.bjId());
+        this.socketOption = socketOption;
         this.handler = handler;
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "SOOP-KeepAlive-" + bjId);
@@ -61,7 +66,7 @@ public class SOOPChatSocket extends WebSocketListener {
         for (String part : parts) {
             hex.append(String.format("%02X", Integer.parseInt(part)));
         }
-        return "wss://chat-" + hex + ".sooplive.co.kr:" + (port + 1) + "/Websocket/" + bjId;
+        return "wss://chat-" + hex + ".sooplive.com:" + (port + 1) + "/Websocket/" + bjId;
     }
 
     public void connect() {
@@ -71,7 +76,10 @@ public class SOOPChatSocket extends WebSocketListener {
                 .build();
 
         log.info("Connecting to SOOP chat: {}", wsUrl);
-        webSocket = SHARED_HTTP_CLIENT.newWebSocket(request, this);
+        OkHttpClient client = SHARED_HTTP_CLIENT.newBuilder()
+                .readTimeout(socketOption.getTimeout(), TimeUnit.MILLISECONDS)
+                .build();
+        webSocket = client.newWebSocket(request, this);
     }
 
     public void disconnect() {
@@ -103,6 +111,12 @@ public class SOOPChatSocket extends WebSocketListener {
         SOOPPacket.ParsedPacket packet = SOOPPacket.parse(bytes.toByteArray());
         if (packet == null || packet.retCode() < 0) return;
 
+        if (packet.serviceCode() == SOOPServiceCode.SVC_CLOSE_BROAD) {
+            log.info("Broadcast closed for {}, disconnecting", bjId);
+            disconnect();
+            return;
+        }
+
         SOOPMessageParser.ParsedMessage parsed = SOOPMessageParser.parse(packet.serviceCode(), packet.fields());
         if (parsed == null) return;
 
@@ -112,16 +126,20 @@ public class SOOPChatSocket extends WebSocketListener {
                 // SDK: e.push(l), e.push(roomId), e.push(l), e.push(ticket), e.push(l), e.push(5), e.push(l), e.push(""), e.push(l), e.push(logInfo), e.push(l)
                 ws.send(SOOPPacket.encode(SOOPServiceCode.SVC_JOINCH,
                         "", String.valueOf(chatNo), "", ticket, "", "5", "", "", "", ""));
-                keepAliveFuture = scheduler.scheduleAtFixedRate(() -> {
-                    if (webSocket != null && connected) {
-                        webSocket.send(SOOPPacket.encode(SOOPServiceCode.SVC_KEEPALIVE, ""));
-                    }
-                }, 60, 60, TimeUnit.SECONDS);
+                if (socketOption.getKeepalive().isEnabled()) {
+                    long interval = socketOption.getKeepalive().getInterval();
+                    keepAliveFuture = scheduler.scheduleAtFixedRate(() -> {
+                        if (webSocket != null && connected) {
+                            webSocket.send(SOOPPacket.encode(SOOPServiceCode.SVC_KEEPALIVE, ""));
+                        }
+                    }, interval, interval, TimeUnit.MILLISECONDS);
+                }
                 connected = true;
                 handler.onConnected(this);
             }
             case "JOIN" -> {
                 log.info("Joined room for {}", bjId);
+                joined = true;
                 handler.onJoined(this);
             }
             default -> {

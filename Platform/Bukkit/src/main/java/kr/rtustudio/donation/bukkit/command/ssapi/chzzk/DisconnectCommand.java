@@ -1,9 +1,11 @@
 package kr.rtustudio.donation.bukkit.command.ssapi.chzzk;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
+import kr.rtustudio.donation.bukkit.manager.PlatformConnectionManager;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
-import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
+import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
+import org.bukkit.entity.Player;
 
 /**
  * SSAPI 치지직 연동해제 명령어
@@ -12,20 +14,23 @@ import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
  */
 public class DisconnectCommand extends RSCommand<BukkitDonationAPI> {
 
+    private final PlatformConnectionManager connectionManager;
+
     public DisconnectCommand(BukkitDonationAPI plugin) {
         super(plugin, "disconnect");
+        this.connectionManager = plugin.getConnectionManager();
     }
 
     @Override
-    protected Result execute(RSCommandData data) {
-        if (player() == null) return Result.ONLY_PLAYER;
+    protected Result execute(CommandArgs args) {
+        if (!(getSender() instanceof Player player)) return Result.ONLY_PLAYER;
 
         try {
-            getPlugin().getConnectionManager().disconnect(player().getUniqueId(), Services.SSAPI);
-            chat().announce(message().get(player(), "disconnect.success"));
+            connectionManager.disconnect(player.getUniqueId(), Services.SSAPI);
+            notifier.announce(message.get(player, "disconnect.success"));
             return Result.SUCCESS;
         } catch (Exception e) {
-            chat().announce(message().get(player(), "disconnect.fail"));
+            notifier.announce(message.get(player, "disconnect.fail"));
             return Result.FAILURE;
         }
     }

@@ -124,8 +124,8 @@ public class ChzzkSessionImpl implements ChzzkSession {
     }
 
     private void startKeepalive() {
-        if (socketOption == null || !socketOption.isKeepaliveEnabled()) return;
-        int interval = socketOption.getKeepaliveInterval();
+        if (socketOption == null || !socketOption.getKeepalive().isEnabled()) return;
+        int interval = socketOption.getKeepalive().getInterval();
         keepaliveExecutor = Executors.newSingleThreadScheduledExecutor();
         keepaliveExecutor.scheduleAtFixedRate(() -> {
             if (socket != null && socket.isConnected()) {

@@ -1,20 +1,5 @@
-plugins {
-    id("java")
-}
-
-group = "kr.rtustudio"
-version = "0.3.0"
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.test {
-    useJUnitPlatform()
+    implementation(project(":Services:Common"))
+    compileOnly("com.squareup.okhttp3:okhttp:4.12.0")
+    compileOnly("com.google.code.gson:gson:2.10.1")
 }

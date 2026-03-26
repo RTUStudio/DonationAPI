@@ -1,8 +1,8 @@
 package kr.rtustudio.donation.service.soop.configuration;
 
-public interface SOOPConfig {
+import kr.rtustudio.donation.common.configuration.SocketServiceConfig;
 
-    boolean isEnabled();
+public interface SOOPConfig extends SocketServiceConfig {
 
     String getClientId();
 

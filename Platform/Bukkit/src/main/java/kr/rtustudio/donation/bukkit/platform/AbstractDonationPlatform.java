@@ -6,9 +6,9 @@ import kr.rtustudio.donation.bukkit.manager.DonationManager;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.data.UserData;
-import kr.rtustudio.framework.bukkit.api.platform.JSON;
-import kr.rtustudio.framework.bukkit.api.player.PlayerChat;
-import kr.rtustudio.framework.bukkit.api.storage.Storage;
+import kr.rtustudio.storage.JSON;
+import kr.rtustudio.framework.bukkit.api.player.Notifier;
+import kr.rtustudio.storage.Storage;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -26,11 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractDonationPlatform<T extends UserData> implements DonationPlatform<T> {
 
-    @Getter
     protected final BukkitDonationAPI plugin;
     protected final DonationManager donationManager;
-    protected final Storage storage;
-    protected final PlayerChat chat;
+    protected final Notifier notifier;
     protected final Gson gson;
 
     protected final ConcurrentHashMap<UUID, T> connections = new ConcurrentHashMap<>();
@@ -38,9 +36,12 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
     protected AbstractDonationPlatform(BukkitDonationAPI plugin, Gson serializer) {
         this.plugin = plugin;
         this.donationManager = plugin.getDonationManager();
-        this.storage = plugin.getStorage();
-        this.chat = PlayerChat.of(plugin);
+        this.notifier = Notifier.of(plugin);
         this.gson = serializer;
+    }
+
+    protected Storage getStorage() {
+        return plugin.getStorage(getService().getStorage());
     }
 
     @Override
@@ -79,6 +80,10 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
         return connections.get(uuid);
     }
 
+    public ConcurrentHashMap<UUID, T> getConnections() {
+        return connections;
+    }
+
     public boolean isConnected(UUID uuid) {
         return connections.containsKey(uuid);
     }
@@ -90,10 +95,8 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
 
     protected abstract Class<T> dataClass();
 
-    @Override
     public void load(UUID uuid) {
-        String storageName = getService().getStorage();
-        storage.get(storageName, JSON.of("uuid", uuid.toString()))
+        getStorage().get(JSON.of("uuid", uuid.toString()))
                 .thenAccept(result -> {
                     if (result.isEmpty()) {
                         donationManager.resetDonationStatus(uuid, getService());
@@ -122,7 +125,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
                 .replace("{service}", service.name())
                 .replace("{platform}", platform.name())
                 .replace("{id}", streamerId);
-        chat.announce(player, message);
+        notifier.announce(player, message);
     }
 
     protected void onRegister(UUID uuid, T data) {
@@ -133,25 +136,23 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
     }
 
     protected void save(UUID uuid, T data) {
-        String storageName = getService().getStorage();
         JSON query = JSON.of("uuid", uuid.toString());
 
-        storage.get(storageName, query).thenAccept(result -> {
+        getStorage().get(query).thenAccept(result -> {
             if (result == null || result.isEmpty()) {
-                storage.add(storageName, gson.toJsonTree(data).getAsJsonObject());
+                getStorage().add(gson.toJsonTree(data).getAsJsonObject());
             } else {
-                storage.set(storageName, query.get(), gson.toJsonTree(data).getAsJsonObject());
+                getStorage().set(query.get(), gson.toJsonTree(data).getAsJsonObject());
             }
         });
     }
 
     private void delete(UUID uuid) {
-        String storageName = getService().getStorage();
         JSON query = JSON.of("uuid", uuid.toString());
 
-        storage.get(storageName, query).thenAccept(result -> {
+        getStorage().get(query).thenAccept(result -> {
             if (result != null && !result.isEmpty()) {
-                storage.set(storageName, query, JSON.of());
+                getStorage().set(query, JSON.of());
             }
         });
     }

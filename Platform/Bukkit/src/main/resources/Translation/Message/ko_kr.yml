@@ -1,25 +1,18 @@
-# 연결 관련 메시지
 connect:
   success: "<green>연동에 성공했습니다.</green>"
   fail: "<red>연동에 실패했습니다.</red>"
   unsupported: "<red>지원하지 않는 플랫폼입니다.</red>"
-
 disconnect:
   success: "<green>연동이 해제되었습니다.</green>"
   fail: "<red>연동 해제에 실패했습니다.</red>"
-
 connection:
   success: "<green>{service} 서비스와 연결되었습니다. (스트리머: {id})</green>"
   failed: "<red>{service} 서비스 연결에 실패했습니다.</red>"
-
-# SSAPI 관련 메시지
 ssapi:
   connect:
     success: "<green>SSAPI 연동에 성공했습니다.</green>"
     failure: "<red>SSAPI 연동에 실패했습니다.</red>"
     unsupported: "<red>지원하지 않는 플랫폼입니다.</red>"
-
-# 치지직 관련 메시지
 chzzk:
   connect:
     success: "<green>Chzzk 연동에 성공했습니다.</green>"
@@ -27,8 +20,6 @@ chzzk:
     warning: "<red>링크를 열기 전에 방송에서 화면을 가려주세요</red>"
     link: "<white>이 메세지를 클릭하면 API 연동 페이지 링크가 복사됩니다!</white>"
     copied: "클릭하면 링크가 복사됩니다"
-
-# SOOP 관련 메시지
 soop:
   connect:
     success: "<green>SOOP 연동에 성공했습니다.</green>"
@@ -37,13 +28,9 @@ soop:
     warning: "<red>링크를 열기 전에 방송에서 화면을 가려주세요</red>"
     link: "<white>이 메세지를 클릭하면 API 연동 페이지 링크가 복사됩니다!</white>"
     copied: "클릭하면 링크가 복사됩니다"
-
-# 서비스 관련 메시지
 service:
   not_implemented: "<red>아직 구현되지 않은 기능입니다.</red>"
   already_connected: "<yellow>이미 연결되어 있습니다.</yellow>"
   not_connected: "<yellow>연결되어 있지 않습니다.</yellow>"
-
-# 후원 알림 메시지
 donation:
   notify: "<gold>[{service}]</gold> <yellow>{nickname}</yellow><white>님이 </white><aqua>{amount}원</aqua><white>을 후원했습니다: {message}</white>"

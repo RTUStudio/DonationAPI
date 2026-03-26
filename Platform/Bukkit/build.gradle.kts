@@ -1,9 +1,5 @@
-val project_author: String by project
-val plugin_main: String by project
-val rsf_version: String by project
-val api_version: String by project
-val paper_plugin: String by project
-
+val apiVersion = project.property("plugin.api.version") as String
+val frameworkVersion = project.property("framework.version") as String
 
 repositories {
     maven {
@@ -14,9 +10,18 @@ repositories {
         name = "PaperMC"
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
-    maven("https://repo.codemc.io/repository/rtustudio/")
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    maven("https://repo.codemc.io/repository/maven-releases/")
+    maven {
+        name = "RTUStudio"
+        url = uri("https://repo.codemc.io/repository/rtustudio/")
+    }
+    maven {
+        name = "PlaceholderAPI"
+        url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    }
+    maven {
+        name = "CodeMC"
+        url = uri("https://repo.codemc.io/repository/maven-releases/")
+    }
 }
 
 dependencies {
@@ -26,22 +31,25 @@ dependencies {
     compileOnly(project(":Services:Chzzk"))
     compileOnly(project(":Services:SOOP"))
     compileOnly(project(":Services:SSAPI"))
-    
+    compileOnly(project(":Services:Cime"))
+    compileOnly(project(":Services:Toonation"))
+    compileOnly(project(":Services:Youtube"))
+
     // Plugin API
-    val plugin_api = if (paper_plugin.toBoolean()) {
-        "io.papermc.paper:paper-api:${api_version}-R0.1-SNAPSHOT"
+    val bukkitAPI = if (project.property("plugin.paper").toString().toBoolean()) {
+        "io.papermc.paper:paper-api:${apiVersion}-R0.1-SNAPSHOT"
     } else {
-        "org.spigotmc:spigot-api:${api_version}-R0.1-SNAPSHOT"
+        "org.spigotmc:spigot-api:${apiVersion}-R0.1-SNAPSHOT"
     }
-    compileOnly(plugin_api)
-    
+    compileOnly(bukkitAPI)
+
     // RSFramework
-    compileOnly("kr.rtustudio:framework-api:${rsf_version}")
-    
+    compileOnly("kr.rtustudio:framework-api:$frameworkVersion")
+
     // Kyori Adventure
     compileOnly("net.kyori:adventure-platform-bukkit:4.4.1")
     compileOnly("net.kyori:adventure-text-minimessage:4.16.0")
-    
+
     // Dependency
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.github.retrooper:packetevents-spigot:2.10.1")
@@ -51,9 +59,9 @@ tasks.processResources {
     val props = mapOf(
         "version" to rootProject.version,
         "name" to rootProject.name,
-        "main" to plugin_main,
-        "api_version" to api_version.substringBeforeLast("."),
-        "author" to project_author
+        "main" to project.property("plugin.main"),
+        "api_version" to apiVersion.substringBeforeLast("."),
+        "author" to project.property("project.author")
     )
     inputs.properties(props)
     filteringCharset = "UTF-8"

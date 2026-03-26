@@ -65,3 +65,13 @@ donation:
     event:
       name: "이벤트"
       description: "후원 이벤트를 강제로 발생시킵니다"
+    cime:
+      name: "씨미"
+      description: "씨미 명령어"
+      commands:
+        connect:
+          name: "연동"
+          description: "씨미와 연동합니다"
+        disconnect:
+          name: "연동해제"
+          description: "씨미 연동을 해제합니다"

@@ -7,12 +7,14 @@ import kr.rtustudio.donation.bukkit.module.DonationModule;
 import kr.rtustudio.donation.bukkit.platform.DonationPlatform;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.service.Services;
-import kr.rtustudio.framework.bukkit.api.platform.JSON;
-import kr.rtustudio.framework.bukkit.api.storage.Storage;
+import kr.rtustudio.storage.JSON;
+import kr.rtustudio.storage.Storage;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 후원 플레이어 관리자
@@ -31,9 +33,9 @@ public class DonationManager {
         this.module = new DonationModule();
     }
 
-    public void load(UUID uuid) {
-        Storage storage = plugin.getStorage();
-        storage.get("PlayerStatus", JSON.of("uuid", uuid.toString())).thenAccept(result -> {
+    public CompletableFuture<Void> load(UUID uuid) {
+        Storage storage = plugin.getStorage("PlayerStatus");
+        return storage.get(JSON.of("uuid", uuid.toString())).thenAccept(result -> {
             DonationEntity entity = result.isEmpty()
                     ? new DonationEntity(uuid)
                     : new DonationEntity(uuid, GSON.fromJson(result.getFirst(), PlatformStatusComponent.class));
@@ -87,16 +89,18 @@ public class DonationManager {
     }
 
     private void save(DonationEntity entity) {
-        Storage storage = plugin.getStorage();
+        Storage storage = plugin.getStorage("PlayerStatus");
         UUID uuid = entity.getUuid();
         PlatformStatusComponent component = entity.getPlatformStatus();
 
-        storage.get("PlayerStatus", JSON.of("uuid", uuid.toString())).thenAccept(result -> {
+        JsonObject data = GSON.toJsonTree(component).getAsJsonObject();
+        data.addProperty("uuid", uuid.toString());
+
+        storage.get(JSON.of("uuid", uuid.toString())).thenAccept(result -> {
             if (result == null || result.isEmpty()) {
-                storage.add("PlayerStatus", GSON.toJsonTree(component).getAsJsonObject());
+                storage.add(data);
             } else {
-                storage.set("PlayerStatus", JSON.of("uuid", uuid.toString()).get(),
-                        GSON.toJsonTree(component).getAsJsonObject());
+                storage.set(JSON.of("uuid", uuid.toString()).get(), data);
             }
         });
     }

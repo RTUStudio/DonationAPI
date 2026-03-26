@@ -6,7 +6,8 @@ import kr.rtustudio.donation.common.Response;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.ssapi.SSAPIService;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
-import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
+import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -22,33 +23,33 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
     }
 
     @Override
-    protected Result execute(RSCommandData data) {
-        if (player() == null) return Result.ONLY_PLAYER;
+    protected Result execute(CommandArgs args) {
+        if (!(getSender() instanceof Player player)) return Result.ONLY_PLAYER;
 
-        if (data.length() < 3) return Result.WRONG_USAGE;
+        if (args.length() < 3) return Result.WRONG_USAGE;
 
-        String streamerId = data.args(2);
+        String streamerId = args.get(2);
         if (streamerId.isEmpty()) return Result.WRONG_USAGE;
 
-        return connect(streamerId);
+        return connect(streamerId, player);
     }
 
-    private Result connect(String streamerId) {
+    private Result connect(String streamerId, Player player) {
         SSAPIService api = getPlugin().getDonationAPI().get(Services.SSAPI, SSAPIService.class);
         if (api == null) {
-            chat().announce(message().get(player(), "service.unavailable"));
+            notifier.announce(message.get(player, "service.unavailable"));
             return Result.FAILURE;
         }
 
-        api.register(player().getUniqueId(), Platform.SOOP, streamerId).thenAccept(response -> {
+        api.register(player.getUniqueId(), Platform.SOOP, streamerId).thenAccept(response -> {
             String messageKey = switch (response) {
                 case Response.SUCCESS -> "connect.success";
                 case Response.UNSUPPORTED -> "connect.unsupported";
                 default -> "connect.fail";
             };
-            chat().announce(message().get(player(), messageKey));
+            notifier.announce(message.get(player, messageKey));
         }).exceptionally(throwable -> {
-            chat().announce(message().get(player(), "connect.fail"));
+            notifier.announce(message.get(player, "connect.fail"));
             return null;
         });
 
@@ -57,8 +58,8 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
 
 
     @Override
-    protected List<String> tabComplete(RSCommandData data) {
-        if (data.length(3)) return List.of("<streamerId>");
+    public List<String> tabComplete(CommandArgs args) {
+        if (args.length(3)) return List.of("<id>");
         return List.of();
     }
 }

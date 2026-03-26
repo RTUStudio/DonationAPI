@@ -117,7 +117,8 @@ public class SOOPService extends AbstractService<SOOPPlayer> implements kr.rtust
     @Override
     public void close() {
         if (subscriber != null) {
-            subscriber.disconnectAll();
+            subscriber.closeAll();
+            subscriber = null;
         }
         if (authServer != null) {
             authServer.stop();

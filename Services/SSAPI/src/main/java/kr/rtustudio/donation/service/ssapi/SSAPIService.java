@@ -84,10 +84,10 @@ public class SSAPIService extends AbstractService<SSAPIPlayer> {
         IO.Options opts = new IO.Options();
         opts.transports = new String[]{"websocket"};
         opts.timeout = config.getSocket().getTimeout();
-        opts.reconnection = config.getSocket().isReconnectionEnabled();
+        opts.reconnection = config.getSocket().getReconnection().isEnabled();
         opts.reconnectionAttempts = Integer.MAX_VALUE;
-        opts.reconnectionDelay = config.getSocket().getReconnectionDelay();
-        opts.reconnectionDelayMax = config.getSocket().getReconnectionMaxDelay();
+        opts.reconnectionDelay = config.getSocket().getReconnection().getDelay();
+        opts.reconnectionDelayMax = config.getSocket().getReconnection().getMaxDelay();
 
         try {
             this.socket = IO.socket(SOCKET_URL, opts);
@@ -129,8 +129,8 @@ public class SSAPIService extends AbstractService<SSAPIPlayer> {
             if (socket.connected() && loginFailed) emitLogin();
         }, retryDelay, retryDelay, TimeUnit.MILLISECONDS);
 
-        if (config.getSocket().isKeepaliveEnabled()) {
-            int interval = config.getSocket().getKeepaliveInterval();
+        if (config.getSocket().getKeepalive().isEnabled()) {
+            int interval = config.getSocket().getKeepalive().getInterval();
             executor.scheduleAtFixedRate(() -> {
                 if (socket.connected()) socket.emit("ping");
             }, 0L, interval, TimeUnit.MILLISECONDS);

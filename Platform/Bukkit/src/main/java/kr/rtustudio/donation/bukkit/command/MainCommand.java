@@ -7,11 +7,13 @@ import kr.rtustudio.donation.bukkit.command.soop.SoopCommand;
 import kr.rtustudio.donation.bukkit.command.ssapi.chzzk.SSAPIChzzkCommand;
 import kr.rtustudio.donation.bukkit.command.ssapi.soop.SSAPISoopCommand;
 import kr.rtustudio.donation.bukkit.command.toonation.ToonationCommand;
+import kr.rtustudio.donation.bukkit.command.cime.CimeCommand;
 import kr.rtustudio.donation.bukkit.command.youtube.YoutubeCommand;
+import kr.rtustudio.donation.bukkit.configuration.service.CimeConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.ChzzkConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.SSAPIConfig;
+import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
-import kr.rtustudio.framework.bukkit.api.command.RSCommandData;
 
 /**
  * 후원API 메인 명령어
@@ -28,13 +30,15 @@ public class MainCommand extends RSCommand<BukkitDonationAPI> {
         registerCommand(new SoopCommand(plugin));
         registerCommand(new YoutubeCommand(plugin));
         registerCommand(new ToonationCommand(plugin));
+        registerCommand(new CimeCommand(plugin));
         registerCommand(new EventCommand(plugin));
     }
 
     @Override
-    protected void reload(RSCommandData data) {
-        getPlugin().reloadConfiguration(SSAPIConfig.class);
-        getPlugin().reloadConfiguration(ChzzkConfig.class);
-        getPlugin().reloadServices();
+    protected void reload(CommandArgs args) {
+        plugin.reloadConfiguration(SSAPIConfig.class);
+        plugin.reloadConfiguration(ChzzkConfig.class);
+        plugin.reloadConfiguration(CimeConfig.class);
+        plugin.reloadServices();
     }
 }

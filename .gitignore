@@ -1,0 +1,57 @@
+# ===== Build Outputs =====
+build/
+target/
+bin/
+out/
+dist/
+
+# ===== Gradle =====
+.gradle/
+gradle/wrapper/gradle-wrapper.jar
+**/build/
+
+# ===== Maven =====
+**/target/
+
+# ===== IDE - IntelliJ IDEA =====
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ===== IDE - Eclipse =====
+.classpath
+.project
+.settings/
+.factorypath
+
+# ===== IDE - VS Code =====
+.vscode/
+
+# ===== OS Files =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Java =====
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# ===== AI Agent =====
+.agents/
+.claude/
+
+# ===== Misc =====
+*.swp
+*.swo
+*~
+.env
+.env.*

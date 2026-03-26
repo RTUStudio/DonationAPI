@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Constants {
 
-    public static final @NotNull String OPENAPI_URL = "https://openapi.sooplive.co.kr";
+    public static final @NotNull String OPENAPI_URL = "https://openapi.sooplive.com";
 
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 

@@ -12,15 +12,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j(topic = "ChzzkSubscriber")
+@Slf4j(topic = "DonationAPI/Chzzk")
 public class ChzzkSubscriber implements ChzzkEventHandler {
 
     private final ChzzkService service;
-    private final Map<String, UUID> registeredPlayers = new ConcurrentHashMap<>();
+    private final Map<String, Set<UUID>> channelSubscribers = new ConcurrentHashMap<>();
     private final Map<String, Chzzk> activeSessions = new ConcurrentHashMap<>();
+    private final Map<UUID, String> playerToChannel = new ConcurrentHashMap<>();
 
     ChzzkSubscriber(@NotNull ChzzkService service) {
         this.service = service;
@@ -49,17 +51,24 @@ public class ChzzkSubscriber implements ChzzkEventHandler {
             if (channelOpt.isPresent() && tokenOpt.isPresent()) {
                 channelId = channelOpt.get().id();
 
-                // 기존 세션이 있으면 disconnect
-                Chzzk existing = activeSessions.remove(channelId);
-                if (existing != null && existing.getSession().isConnected()) {
-                    try {
-                        existing.getSession().disconnect();
-                    } catch (Exception e) {
-                        log.warn("Failed to disconnect existing session for channel {}", channelId, e);
-                    }
+                String existingChannel = playerToChannel.get(uuid);
+                if (existingChannel != null) {
+                    if (existingChannel.equals(channelId)) return true;
+                    disconnect(uuid);
                 }
 
-                registeredPlayers.put(channelId, uuid);
+                playerToChannel.put(uuid, channelId);
+
+                Chzzk existing = activeSessions.get(channelId);
+                if (existing != null && existing.getSession().isConnected()) {
+                    channelSubscribers.computeIfAbsent(channelId, k -> ConcurrentHashMap.newKeySet()).add(uuid);
+                    if (service.getHandler() != null && service.getHandler().success() != null) {
+                        service.getHandler().success().accept(new ChzzkPlayer(uuid, channelId, tokenOpt.get()));
+                    }
+                    return true;
+                }
+
+                channelSubscribers.computeIfAbsent(channelId, k -> ConcurrentHashMap.newKeySet()).add(uuid);
                 activeSessions.put(channelId, chzzk);
                 registered = true;
             }
@@ -84,54 +93,86 @@ public class ChzzkSubscriber implements ChzzkEventHandler {
         String finalChannelId = channelOpt.get().id();
         chzzk.getSession().connectAsync()
                 .thenAccept(v -> {
-                    // 연결 성공 시에만 success 핸들러 호출
-                    if (service.getHandler() != null && service.getHandler().success() != null)
-                        service.getHandler().success().accept(new ChzzkPlayer(uuid, finalChannelId, tokenOpt.get()));
+                    Set<UUID> subs = channelSubscribers.get(finalChannelId);
+                    if (subs != null && service.getHandler() != null && service.getHandler().success() != null) {
+                        for (UUID subUuid : subs) {
+                            service.getHandler().success().accept(new ChzzkPlayer(subUuid, finalChannelId, tokenOpt.get()));
+                        }
+                    }
                 })
                 .exceptionally(throwable -> {
-                    log.error("Failed to connect session for player {}", uuid, throwable);
-                    registeredPlayers.remove(finalChannelId);
+                    log.error("Failed to connect session for channel {}", finalChannelId, throwable);
+                    Set<UUID> subs = channelSubscribers.remove(finalChannelId);
                     activeSessions.remove(finalChannelId);
-                    if (service.getHandler() != null && service.getHandler().failure() != null)
-                        service.getHandler().failure().accept(uuid);
+                    if (subs != null && service.getHandler() != null && service.getHandler().failure() != null) {
+                        for (UUID subUuid : subs) {
+                            playerToChannel.remove(subUuid);
+                            service.getHandler().failure().accept(subUuid);
+                        }
+                    }
                     return null;
                 });
         return true;
     }
 
     public void disconnect(@NotNull UUID uuid) {
-        registeredPlayers.entrySet().removeIf(entry -> {
-            if (entry.getValue().equals(uuid)) {
-                Chzzk chzzk = activeSessions.remove(entry.getKey());
-                if (chzzk != null && chzzk.getSession().isConnected()) {
-                    try {
-                        chzzk.getSession().disconnect();
-                    } catch (Exception e) {
-                        log.warn("Failed to disconnect session for player {}", uuid, e);
+        String channelId = playerToChannel.remove(uuid);
+        if (channelId != null) {
+            Set<UUID> subs = channelSubscribers.get(channelId);
+            if (subs != null) {
+                subs.remove(uuid);
+                if (subs.isEmpty()) {
+                    channelSubscribers.remove(channelId);
+                    Chzzk chzzk = activeSessions.remove(channelId);
+                    if (chzzk != null && chzzk.getSession().isConnected()) {
+                        try {
+                            chzzk.getSession().disconnect();
+                        } catch (Exception e) {
+                            log.warn("Failed to disconnect session for channel {}", channelId, e);
+                        }
                     }
                 }
-                return true;
             }
-            return false;
-        });
+        }
     }
 
     @Override
     public void onDonationMessage(@NotNull Chzzk chzzk, @NotNull ChzzkDonationMessage message) {
         if (message.donationType() != ChzzkDonationType.CHAT) return;
-        UUID uuid = registeredPlayers.get(message.receiverChannelId());
-        Donation donation = new Donation(
-                uuid,
-                service.getType(),
-                Platform.CHZZK,
-                DonationType.CHAT,
-                message.receiverChannelId(),
-                message.senderChannelId(),
-                message.nickname(),
-                message.message(),
-                message.payAmount()
-        );
-        if (service.getHandler() != null && service.getHandler().donation() != null)
-            service.getHandler().donation().accept(donation);
+        
+        Set<UUID> subs = channelSubscribers.get(message.receiverChannelId());
+        if (subs == null || subs.isEmpty()) return;
+
+        if (service.getHandler() != null && service.getHandler().donation() != null) {
+            for (UUID uuid : subs) {
+                Donation donation = new Donation(
+                        uuid,
+                        service.getType(),
+                        Platform.CHZZK,
+                        DonationType.CHAT,
+                        message.receiverChannelId(),
+                        message.senderChannelId(),
+                        message.nickname(),
+                        message.message(),
+                        message.payAmount()
+                );
+                service.getHandler().donation().accept(donation);
+            }
+        }
+    }
+
+    public void closeAll() {
+        activeSessions.values().forEach(chzzk -> {
+            if (chzzk.getSession().isConnected()) {
+                try {
+                    chzzk.getSession().disconnect();
+                } catch (Exception e) {
+                    log.warn("Failed to disconnect session", e);
+                }
+            }
+        });
+        activeSessions.clear();
+        channelSubscribers.clear();
+        playerToChannel.clear();
     }
 }

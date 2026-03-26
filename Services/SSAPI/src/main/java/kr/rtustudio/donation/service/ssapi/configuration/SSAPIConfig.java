@@ -1,8 +1,8 @@
 package kr.rtustudio.donation.service.ssapi.configuration;
 
-import kr.rtustudio.donation.common.configuration.ServiceConfig;
+import kr.rtustudio.donation.common.configuration.SocketServiceConfig;
 
-public interface SSAPIConfig extends ServiceConfig {
+public interface SSAPIConfig extends SocketServiceConfig {
 
     String getApiKey();
 

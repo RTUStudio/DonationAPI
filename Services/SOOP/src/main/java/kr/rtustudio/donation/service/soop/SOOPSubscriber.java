@@ -14,16 +14,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 @Slf4j(topic = "DonationAPI/SOOP")
 public class SOOPSubscriber implements SOOPEventHandler {
 
     private final SOOPService service;
-    private final Map<String, UUID> registeredPlayers = new ConcurrentHashMap<>();
+    private final Map<String, Set<UUID>> channelSubscribers = new ConcurrentHashMap<>();
     private final Map<String, SOOPChatSocket> chatSockets = new ConcurrentHashMap<>();
+    private final Map<UUID, String> playerToChannel = new ConcurrentHashMap<>();
 
     SOOPSubscriber(@NotNull SOOPService service) {
         this.service = service;
@@ -44,10 +45,22 @@ public class SOOPSubscriber implements SOOPEventHandler {
             return false;
         }
 
+        String existingChannel = playerToChannel.get(uuid);
+        if (existingChannel != null) {
+            if (existingChannel.equals(bjId)) return true;
+            disconnect(uuid);
+        }
+
+        playerToChannel.put(uuid, bjId);
+
         SOOPToken token = service.getTokenStore().get(bjId);
-        if (token == null) return false;
+        if (token == null) {
+            playerToChannel.remove(uuid);
+            return false;
+        }
 
         if (!connectChat(bjId, uuid, token)) {
+            playerToChannel.remove(uuid);
             if (service.getHandler() != null && service.getHandler().failure() != null)
                 service.getHandler().failure().accept(uuid);
             return false;
@@ -57,14 +70,13 @@ public class SOOPSubscriber implements SOOPEventHandler {
     }
 
     private boolean connectChat(@NotNull String bjId, @NotNull UUID uuid, @NotNull SOOPToken token) {
-        // 기존 소켓이 있으면 disconnect
-        SOOPChatSocket existing = chatSockets.remove(bjId);
+        SOOPChatSocket existing = chatSockets.get(bjId);
         if (existing != null) {
-            try {
-                existing.disconnect();
-            } catch (Exception e) {
-                log.warn("Failed to disconnect existing chat socket for {}", bjId, e);
+            channelSubscribers.computeIfAbsent(bjId, k -> ConcurrentHashMap.newKeySet()).add(uuid);
+            if (existing.isJoined() && service.getHandler() != null && service.getHandler().success() != null) {
+                service.getHandler().success().accept(new SOOPPlayer(uuid, bjId, token));
             }
+            return true;
         }
 
         var chatInfoOpt = service.getApiClient().getChatInfo(token.accessToken());
@@ -74,7 +86,7 @@ public class SOOPSubscriber implements SOOPEventHandler {
         }
 
         var chatInfo = chatInfoOpt.get();
-        SOOPChatSocket socket = new SOOPChatSocket(chatInfo, new SOOPChatSocketHandler() {
+        SOOPChatSocket socket = new SOOPChatSocket(chatInfo, service.getConfig().getSocket(), new SOOPChatSocketHandler() {
             @Override
             public void onConnected(@NotNull SOOPChatSocket socket) {
                 log.info("Chat connected for {}", bjId);
@@ -83,10 +95,12 @@ public class SOOPSubscriber implements SOOPEventHandler {
             @Override
             public void onJoined(@NotNull SOOPChatSocket socket) {
                 log.info("Chat joined for {}", bjId);
-                // 채널 조인 성공 시에만 등록 및 success 핸들러 호출
-                registeredPlayers.put(bjId, uuid);
-                if (service.getHandler() != null && service.getHandler().success() != null)
-                    service.getHandler().success().accept(new SOOPPlayer(uuid, bjId, token));
+                Set<UUID> subs = channelSubscribers.get(bjId);
+                if (subs != null && service.getHandler() != null && service.getHandler().success() != null) {
+                    for (UUID subUuid : subs) {
+                        service.getHandler().success().accept(new SOOPPlayer(subUuid, bjId, token));
+                    }
+                }
             }
 
             @Override
@@ -98,18 +112,23 @@ public class SOOPSubscriber implements SOOPEventHandler {
             public void onDisconnected(@NotNull SOOPChatSocket socket) {
                 log.warn("Chat disconnected for {}", bjId);
                 chatSockets.remove(bjId);
-                registeredPlayers.remove(bjId);
             }
 
             @Override
             public void onError(@NotNull SOOPChatSocket socket, @NotNull Throwable error) {
                 log.error("Chat error for {}: {}", bjId, error.getMessage());
                 chatSockets.remove(bjId);
-                registeredPlayers.remove(bjId);
-                if (service.getHandler() != null && service.getHandler().failure() != null)
-                    service.getHandler().failure().accept(uuid);
+                Set<UUID> subs = channelSubscribers.remove(bjId);
+                if (subs != null && service.getHandler() != null && service.getHandler().failure() != null) {
+                    for (UUID subUuid : subs) {
+                        playerToChannel.remove(subUuid);
+                        service.getHandler().failure().accept(subUuid);
+                    }
+                }
             }
         });
+
+        channelSubscribers.computeIfAbsent(bjId, k -> ConcurrentHashMap.newKeySet()).add(uuid);
 
         chatSockets.put(bjId, socket);
         socket.connect();
@@ -118,42 +137,52 @@ public class SOOPSubscriber implements SOOPEventHandler {
 
     @Override
     public void onDonationMessage(@NotNull String bjId, @NotNull SOOPDonationMessage message) {
-        UUID uuid = registeredPlayers.get(bjId);
-        Donation donation = new Donation(
-                uuid,
-                service.getType(),
-                Platform.SOOP,
-                DonationType.CHAT,
-                message.bjId(),
-                message.userId(),
-                message.userNickname(),
-                message.message(),
-                message.count()
-        );
-        if (service.getHandler() != null && service.getHandler().donation() != null)
-            service.getHandler().donation().accept(donation);
+        Set<UUID> subs = channelSubscribers.get(bjId);
+        if (subs == null || subs.isEmpty()) return;
+
+        if (service.getHandler() != null && service.getHandler().donation() != null) {
+            for (UUID uuid : subs) {
+                Donation donation = new Donation(
+                        uuid,
+                        service.getType(),
+                        Platform.SOOP,
+                        DonationType.CHAT,
+                        message.bjId(),
+                        message.userId(),
+                        message.userNickname(),
+                        message.message(),
+                        message.count()
+                );
+                service.getHandler().donation().accept(donation);
+            }
+        }
     }
 
     public void disconnect(@NotNull UUID uuid) {
-        registeredPlayers.entrySet().removeIf(entry -> {
-            if (entry.getValue().equals(uuid)) {
-                SOOPChatSocket socket = chatSockets.remove(entry.getKey());
-                if (socket != null) {
-                    try {
-                        socket.disconnect();
-                    } catch (Exception e) {
-                        log.warn("Failed to disconnect chat socket for player {}", uuid, e);
+        String bjId = playerToChannel.remove(uuid);
+        if (bjId != null) {
+            Set<UUID> subs = channelSubscribers.get(bjId);
+            if (subs != null) {
+                subs.remove(uuid);
+                if (subs.isEmpty()) {
+                    channelSubscribers.remove(bjId);
+                    SOOPChatSocket socket = chatSockets.remove(bjId);
+                    if (socket != null) {
+                        try {
+                            socket.disconnect();
+                        } catch (Exception e) {
+                            log.warn("Failed to disconnect chat socket for player {}", uuid, e);
+                        }
                     }
                 }
-                return true;
             }
-            return false;
-        });
+        }
     }
 
-    public void disconnectAll() {
+    public void closeAll() {
         chatSockets.values().forEach(SOOPChatSocket::disconnect);
         chatSockets.clear();
-        registeredPlayers.clear();
+        channelSubscribers.clear();
+        playerToChannel.clear();
     }
 }

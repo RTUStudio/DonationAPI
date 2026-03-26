@@ -13,7 +13,8 @@ public enum Services {
     Chzzk("Chzzk", Platform.CHZZK),
     SOOP("SOOP", Platform.SOOP),
     Youtube("Youtube", Platform.YOUTUBE),
-    Toonation("Toonation", Platform.TOONATION);
+    Toonation("Toonation", Platform.TOONATION),
+    Cime("Cime", Platform.CIME);
 
     @Getter
     private final String storage;

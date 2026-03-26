@@ -3,7 +3,7 @@ package kr.rtustudio.donation.bukkit.configuration.service;
 import kr.rtustudio.configurate.objectmapping.meta.Comment;
 import kr.rtustudio.donation.bukkit.platform.ServiceBuilder;
 import kr.rtustudio.donation.common.configuration.SocketOption;
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
+import kr.rtustudio.configurate.model.ConfigurationPart;
 import lombok.Getter;
 
 @Getter
@@ -17,7 +17,7 @@ public class SSAPIConfig extends ConfigurationPart implements kr.rtustudio.donat
     private String apiKey = "";
 
     @Comment("소켓 옵션")
-    private Socket socket = new Socket();
+    private Socket socket;
 
     @Comment("로그인 재시도 간격 (ms)")
     private int loginRetryDelay = 1000;
@@ -28,37 +28,14 @@ public class SSAPIConfig extends ConfigurationPart implements kr.rtustudio.donat
         private int timeout = 3000;
 
         @Comment("Keepalive 설정 섹션")
-        private Socket.Keepalive keepalive = new Socket.Keepalive();
+        private Keepalive keepalive;
         @Comment("재연결 설정 섹션")
-        private Socket.Reconnection reconnection = new Socket.Reconnection();
+        private Reconnection reconnection;
 
-        @Override
-        public boolean isKeepaliveEnabled() {
-            return keepalive != null && keepalive.enabled;
-        }
 
-        @Override
-        public int getKeepaliveInterval() {
-            return keepalive != null ? keepalive.interval : 60000;
-        }
-
-        @Override
-        public boolean isReconnectionEnabled() {
-            return reconnection != null && reconnection.enabled;
-        }
-
-        @Override
-        public int getReconnectionDelay() {
-            return reconnection != null ? reconnection.delay : 1000;
-        }
-
-        @Override
-        public int getReconnectionMaxDelay() {
-            return reconnection != null ? reconnection.maxDelay : 3000;
-        }
 
         @Getter
-        public class Keepalive extends ConfigurationPart {
+        public class Keepalive extends ConfigurationPart implements KeepaliveOption {
             @Comment("서버-클라이언트 간 keepalive(ping) 사용 여부")
             private boolean enabled = true;
 
@@ -67,7 +44,7 @@ public class SSAPIConfig extends ConfigurationPart implements kr.rtustudio.donat
         }
 
         @Getter
-        public class Reconnection extends ConfigurationPart {
+        public class Reconnection extends ConfigurationPart implements ReconnectionOption {
             @Comment("자동 재연결 활성화 여부")
             private boolean enabled = true;
 

@@ -80,6 +80,10 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> implements kr.rtu
 
     @Override
     public void close() {
+        if (subscriber != null) {
+            subscriber.closeAll();
+            subscriber = null;
+        }
         if (authServer != null) {
             authServer.stop();
             authServer = null;

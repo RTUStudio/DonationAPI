@@ -21,6 +21,7 @@ public final class SOOPServiceCode {
     public static final int SVC_FREECAT_OWNER_JOIN = 65;
     public static final int SVC_VODBALLOON = 86;
     public static final int SVC_ADCON_EFFECT = 87;
+    public static final int SVC_CLOSE_BROAD = 88;
     public static final int SVC_FOLLOW_ITEM = 91;
     public static final int SVC_FOLLOW_ITEM_EFFECT = 93;
     public static final int SVC_GIFT_TICKET = 102;

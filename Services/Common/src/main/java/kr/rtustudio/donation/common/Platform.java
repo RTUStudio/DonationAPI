@@ -8,7 +8,8 @@ public enum Platform {
     CHZZK,
     SOOP,
     YOUTUBE,
-    TOONATION;
+    TOONATION,
+    CIME;
 
     private static final Object2ObjectMap<String, Platform> INDEX = new Object2ObjectOpenHashMap<>();
 

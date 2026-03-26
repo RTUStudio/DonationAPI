@@ -56,10 +56,10 @@ public class SessionSocketImpl implements SessionSocket {
 
         if (socketOption != null) {
             options.timeout = socketOption.getTimeout();
-            options.reconnection = socketOption.isReconnectionEnabled();
+            options.reconnection = socketOption.getReconnection().isEnabled();
             options.reconnectionAttempts = Integer.MAX_VALUE;
-            options.reconnectionDelay = socketOption.getReconnectionDelay();
-            options.reconnectionDelayMax = socketOption.getReconnectionMaxDelay();
+            options.reconnectionDelay = socketOption.getReconnection().getDelay();
+            options.reconnectionDelayMax = socketOption.getReconnection().getMaxDelay();
         } else {
             options.timeout = 3000;
             options.reconnection = false;

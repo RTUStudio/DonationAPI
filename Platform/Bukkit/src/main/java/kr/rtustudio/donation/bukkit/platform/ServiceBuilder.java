@@ -12,7 +12,7 @@ import kr.rtustudio.donation.service.ServiceHandler;
 import kr.rtustudio.donation.service.Service;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.data.UserData;
-import kr.rtustudio.framework.bukkit.api.configuration.ConfigurationPart;
+import kr.rtustudio.configurate.model.ConfigurationPart;
 import lombok.Getter;
 
 import java.util.HashMap;
