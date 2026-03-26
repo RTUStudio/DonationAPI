@@ -44,6 +44,7 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> implements kr.rtu
                 .addChzzkEventHandler(subscriber)
                 .build();
         authServer.start();
+        log.info("Chzzk service started");
     }
 
     public boolean reconnect(@NotNull UUID uuid, @NotNull ChzzkToken token) {

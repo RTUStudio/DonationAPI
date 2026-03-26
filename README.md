@@ -1,6 +1,6 @@
 # DonationAPI
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/RTUStudio/DonationAPI)
+[![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)](https://github.com/RTUStudio/DonationAPI)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.java.net/)
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1+-green.svg)](https://www.minecraft.net/)
 
@@ -55,7 +55,7 @@
 - **RSFramework**: 4.7.3 이상
 
 #### 설치 방법
-1. 최신 릴리즈의 `DonationAPI-1.0.1.jar` 파일을 서버의 `plugins/` 폴더에 넣습니다.
+1. 최신 릴리즈의 `DonationAPI-1.0.2.jar` 파일을 서버의 `plugins/` 폴더에 넣습니다.
 2. 서버를 구동하면 플러그인이 로드되며 기본 설정 파일이 생성됩니다.
 3. `plugins/DonationAPI/settings/services/` 폴더 안의 각 플랫폼 설정(예: `Chzzk.yml`, `SOOP.yml` 등)에 발급받은 `client-id`, `client-secret` 등을 입력합니다.
 4. `/rtu reload` (또는 서버 재시작) 로 설정을 적용합니다.
@@ -97,7 +97,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("kr.rtustudio:donationapi:1.0.1")
+    compileOnly("kr.rtustudio:donationapi:1.0.2")
 }
 ```
 
@@ -176,7 +176,7 @@ macOS/Linux:
 ./gradlew build shadowJar
 ```
 
-컴파일된 파일은 `builds/plugin/DonationAPI-1.0.1.jar` 에 생성됩니다.
+컴파일된 파일은 `builds/plugin/DonationAPI-1.0.2.jar` 에 생성됩니다.
 
 ---
 

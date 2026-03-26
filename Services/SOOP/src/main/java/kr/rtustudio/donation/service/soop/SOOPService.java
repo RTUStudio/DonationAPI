@@ -61,6 +61,7 @@ public class SOOPService extends AbstractService<SOOPPlayer> implements kr.rtust
                 }
         );
         authServer.start();
+        log.info("SOOP service started");
     }
 
     private boolean handleAuthSuccess(@NotNull AuthResult result) {
@@ -81,7 +82,7 @@ public class SOOPService extends AbstractService<SOOPPlayer> implements kr.rtust
         tokenStore.put(userId, token);
         boolean connected = subscriber.onUserRegistered(userId, result.user());
         if (connected) {
-            log.info("User registered: {} (station: {}, nick: {})", result.user(), stationInfo.get().stationName(), stationInfo.get().userNick());
+            log.info("Registered SOOP subscriber for bjId: {} (UUID: {})", stationInfo.get().stationName(), result.user());
         }
         return connected;
     }

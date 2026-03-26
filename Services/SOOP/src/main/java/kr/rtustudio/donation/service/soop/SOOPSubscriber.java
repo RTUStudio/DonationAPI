@@ -89,12 +89,12 @@ public class SOOPSubscriber implements SOOPEventHandler {
         SOOPChatSocket socket = new SOOPChatSocket(chatInfo, service.getConfig().getSocket(), new SOOPChatSocketHandler() {
             @Override
             public void onConnected(@NotNull SOOPChatSocket socket) {
-                log.info("Chat connected for {}", bjId);
+                log.info("SOOP socket connected for bjId: {}", bjId);
             }
 
             @Override
             public void onJoined(@NotNull SOOPChatSocket socket) {
-                log.info("Chat joined for {}", bjId);
+                log.info("Joined room for bjId: {}", bjId);
                 Set<UUID> subs = channelSubscribers.get(bjId);
                 if (subs != null && service.getHandler() != null && service.getHandler().success() != null) {
                     for (UUID subUuid : subs) {
@@ -110,13 +110,13 @@ public class SOOPSubscriber implements SOOPEventHandler {
 
             @Override
             public void onDisconnected(@NotNull SOOPChatSocket socket) {
-                log.warn("Chat disconnected for {}", bjId);
+                log.warn("SOOP socket disconnected for bjId: {}", bjId);
                 chatSockets.remove(bjId);
             }
 
             @Override
             public void onError(@NotNull SOOPChatSocket socket, @NotNull Throwable error) {
-                log.error("Chat error for {}: {}", bjId, error.getMessage());
+                log.error("SOOP socket error for bjId: {}: {}", bjId, error.getMessage());
                 chatSockets.remove(bjId);
                 Set<UUID> subs = channelSubscribers.remove(bjId);
                 if (subs != null && service.getHandler() != null && service.getHandler().failure() != null) {

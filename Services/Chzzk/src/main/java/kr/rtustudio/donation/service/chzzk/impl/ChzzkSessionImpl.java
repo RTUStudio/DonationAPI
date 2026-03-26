@@ -64,7 +64,7 @@ public class ChzzkSessionImpl implements ChzzkSession {
         }
 
         try {
-            Logger.info("Requesting session URL...");
+            Logger.info("Started new Chzzk WebSocket request...");
             Optional<ChzzkSessionUrl> opt = chzzk.getSessionUrl();
             if (opt.isEmpty()) {
                 Logger.error("No session url found. disconnecting.");
@@ -73,7 +73,7 @@ public class ChzzkSessionImpl implements ChzzkSession {
             }
 
             ChzzkSessionUrl url = opt.get();
-            Logger.info("Session URL obtained: " + url.url());
+            Logger.info("Chzzk session URL obtained: " + url.url());
             socket = new SessionSocketImpl(url.url(), new SessionSocketHandler() {
 
                 @Override
@@ -92,7 +92,7 @@ public class ChzzkSessionImpl implements ChzzkSession {
                     }
                     try {
                         chzzk.subscribeDonation(sessionKey);
-                        Logger.info("Successfully subscribed donation for session: " + sessionKey);
+                        Logger.info("Registered Chzzk subscriber for session: " + sessionKey);
                     } catch (Exception e) {
                         Logger.error("Failed to subscribe donation for session: " + sessionKey + " - " + e.getMessage());
                         session.disconnect();

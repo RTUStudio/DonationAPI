@@ -75,7 +75,7 @@ public class SOOPChatSocket extends WebSocketListener {
                 .header("Sec-WebSocket-Protocol", "chat")
                 .build();
 
-        log.info("Connecting to SOOP chat: {}", wsUrl);
+        log.info("Started new SOOP WebSocket for bjId: {}", bjId);
         OkHttpClient client = SHARED_HTTP_CLIENT.newBuilder()
                 .readTimeout(socketOption.getTimeout(), TimeUnit.MILLISECONDS)
                 .build();
@@ -101,7 +101,7 @@ public class SOOPChatSocket extends WebSocketListener {
 
     @Override
     public void onOpen(@NotNull WebSocket ws, @NotNull Response response) {
-        log.info("WebSocket opened for {}", bjId);
+        log.info("SOOP socket connected for bjId: {}", bjId);
         // SDK: e.push(l), e.push(ticket), e.push(l), e.push(flag1), e.push(l)
         ws.send(SOOPPacket.encode(SOOPServiceCode.SVC_SDK_LOGIN, "", ticket, "", "", ""));
     }
@@ -112,7 +112,7 @@ public class SOOPChatSocket extends WebSocketListener {
         if (packet == null || packet.retCode() < 0) return;
 
         if (packet.serviceCode() == SOOPServiceCode.SVC_CLOSE_BROAD) {
-            log.info("Broadcast closed for {}, disconnecting", bjId);
+            log.info("Broadcast closed for bjId: {}, disconnecting", bjId);
             disconnect();
             return;
         }
@@ -122,7 +122,7 @@ public class SOOPChatSocket extends WebSocketListener {
 
         switch (parsed.action()) {
             case "LOGIN" -> {
-                log.info("Login OK for {}, joining room {}", bjId, chatNo);
+                log.info("Login OK for bjId: {}, joining room: {}", bjId, chatNo);
                 // SDK: e.push(l), e.push(roomId), e.push(l), e.push(ticket), e.push(l), e.push(5), e.push(l), e.push(""), e.push(l), e.push(logInfo), e.push(l)
                 ws.send(SOOPPacket.encode(SOOPServiceCode.SVC_JOINCH,
                         "", String.valueOf(chatNo), "", ticket, "", "5", "", "", "", ""));
@@ -138,7 +138,7 @@ public class SOOPChatSocket extends WebSocketListener {
                 handler.onConnected(this);
             }
             case "JOIN" -> {
-                log.info("Joined room for {}", bjId);
+                log.info("Joined room for bjId: {}", bjId);
                 joined = true;
                 handler.onJoined(this);
             }
@@ -152,19 +152,19 @@ public class SOOPChatSocket extends WebSocketListener {
 
     @Override
     public void onClosing(@NotNull WebSocket ws, int code, @NotNull String reason) {
-        log.info("Chat closing for {}: {} {}", bjId, code, reason);
+        log.info("SOOP socket closing for bjId: {}: {} {}", bjId, code, reason);
     }
 
     @Override
     public void onClosed(@NotNull WebSocket ws, int code, @NotNull String reason) {
-        log.info("Chat closed for {}: {} {}", bjId, code, reason);
+        log.info("SOOP socket closed for bjId: {}: {} {}", bjId, code, reason);
         stopKeepAlive();
         handler.onDisconnected(this);
     }
 
     @Override
     public void onFailure(@NotNull WebSocket ws, @NotNull Throwable t, @Nullable Response response) {
-        log.error("Chat failure for {}: {}", bjId, t.getMessage());
+        log.error("SOOP socket failure for bjId: {}: {}", bjId, t.getMessage());
         stopKeepAlive();
         handler.onError(this, t);
     }

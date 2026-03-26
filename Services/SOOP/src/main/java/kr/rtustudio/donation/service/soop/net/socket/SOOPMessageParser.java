@@ -24,7 +24,7 @@ public class SOOPMessageParser {
             // case SOOPServiceCode.SVC_VIDEO_BALLOON -> donation("VIDEOBALLOON_GIFTED", SOOPDonationType.BALLOON_GIFTED, get(f, 1), get(f, 2), get(f, 3), num(f, 4), null);
             // case SOOPServiceCode.SVC_SENDFANLETTER -> donation("STICKER_GIFTED", SOOPDonationType.STICKER_GIFTED, get(f, 0), get(f, 2), get(f, 3), num(f, 7), null);
             // case SOOPServiceCode.SVC_SENDFANLETTERSUB -> donation("STICKER_GIFTED", SOOPDonationType.STICKER_GIFTED, get(f, 1), get(f, 3), get(f, 4), num(f, 8), null);
-            // case SOOPServiceCode.SVC_ADCON_EFFECT -> donation("ADBALLOON_GIFTED", SOOPDonationType.AD_BALLOON_GIFTED, get(f, 1), get(f, 2), get(f, 3), num(f, 9), null);
+            case SOOPServiceCode.SVC_ADCON_EFFECT -> donation("ADBALLOON_GIFTED", SOOPDonationType.AD_BALLOON_GIFTED, get(f, 1), get(f, 2), get(f, 3), num(f, 9), null);
             // case SOOPServiceCode.SVC_STATION_ADCON -> donation("ADBALLOON_GIFTED", SOOPDonationType.AD_BALLOON_GIFTED, get(f, 0), get(f, 1), get(f, 2), num(f, 3), null);
             // case SOOPServiceCode.SVC_SENDQUICKVIEW -> donation("QUICKVIEW_GIFTED", SOOPDonationType.QUICKVIEW_GIFTED, null, get(f, 1), get(f, 2), 1, null);
             // case SOOPServiceCode.SVC_FOLLOW_ITEM -> donation("SUBSCRIBED", SOOPDonationType.SUBSCRIBED, get(f, 1), get(f, 2), get(f, 3), 1, null);
