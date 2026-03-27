@@ -2,7 +2,7 @@ package kr.rtustudio.donation.service.soop.net;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface SOOPAuthServerHandler {
+public interface SoopAuthServerHandler {
 
     default void onFailure(@NotNull AuthResult result) {
     }

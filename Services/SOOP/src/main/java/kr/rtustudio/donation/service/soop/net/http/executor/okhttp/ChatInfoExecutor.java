@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import kr.rtustudio.donation.service.soop.net.data.ChatInfoRequest;
 import kr.rtustudio.donation.service.soop.net.data.ChatInfoResponse;
-import kr.rtustudio.donation.service.soop.net.http.client.SOOPHttpClient;
+import kr.rtustudio.donation.service.soop.net.http.client.SoopHttpClient;
 import kr.rtustudio.donation.service.soop.net.http.executor.HttpRequestExecutor;
 import kr.rtustudio.donation.service.soop.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class ChatInfoExecutor implements HttpRequestExecutor<ChatInfoRequest, Ch
 
     @Override
     public @NotNull Optional<ChatInfoResponse> execute(
-            @NotNull SOOPHttpClient<OkHttpClient> client, @NotNull ChatInfoRequest requestInst) {
+            @NotNull SoopHttpClient<OkHttpClient> client, @NotNull ChatInfoRequest requestInst) {
 
         Request request = new Request.Builder()
                 .url(Constants.OPENAPI_URL + "/broad/access/chatinfo")

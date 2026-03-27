@@ -34,7 +34,7 @@ public class DonationManager {
     }
 
     public CompletableFuture<Void> load(UUID uuid) {
-        Storage storage = plugin.getStorage("PlayerStatus");
+        Storage storage = plugin.getStorage("User");
         return storage.get(JSON.of("uuid", uuid.toString())).thenAccept(result -> {
             DonationEntity entity = result.isEmpty()
                     ? new DonationEntity(uuid)
@@ -89,7 +89,7 @@ public class DonationManager {
     }
 
     private void save(DonationEntity entity) {
-        Storage storage = plugin.getStorage("PlayerStatus");
+        Storage storage = plugin.getStorage("User");
         UUID uuid = entity.getUuid();
         PlatformStatusComponent component = entity.getPlatformStatus();
 

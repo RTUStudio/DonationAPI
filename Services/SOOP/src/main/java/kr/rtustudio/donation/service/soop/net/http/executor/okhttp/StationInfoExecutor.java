@@ -4,7 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import kr.rtustudio.donation.service.soop.exception.HttpResponseParseException;
 import kr.rtustudio.donation.service.soop.net.data.StationInfoRequest;
 import kr.rtustudio.donation.service.soop.net.data.StationInfoResponse;
-import kr.rtustudio.donation.service.soop.net.http.client.SOOPHttpClient;
+import kr.rtustudio.donation.service.soop.net.http.client.SoopHttpClient;
 import kr.rtustudio.donation.service.soop.net.http.executor.HttpRequestExecutor;
 import kr.rtustudio.donation.service.soop.utils.Constants;
 import kr.rtustudio.donation.service.soop.utils.HttpResponseParser;
@@ -21,7 +21,7 @@ public class StationInfoExecutor implements HttpRequestExecutor<StationInfoReque
 
     @Override
     public @NotNull Optional<StationInfoResponse> execute(
-            @NotNull SOOPHttpClient<OkHttpClient> client, @NotNull StationInfoRequest requestInst) {
+            @NotNull SoopHttpClient<OkHttpClient> client, @NotNull StationInfoRequest requestInst) {
 
         Request request = new Request.Builder()
                 .url(Constants.OPENAPI_URL + "/user/stationinfo")

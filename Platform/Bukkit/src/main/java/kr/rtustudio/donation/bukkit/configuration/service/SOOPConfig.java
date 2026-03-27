@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @SuppressWarnings({"unused", "CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal", "InnerClassMayBeStatic"})
-public class SOOPConfig extends ConfigurationPart implements kr.rtustudio.donation.service.soop.configuration.SOOPConfig, ServiceBuilder.EnabledConfig {
+public class SoopConfig extends ConfigurationPart implements kr.rtustudio.donation.service.soop.configuration.SoopConfig, ServiceBuilder.EnabledConfig {
 
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;

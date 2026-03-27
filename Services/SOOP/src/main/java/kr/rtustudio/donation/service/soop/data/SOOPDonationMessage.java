@@ -3,8 +3,8 @@ package kr.rtustudio.donation.service.soop.data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public record SOOPDonationMessage(
-        @NotNull SOOPDonationType donationType,
+public record SoopDonationMessage(
+        @NotNull SoopDonationType donationType,
         @Nullable String bjId,
         @Nullable String userId,
         @Nullable String userNickname,

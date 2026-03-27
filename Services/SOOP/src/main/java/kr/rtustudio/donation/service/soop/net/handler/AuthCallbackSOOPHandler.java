@@ -8,18 +8,18 @@ import io.undertow.server.session.SessionManager;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
 import kr.rtustudio.donation.service.auth.AuthResponsePage;
-import kr.rtustudio.donation.service.soop.SOOPAuthServer;
+import kr.rtustudio.donation.service.soop.SoopAuthServer;
 import kr.rtustudio.donation.service.soop.net.AuthResult;
 import kr.rtustudio.donation.service.soop.utils.HttpExchangeQueryParameterParser;
 import org.jetbrains.annotations.NotNull;
 
-public class AuthCallbackSOOPHandler implements HttpHandler {
+public class AuthCallbackSoopHandler implements HttpHandler {
 
     private static final String SERVICE_NAME = "숲 (SOOP)";
 
-    private final @NotNull SOOPAuthServer authServer;
+    private final @NotNull SoopAuthServer authServer;
 
-    public AuthCallbackSOOPHandler(@NotNull SOOPAuthServer authServer) {
+    public AuthCallbackSoopHandler(@NotNull SoopAuthServer authServer) {
         this.authServer = authServer;
     }
 

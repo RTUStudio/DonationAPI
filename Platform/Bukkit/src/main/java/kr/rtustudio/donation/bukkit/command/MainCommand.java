@@ -12,6 +12,10 @@ import kr.rtustudio.donation.bukkit.command.youtube.YoutubeCommand;
 import kr.rtustudio.donation.bukkit.configuration.service.CimeConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.ChzzkConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.SSAPIConfig;
+import kr.rtustudio.donation.bukkit.configuration.GlobalConfig;
+import kr.rtustudio.donation.bukkit.configuration.service.SoopConfig;
+import kr.rtustudio.donation.bukkit.configuration.service.ToonationConfig;
+import kr.rtustudio.donation.bukkit.configuration.service.YoutubeConfig;
 import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 
@@ -36,9 +40,13 @@ public class MainCommand extends RSCommand<BukkitDonationAPI> {
 
     @Override
     protected void reload(CommandArgs args) {
+        plugin.reloadConfiguration(GlobalConfig.class);
         plugin.reloadConfiguration(SSAPIConfig.class);
         plugin.reloadConfiguration(ChzzkConfig.class);
+        plugin.reloadConfiguration(SoopConfig.class);
         plugin.reloadConfiguration(CimeConfig.class);
+        plugin.reloadConfiguration(ToonationConfig.class);
+        plugin.reloadConfiguration(YoutubeConfig.class);
         plugin.reloadServices();
     }
 }

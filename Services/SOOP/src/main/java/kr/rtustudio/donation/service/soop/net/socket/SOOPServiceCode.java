@@ -1,8 +1,8 @@
 package kr.rtustudio.donation.service.soop.net.socket;
 
-public final class SOOPServiceCode {
+public final class SoopServiceCode {
 
-    private SOOPServiceCode() {}
+    private SoopServiceCode() {}
 
     public static final int SVC_KEEPALIVE = 0;
     public static final int SVC_LOGIN = 1;

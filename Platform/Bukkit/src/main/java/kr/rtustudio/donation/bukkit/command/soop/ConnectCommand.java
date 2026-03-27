@@ -1,7 +1,7 @@
 package kr.rtustudio.donation.bukkit.command.soop;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
-import kr.rtustudio.donation.bukkit.configuration.service.SOOPConfig;
+import kr.rtustudio.donation.bukkit.configuration.service.SoopConfig;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 import kr.rtustudio.framework.bukkit.api.command.CommandArgs;
 import kr.rtustudio.framework.bukkit.api.format.ComponentFormatter;
@@ -17,11 +17,11 @@ import net.kyori.adventure.text.event.HoverEvent;
  */
 public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
 
-    private final SOOPConfig config;
+    private final SoopConfig config;
 
     public ConnectCommand(BukkitDonationAPI plugin) {
         super(plugin, "connect");
-        this.config = plugin.getConfiguration(SOOPConfig.class);
+        this.config = plugin.getConfiguration(SoopConfig.class);
     }
 
     @Override

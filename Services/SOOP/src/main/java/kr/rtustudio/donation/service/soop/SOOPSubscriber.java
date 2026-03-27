@@ -3,12 +3,12 @@ package kr.rtustudio.donation.service.soop;
 import kr.rtustudio.donation.common.Donation;
 import kr.rtustudio.donation.common.DonationType;
 import kr.rtustudio.donation.common.Platform;
-import kr.rtustudio.donation.service.soop.data.SOOPDonationMessage;
-import kr.rtustudio.donation.service.soop.data.SOOPPlayer;
-import kr.rtustudio.donation.service.soop.data.SOOPToken;
-import kr.rtustudio.donation.service.soop.event.SOOPEventHandler;
-import kr.rtustudio.donation.service.soop.net.socket.SOOPChatSocket;
-import kr.rtustudio.donation.service.soop.net.socket.SOOPChatSocketHandler;
+import kr.rtustudio.donation.service.soop.data.SoopDonationMessage;
+import kr.rtustudio.donation.service.soop.data.SoopPlayer;
+import kr.rtustudio.donation.service.soop.data.SoopToken;
+import kr.rtustudio.donation.service.soop.event.SoopEventHandler;
+import kr.rtustudio.donation.service.soop.net.socket.SoopChatSocket;
+import kr.rtustudio.donation.service.soop.net.socket.SoopChatSocketHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,14 +19,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j(topic = "DonationAPI/SOOP")
-public class SOOPSubscriber implements SOOPEventHandler {
+public class SoopSubscriber implements SoopEventHandler {
 
-    private final SOOPService service;
+    private final SoopService service;
     private final Map<String, Set<UUID>> channelSubscribers = new ConcurrentHashMap<>();
-    private final Map<String, SOOPChatSocket> chatSockets = new ConcurrentHashMap<>();
+    private final Map<String, SoopChatSocket> chatSockets = new ConcurrentHashMap<>();
     private final Map<UUID, String> playerToChannel = new ConcurrentHashMap<>();
 
-    SOOPSubscriber(@NotNull SOOPService service) {
+    SoopSubscriber(@NotNull SoopService service) {
         this.service = service;
     }
 
@@ -53,7 +53,7 @@ public class SOOPSubscriber implements SOOPEventHandler {
 
         playerToChannel.put(uuid, bjId);
 
-        SOOPToken token = service.getTokenStore().get(bjId);
+        SoopToken token = service.getTokenStore().get(bjId);
         if (token == null) {
             playerToChannel.remove(uuid);
             return false;
@@ -69,12 +69,12 @@ public class SOOPSubscriber implements SOOPEventHandler {
         return true;
     }
 
-    private boolean connectChat(@NotNull String bjId, @NotNull UUID uuid, @NotNull SOOPToken token) {
-        SOOPChatSocket existing = chatSockets.get(bjId);
+    private boolean connectChat(@NotNull String bjId, @NotNull UUID uuid, @NotNull SoopToken token) {
+        SoopChatSocket existing = chatSockets.get(bjId);
         if (existing != null) {
             channelSubscribers.computeIfAbsent(bjId, k -> ConcurrentHashMap.newKeySet()).add(uuid);
             if (existing.isJoined() && service.getHandler() != null && service.getHandler().success() != null) {
-                service.getHandler().success().accept(new SOOPPlayer(uuid, bjId, token));
+                service.getHandler().success().accept(new SoopPlayer(uuid, bjId, token));
             }
             return true;
         }
@@ -86,36 +86,36 @@ public class SOOPSubscriber implements SOOPEventHandler {
         }
 
         var chatInfo = chatInfoOpt.get();
-        SOOPChatSocket socket = new SOOPChatSocket(chatInfo, service.getConfig().getSocket(), new SOOPChatSocketHandler() {
+        SoopChatSocket socket = new SoopChatSocket(chatInfo, service.getConfig().getSocket(), new SoopChatSocketHandler() {
             @Override
-            public void onConnected(@NotNull SOOPChatSocket socket) {
+            public void onConnected(@NotNull SoopChatSocket socket) {
                 log.info("SOOP socket connected for bjId: {}", bjId);
             }
 
             @Override
-            public void onJoined(@NotNull SOOPChatSocket socket) {
+            public void onJoined(@NotNull SoopChatSocket socket) {
                 log.info("Joined room for bjId: {}", bjId);
                 Set<UUID> subs = channelSubscribers.get(bjId);
                 if (subs != null && service.getHandler() != null && service.getHandler().success() != null) {
                     for (UUID subUuid : subs) {
-                        service.getHandler().success().accept(new SOOPPlayer(subUuid, bjId, token));
+                        service.getHandler().success().accept(new SoopPlayer(subUuid, bjId, token));
                     }
                 }
             }
 
             @Override
-            public void onDonation(@NotNull SOOPChatSocket socket, @NotNull String action, @NotNull SOOPDonationMessage message) {
+            public void onDonation(@NotNull SoopChatSocket socket, @NotNull String action, @NotNull SoopDonationMessage message) {
                 onDonationMessage(bjId, message);
             }
 
             @Override
-            public void onDisconnected(@NotNull SOOPChatSocket socket) {
+            public void onDisconnected(@NotNull SoopChatSocket socket) {
                 log.warn("SOOP socket disconnected for bjId: {}", bjId);
                 chatSockets.remove(bjId);
             }
 
             @Override
-            public void onError(@NotNull SOOPChatSocket socket, @NotNull Throwable error) {
+            public void onError(@NotNull SoopChatSocket socket, @NotNull Throwable error) {
                 log.error("SOOP socket error for bjId: {}: {}", bjId, error.getMessage());
                 chatSockets.remove(bjId);
                 Set<UUID> subs = channelSubscribers.remove(bjId);
@@ -136,7 +136,7 @@ public class SOOPSubscriber implements SOOPEventHandler {
     }
 
     @Override
-    public void onDonationMessage(@NotNull String bjId, @NotNull SOOPDonationMessage message) {
+    public void onDonationMessage(@NotNull String bjId, @NotNull SoopDonationMessage message) {
         Set<UUID> subs = channelSubscribers.get(bjId);
         if (subs == null || subs.isEmpty()) return;
 
@@ -166,7 +166,7 @@ public class SOOPSubscriber implements SOOPEventHandler {
                 subs.remove(uuid);
                 if (subs.isEmpty()) {
                     channelSubscribers.remove(bjId);
-                    SOOPChatSocket socket = chatSockets.remove(bjId);
+                    SoopChatSocket socket = chatSockets.remove(bjId);
                     if (socket != null) {
                         try {
                             socket.disconnect();
@@ -180,7 +180,7 @@ public class SOOPSubscriber implements SOOPEventHandler {
     }
 
     public void closeAll() {
-        chatSockets.values().forEach(SOOPChatSocket::disconnect);
+        chatSockets.values().forEach(SoopChatSocket::disconnect);
         chatSockets.clear();
         channelSubscribers.clear();
         playerToChannel.clear();

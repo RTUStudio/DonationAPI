@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public record SOOPPlayer(UUID uuid, String channelId, SOOPToken token) implements UserData {
+public record SoopPlayer(UUID uuid, String channelId, SoopToken token) implements UserData {
 
     @Override
     public Platform platform() {

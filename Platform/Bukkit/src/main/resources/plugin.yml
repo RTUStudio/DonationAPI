@@ -1,8 +1,11 @@
-name: '${name}'
-version: '${version}'
-main: '${main}'
-description: 'RSPlugin - ${name}'
-api-version: '${api_version}'
-depend: [ RSFramework ]
-softdepend: [ ]
-authors: [ '${author}' ]
+name: ${name}
+version: "${version}"
+main: ${main}
+description: 'RTUStudio - ${name}'
+api-version: "${api_version}"
+author: 
+ - ${author}
+softdepend:
+ - PlaceholderAPI
+depend:
+  - RSFramework

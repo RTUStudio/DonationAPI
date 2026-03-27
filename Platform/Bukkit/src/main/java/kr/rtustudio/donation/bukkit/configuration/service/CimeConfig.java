@@ -7,7 +7,7 @@ import kr.rtustudio.configurate.model.ConfigurationPart;
 import lombok.Getter;
 
 @Getter
-@SuppressWarnings({"unused", "FieldMayBeFinal", "InnerClassMayBeStatic"})
+@SuppressWarnings({"unused", "CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal", "InnerClassMayBeStatic"})
 public class CimeConfig extends ConfigurationPart implements kr.rtustudio.donation.service.cime.configuration.CimeConfig, ServiceBuilder.EnabledConfig {
 
     @Comment("서비스 활성화 여부")

@@ -3,14 +3,14 @@ package kr.rtustudio.donation.service.soop;
 import kr.rtustudio.donation.common.Donation;
 import kr.rtustudio.donation.common.configuration.SocketOption;
 import kr.rtustudio.donation.service.ServiceHandler;
-import kr.rtustudio.donation.service.soop.configuration.SOOPConfig;
-import kr.rtustudio.donation.service.soop.data.SOOPPlayer;
+import kr.rtustudio.donation.service.soop.configuration.SoopConfig;
+import kr.rtustudio.donation.service.soop.data.SoopPlayer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
 
-public class SOOPConnectionTest {
+public class SoopConnectionTest {
 
     @Test
     @Disabled("수동으로 SOOP API 클라이언트 키를 입력한 뒤 실행하세요.")
@@ -21,7 +21,7 @@ public class SOOPConnectionTest {
 
         System.out.println("=== SOOP OpenAPI 연동 테스트 시작 ===");
 
-        SOOPConfig config = new SOOPConfig() {
+        SoopConfig config = new SoopConfig() {
             @Override public boolean isEnabled() { return true; }
             @Override public String getClientId() { return TEST_CLIENT_ID; }
             @Override public String getClientSecret() { return TEST_CLIENT_SECRET; }
@@ -48,16 +48,16 @@ public class SOOPConnectionTest {
             }
         };
 
-        ServiceHandler<SOOPPlayer> handler = new ServiceHandler<>(
+        ServiceHandler<SoopPlayer> handler = new ServiceHandler<>(
                 (Donation donation) -> {
                     System.out.println("[SOOP 후원 수신] " + donation);
                 },
-                (SOOPPlayer player) -> {
+                (SoopPlayer player) -> {
                     System.out.println("[SOOP 연동 성공] UUID: " + player.uuid() + " | SOOP ID: " + player.channelId());
                 }
         );
 
-        SOOPService service = new SOOPService(config, handler);
+        SoopService service = new SoopService(config, handler);
         service.start();
 
         System.out.println("[테스트 안내] ========================================");

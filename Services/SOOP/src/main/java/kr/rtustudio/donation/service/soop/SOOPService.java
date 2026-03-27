@@ -3,12 +3,12 @@ package kr.rtustudio.donation.service.soop;
 import kr.rtustudio.donation.service.AbstractService;
 import kr.rtustudio.donation.service.ServiceHandler;
 import kr.rtustudio.donation.service.Services;
-import kr.rtustudio.donation.service.soop.configuration.SOOPConfig;
-import kr.rtustudio.donation.service.soop.data.SOOPPlayer;
-import kr.rtustudio.donation.service.soop.data.SOOPToken;
+import kr.rtustudio.donation.service.soop.configuration.SoopConfig;
+import kr.rtustudio.donation.service.soop.data.SoopPlayer;
+import kr.rtustudio.donation.service.soop.data.SoopToken;
 import kr.rtustudio.donation.service.soop.net.AuthResult;
-import kr.rtustudio.donation.service.soop.net.SOOPApiClient;
-import kr.rtustudio.donation.service.soop.net.SOOPAuthServerHandler;
+import kr.rtustudio.donation.service.soop.net.SoopApiClient;
+import kr.rtustudio.donation.service.soop.net.SoopAuthServerHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -18,20 +18,20 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j(topic = "DonationAPI/SOOP")
-public class SOOPService extends AbstractService<SOOPPlayer> implements kr.rtustudio.donation.service.Disconnectable {
+public class SoopService extends AbstractService<SoopPlayer> implements kr.rtustudio.donation.service.Disconnectable {
 
     @Getter
-    private final SOOPConfig config;
+    private final SoopConfig config;
 
     @Getter
-    private final Map<String, SOOPToken> tokenStore = new ConcurrentHashMap<>();
+    private final Map<String, SoopToken> tokenStore = new ConcurrentHashMap<>();
 
-    private SOOPSubscriber subscriber;
-    private SOOPAuthServer authServer;
+    private SoopSubscriber subscriber;
+    private SoopAuthServer authServer;
     @Getter
-    private SOOPApiClient apiClient;
+    private SoopApiClient apiClient;
 
-    public SOOPService(SOOPConfig config, ServiceHandler<SOOPPlayer> handler) {
+    public SoopService(SoopConfig config, ServiceHandler<SoopPlayer> handler) {
         super(handler);
         this.config = config;
     }
@@ -45,15 +45,15 @@ public class SOOPService extends AbstractService<SOOPPlayer> implements kr.rtust
     public void start() {
         if (!config.isEnabled()) return;
 
-        this.subscriber = new SOOPSubscriber(this);
-        this.apiClient = new SOOPApiClient(config.getClientId(), config.getClientSecret());
-        this.authServer = new SOOPAuthServer(
+        this.subscriber = new SoopSubscriber(this);
+        this.apiClient = new SoopApiClient(config.getClientId(), config.getClientSecret());
+        this.authServer = new SoopAuthServer(
                 config.getClientId(),
                 config.getClientSecret(),
                 config.getBaseUri(),
                 config.getHost(),
                 config.getPort(),
-                new SOOPAuthServerHandler() {
+                new SoopAuthServerHandler() {
                     @Override
                     public boolean onSuccess(@NotNull AuthResult result) {
                         return handleAuthSuccess(result);
@@ -71,7 +71,7 @@ public class SOOPService extends AbstractService<SOOPPlayer> implements kr.rtust
             return false;
         }
 
-        SOOPToken token = new SOOPToken(tokenResponse.get().accessToken(), tokenResponse.get().refreshToken());
+        SoopToken token = new SoopToken(tokenResponse.get().accessToken(), tokenResponse.get().refreshToken());
         var stationInfo = apiClient.getStationInfo(token.accessToken());
         if (stationInfo.isEmpty()) {
             log.error("Failed to get station info after auth");
@@ -87,14 +87,14 @@ public class SOOPService extends AbstractService<SOOPPlayer> implements kr.rtust
         return connected;
     }
 
-    public boolean reconnect(@NotNull UUID uuid, @NotNull SOOPToken token) {
+    public boolean reconnect(@NotNull UUID uuid, @NotNull SoopToken token) {
         if (subscriber == null) {
             log.warn("Cannot reconnect: service not started");
             return false;
         }
 
         return apiClient.refreshToken(token.refreshToken()).map(tokenResponse -> {
-            SOOPToken newToken = new SOOPToken(tokenResponse.accessToken(), tokenResponse.refreshToken());
+            SoopToken newToken = new SoopToken(tokenResponse.accessToken(), tokenResponse.refreshToken());
 
             return apiClient.getStationInfo(newToken.accessToken()).map(stationInfo -> {
                 String userId = stationInfo.stationName() != null ? stationInfo.stationName() : "unknown";

@@ -1,6 +1,6 @@
 package kr.rtustudio.donation.service.soop.data;
 
-public enum SOOPDonationType {
+public enum SoopDonationType {
     BALLOON_GIFTED,
     STICKER_GIFTED,
     QUICKVIEW_GIFTED,

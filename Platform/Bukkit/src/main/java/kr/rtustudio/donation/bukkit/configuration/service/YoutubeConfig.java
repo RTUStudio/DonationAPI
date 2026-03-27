@@ -6,7 +6,7 @@ import kr.rtustudio.donation.bukkit.platform.ServiceBuilder;
 import lombok.Getter;
 
 @Getter
-@SuppressWarnings({"unused", "FieldMayBeFinal", "InnerClassMayBeStatic"})
+@SuppressWarnings({"unused", "CanBeFinal", "FieldCanBeLocal", "FieldMayBeFinal", "InnerClassMayBeStatic"})
 public class YoutubeConfig extends ConfigurationPart implements kr.rtustudio.donation.service.youtube.configuration.YoutubeConfig, ServiceBuilder.EnabledConfig {
 
     @Comment("서비스 활성화 여부")

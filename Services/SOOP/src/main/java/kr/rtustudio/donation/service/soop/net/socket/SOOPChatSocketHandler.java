@@ -1,18 +1,18 @@
 package kr.rtustudio.donation.service.soop.net.socket;
 
-import kr.rtustudio.donation.service.soop.data.SOOPDonationMessage;
+import kr.rtustudio.donation.service.soop.data.SoopDonationMessage;
 import org.jetbrains.annotations.NotNull;
 
-public interface SOOPChatSocketHandler {
+public interface SoopChatSocketHandler {
 
-    default void onConnected(@NotNull SOOPChatSocket socket) {}
+    default void onConnected(@NotNull SoopChatSocket socket) {}
 
-    default void onJoined(@NotNull SOOPChatSocket socket) {}
+    default void onJoined(@NotNull SoopChatSocket socket) {}
 
-    default void onDonation(@NotNull SOOPChatSocket socket, @NotNull String action, @NotNull SOOPDonationMessage message) {}
+    default void onDonation(@NotNull SoopChatSocket socket, @NotNull String action, @NotNull SoopDonationMessage message) {}
 
-    default void onDisconnected(@NotNull SOOPChatSocket socket) {}
+    default void onDisconnected(@NotNull SoopChatSocket socket) {}
 
-    default void onError(@NotNull SOOPChatSocket socket, @NotNull Throwable error) {}
+    default void onError(@NotNull SoopChatSocket socket, @NotNull Throwable error) {}
 
 }

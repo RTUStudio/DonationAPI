@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import kr.rtustudio.donation.service.soop.exception.HttpResponseParseException;
 import kr.rtustudio.donation.service.soop.net.data.AccessTokenGrantRequest;
 import kr.rtustudio.donation.service.soop.net.data.AccessTokenGrantResponse;
-import kr.rtustudio.donation.service.soop.net.http.client.SOOPHttpClient;
+import kr.rtustudio.donation.service.soop.net.http.client.SoopHttpClient;
 import kr.rtustudio.donation.service.soop.net.http.executor.HttpRequestExecutor;
 import kr.rtustudio.donation.service.soop.utils.Constants;
 import kr.rtustudio.donation.service.soop.utils.HttpResponseParser;
@@ -22,7 +22,7 @@ public class AccessTokenGrantExecutor implements HttpRequestExecutor<AccessToken
 
     @Override
     public @NotNull Optional<AccessTokenGrantResponse> execute(
-            @NotNull SOOPHttpClient<OkHttpClient> client, @NotNull AccessTokenGrantRequest requestInst) {
+            @NotNull SoopHttpClient<OkHttpClient> client, @NotNull AccessTokenGrantRequest requestInst) {
 
         JsonObject requestJson = new JsonObject();
         requestJson.addProperty("grant_type", requestInst.grantType());

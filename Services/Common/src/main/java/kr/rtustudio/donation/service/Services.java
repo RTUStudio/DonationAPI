@@ -10,11 +10,11 @@ import java.util.List;
 public enum Services {
 
     SSAPI("SSAPI", Platform.CHZZK, Platform.SOOP),
-    Chzzk("Chzzk", Platform.CHZZK),
+    Chzzk("CHZZK", Platform.CHZZK),
     SOOP("SOOP", Platform.SOOP),
     Youtube("Youtube", Platform.YOUTUBE),
     Toonation("Toonation", Platform.TOONATION),
-    Cime("Cime", Platform.CIME);
+    Cime("CIME", Platform.CIME);
 
     @Getter
     private final String storage;

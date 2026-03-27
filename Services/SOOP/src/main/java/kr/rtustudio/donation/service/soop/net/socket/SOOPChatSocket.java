@@ -1,7 +1,7 @@
 package kr.rtustudio.donation.service.soop.net.socket;
 
 import kr.rtustudio.donation.common.configuration.SocketOption;
-import kr.rtustudio.donation.service.soop.data.SOOPDonationMessage;
+import kr.rtustudio.donation.service.soop.data.SoopDonationMessage;
 import kr.rtustudio.donation.service.soop.net.data.ChatInfoResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j(topic = "DonationAPI/SOOP")
-public class SOOPChatSocket extends WebSocketListener {
+public class SoopChatSocket extends WebSocketListener {
 
     private static final OkHttpClient SHARED_HTTP_CLIENT;
 
@@ -36,7 +36,7 @@ public class SOOPChatSocket extends WebSocketListener {
     private final int chatNo;
     private final @NotNull String wsUrl;
     private final @NotNull SocketOption socketOption;
-    private final @NotNull SOOPChatSocketHandler handler;
+    private final @NotNull SoopChatSocketHandler handler;
     private @Nullable WebSocket webSocket;
     private @Nullable ScheduledFuture<?> keepAliveFuture;
     private final ScheduledExecutorService scheduler;
@@ -46,7 +46,7 @@ public class SOOPChatSocket extends WebSocketListener {
     @Getter
     private volatile boolean joined = false;
 
-    public SOOPChatSocket(@NotNull ChatInfoResponse chatInfo, @NotNull SocketOption socketOption, @NotNull SOOPChatSocketHandler handler) {
+    public SoopChatSocket(@NotNull ChatInfoResponse chatInfo, @NotNull SocketOption socketOption, @NotNull SoopChatSocketHandler handler) {
         this.bjId = chatInfo.bjId();
         this.ticket = chatInfo.ticket();
         this.chatNo = chatInfo.chatNo();
@@ -103,34 +103,34 @@ public class SOOPChatSocket extends WebSocketListener {
     public void onOpen(@NotNull WebSocket ws, @NotNull Response response) {
         log.info("SOOP socket connected for bjId: {}", bjId);
         // SDK: e.push(l), e.push(ticket), e.push(l), e.push(flag1), e.push(l)
-        ws.send(SOOPPacket.encode(SOOPServiceCode.SVC_SDK_LOGIN, "", ticket, "", "", ""));
+        ws.send(SoopPacket.encode(SoopServiceCode.SVC_SDK_LOGIN, "", ticket, "", "", ""));
     }
 
     @Override
     public void onMessage(@NotNull WebSocket ws, @NotNull ByteString bytes) {
-        SOOPPacket.ParsedPacket packet = SOOPPacket.parse(bytes.toByteArray());
+        SoopPacket.ParsedPacket packet = SoopPacket.parse(bytes.toByteArray());
         if (packet == null || packet.retCode() < 0) return;
 
-        if (packet.serviceCode() == SOOPServiceCode.SVC_CLOSE_BROAD) {
+        if (packet.serviceCode() == SoopServiceCode.SVC_CLOSE_BROAD) {
             log.info("Broadcast closed for bjId: {}, disconnecting", bjId);
             disconnect();
             return;
         }
 
-        SOOPMessageParser.ParsedMessage parsed = SOOPMessageParser.parse(packet.serviceCode(), packet.fields());
+        SoopMessageParser.ParsedMessage parsed = SoopMessageParser.parse(packet.serviceCode(), packet.fields());
         if (parsed == null) return;
 
         switch (parsed.action()) {
             case "LOGIN" -> {
                 log.info("Login OK for bjId: {}, joining room: {}", bjId, chatNo);
                 // SDK: e.push(l), e.push(roomId), e.push(l), e.push(ticket), e.push(l), e.push(5), e.push(l), e.push(""), e.push(l), e.push(logInfo), e.push(l)
-                ws.send(SOOPPacket.encode(SOOPServiceCode.SVC_JOINCH,
+                ws.send(SoopPacket.encode(SoopServiceCode.SVC_JOINCH,
                         "", String.valueOf(chatNo), "", ticket, "", "5", "", "", "", ""));
                 if (socketOption.getKeepalive().isEnabled()) {
                     long interval = socketOption.getKeepalive().getInterval();
                     keepAliveFuture = scheduler.scheduleAtFixedRate(() -> {
                         if (webSocket != null && connected) {
-                            webSocket.send(SOOPPacket.encode(SOOPServiceCode.SVC_KEEPALIVE, ""));
+                            webSocket.send(SoopPacket.encode(SoopServiceCode.SVC_KEEPALIVE, ""));
                         }
                     }, interval, interval, TimeUnit.MILLISECONDS);
                 }
@@ -143,7 +143,7 @@ public class SOOPChatSocket extends WebSocketListener {
                 handler.onJoined(this);
             }
             default -> {
-                if (parsed.message() instanceof SOOPDonationMessage msg) {
+                if (parsed.message() instanceof SoopDonationMessage msg) {
                     handler.onDonation(this, parsed.action(), msg);
                 }
             }

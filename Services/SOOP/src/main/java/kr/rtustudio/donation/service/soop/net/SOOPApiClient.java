@@ -1,7 +1,7 @@
 package kr.rtustudio.donation.service.soop.net;
 
 import kr.rtustudio.donation.service.soop.net.data.*;
-import kr.rtustudio.donation.service.soop.net.http.client.SOOPHttpClient;
+import kr.rtustudio.donation.service.soop.net.http.client.SoopHttpClient;
 import kr.rtustudio.donation.service.soop.net.http.executor.okhttp.AccessTokenGrantExecutor;
 import kr.rtustudio.donation.service.soop.net.http.executor.okhttp.AccessTokenRefreshExecutor;
 import kr.rtustudio.donation.service.soop.net.http.executor.okhttp.ChatInfoExecutor;
@@ -11,9 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public class SOOPApiClient {
+public class SoopApiClient {
 
-    private final @NotNull SOOPHttpClient<OkHttpClient> httpClient;
+    private final @NotNull SoopHttpClient<OkHttpClient> httpClient;
     private final @NotNull String clientId;
     private final @NotNull String clientSecret;
 
@@ -22,8 +22,8 @@ public class SOOPApiClient {
     private final StationInfoExecutor stationInfoExecutor = new StationInfoExecutor();
     private final ChatInfoExecutor chatInfoExecutor = new ChatInfoExecutor();
 
-    public SOOPApiClient(@NotNull String clientId, @NotNull String clientSecret) {
-        this.httpClient = SOOPHttpClient.okhttp();
+    public SoopApiClient(@NotNull String clientId, @NotNull String clientSecret) {
+        this.httpClient = SoopHttpClient.okhttp();
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }

@@ -7,9 +7,9 @@ import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.server.session.SessionManager;
-import kr.rtustudio.donation.service.soop.net.SOOPAuthServerHandler;
-import kr.rtustudio.donation.service.soop.net.handler.AuthCallbackSOOPHandler;
-import kr.rtustudio.donation.service.soop.net.handler.AuthLoginSOOPHandler;
+import kr.rtustudio.donation.service.soop.net.SoopAuthServerHandler;
+import kr.rtustudio.donation.service.soop.net.handler.AuthCallbackSoopHandler;
+import kr.rtustudio.donation.service.soop.net.handler.AuthLoginSoopHandler;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
@@ -19,7 +19,7 @@ import org.xnio.Sequence;
 import java.util.UUID;
 
 @Getter
-public class SOOPAuthServer {
+public class SoopAuthServer {
 
     private final UUID uniqueId = UUID.randomUUID();
 
@@ -34,12 +34,12 @@ public class SOOPAuthServer {
     private final @NotNull String baseUri;
     private final @NotNull String host;
     private final @Range(from = 0, to = 65535) int port;
-    private final @NotNull SOOPAuthServerHandler handler;
+    private final @NotNull SoopAuthServerHandler handler;
 
-    public SOOPAuthServer(
+    public SoopAuthServer(
             @NotNull String clientId, @NotNull String clientSecret, @NotNull String baseUri,
             @NotNull String host, @Range(from = 0, to = 65535) int port,
-            @NotNull SOOPAuthServerHandler handler
+            @NotNull SoopAuthServerHandler handler
     ) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -48,8 +48,8 @@ public class SOOPAuthServer {
         this.port = port;
         this.handler = handler;
 
-        routing.get("/auth/login/soop", new AuthLoginSOOPHandler(this));
-        routing.get("/auth/callback/soop", new AuthCallbackSOOPHandler(this));
+        routing.get("/auth/login/soop", new AuthLoginSoopHandler(this));
+        routing.get("/auth/callback/soop", new AuthCallbackSoopHandler(this));
 
         PathHandler pathHandler = new PathHandler(sessionHandler);
         pathHandler.addPrefixPath("/", routing);

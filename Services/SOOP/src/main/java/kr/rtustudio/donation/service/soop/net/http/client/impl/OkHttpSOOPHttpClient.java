@@ -1,14 +1,14 @@
 package kr.rtustudio.donation.service.soop.net.http.client.impl;
 
-import kr.rtustudio.donation.service.soop.net.http.client.SOOPHttpClient;
+import kr.rtustudio.donation.service.soop.net.http.client.SoopHttpClient;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 
-public class OkHttpSOOPHttpClient implements SOOPHttpClient<OkHttpClient> {
+public class OkHttpSoopHttpClient implements SoopHttpClient<OkHttpClient> {
 
     private final @NotNull OkHttpClient client;
 
-    public OkHttpSOOPHttpClient() {
+    public OkHttpSoopHttpClient() {
         this.client = new OkHttpClient();
     }
 

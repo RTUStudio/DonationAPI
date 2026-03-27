@@ -28,10 +28,10 @@ dependencies {
     implementation(project(":Platform:Common"))
 
     compileOnly(project(":Services:Common"))
-    compileOnly(project(":Services:Chzzk"))
+    compileOnly(project(":Services:CHZZK"))
     compileOnly(project(":Services:SOOP"))
     compileOnly(project(":Services:SSAPI"))
-    compileOnly(project(":Services:Cime"))
+    compileOnly(project(":Services:CIME"))
     compileOnly(project(":Services:Toonation"))
     compileOnly(project(":Services:Youtube"))
 

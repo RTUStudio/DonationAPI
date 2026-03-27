@@ -3,7 +3,7 @@ package kr.rtustudio.donation.bukkit;
 import kr.rtustudio.donation.bukkit.command.MainCommand;
 import kr.rtustudio.donation.bukkit.configuration.GlobalConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.ChzzkConfig;
-import kr.rtustudio.donation.bukkit.configuration.service.SOOPConfig;
+import kr.rtustudio.donation.bukkit.configuration.service.SoopConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.CimeConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.SSAPIConfig;
 import kr.rtustudio.donation.bukkit.configuration.service.ToonationConfig;
@@ -24,13 +24,13 @@ import kr.rtustudio.donation.service.chzzk.ChzzkService;
 import kr.rtustudio.donation.service.chzzk.data.ChzzkPlayer;
 import kr.rtustudio.donation.service.cime.CimeService;
 import kr.rtustudio.donation.service.cime.data.CimePlayer;
-import kr.rtustudio.donation.service.soop.SOOPService;
-import kr.rtustudio.donation.service.soop.data.SOOPPlayer;
+import kr.rtustudio.donation.service.soop.SoopService;
+import kr.rtustudio.donation.service.soop.data.SoopPlayer;
 import kr.rtustudio.donation.service.ssapi.SSAPIService;
 import kr.rtustudio.donation.service.youtube.YoutubeService;
 import kr.rtustudio.donation.service.youtube.data.YoutubePlayer;
 import kr.rtustudio.donation.service.cime.live.CimeLiveChecker;
-import kr.rtustudio.donation.service.soop.live.SOOPLiveChecker;
+import kr.rtustudio.donation.service.soop.live.SoopLiveChecker;
 import kr.rtustudio.donation.service.chzzk.live.ChzzkLiveChecker;
 import kr.rtustudio.donation.service.youtube.live.YoutubeLiveChecker;
 import kr.rtustudio.donation.service.Services;
@@ -100,14 +100,17 @@ public class BukkitDonationAPI extends RSPlugin {
     }
 
     private void initializeStorage() {
-        registerStorage("PlayerStatus");
+        registerStorage("User");
+        for (Services service : Services.values()) {
+            registerStorage(service.getStorage());
+        }
     }
 
     private void initializeConfigurations() {
         registerConfiguration(GlobalConfig.class, ConfigPath.of("Global"));
         registerConfiguration(SSAPIConfig.class, ConfigPath.of("Config", "Services", "SSAPI"));
         registerConfiguration(ChzzkConfig.class, ConfigPath.of("Config", "Services", "Chzzk"));
-        registerConfiguration(SOOPConfig.class, ConfigPath.of("Config", "Services", "SOOP"));
+        registerConfiguration(SoopConfig.class, ConfigPath.of("Config", "Services", "SOOP"));
         registerConfiguration(CimeConfig.class, ConfigPath.of("Config", "Services", "Cime"));
         registerConfiguration(ToonationConfig.class, ConfigPath.of("Config", "Services", "Toonation"));
         registerConfiguration(YoutubeConfig.class, ConfigPath.of("Config", "Services", "Youtube"));
@@ -174,9 +177,9 @@ public class BukkitDonationAPI extends RSPlugin {
 
         // SOOP
         register(ServiceBuilder.builder()
-                .config(SOOPConfig.class)
-                .data(SOOPPlayer.class)
-                .factory(SOOPService::new)
+                .config(SoopConfig.class)
+                .data(SoopPlayer.class)
+                .factory(SoopService::new)
                 .reconnect((service, data) -> service.reconnect(data.uuid(), data.token()))
                 .build(this)
         );
@@ -218,9 +221,9 @@ public class BukkitDonationAPI extends RSPlugin {
             liveStatusManager.registerChecker(Services.Cime, new CimeLiveChecker(), cimeConfig.getLiveCheckInterval());
         }
 
-        SOOPConfig soopConfig = getConfiguration(SOOPConfig.class);
+        SoopConfig soopConfig = getConfiguration(SoopConfig.class);
         if (soopConfig != null && soopConfig.isEnabled()) {
-            liveStatusManager.registerChecker(Services.SOOP, new SOOPLiveChecker(), soopConfig.getLiveCheckInterval());
+            liveStatusManager.registerChecker(Services.SOOP, new SoopLiveChecker(), soopConfig.getLiveCheckInterval());
         }
 
         ChzzkConfig chzzkConfig = getConfiguration(ChzzkConfig.class);

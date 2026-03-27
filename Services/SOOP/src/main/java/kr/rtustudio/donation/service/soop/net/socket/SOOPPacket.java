@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SOOPPacket {
+public class SoopPacket {
 
     public static final byte SEPARATOR = 0x0C;
     private static final byte ESC = 0x1B;

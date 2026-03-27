@@ -7,17 +7,17 @@ import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
-import kr.rtustudio.donation.service.soop.SOOPAuthServer;
+import kr.rtustudio.donation.service.soop.SoopAuthServer;
 import kr.rtustudio.donation.service.soop.utils.Constants;
 import kr.rtustudio.donation.service.soop.utils.HttpExchangeQueryParameterParser;
 import okhttp3.HttpUrl;
 import org.jetbrains.annotations.NotNull;
 
-public class AuthLoginSOOPHandler implements HttpHandler {
+public class AuthLoginSoopHandler implements HttpHandler {
 
-    private final @NotNull SOOPAuthServer authServer;
+    private final @NotNull SoopAuthServer authServer;
 
-    public AuthLoginSOOPHandler(@NotNull SOOPAuthServer authServer) {
+    public AuthLoginSoopHandler(@NotNull SoopAuthServer authServer) {
         this.authServer = authServer;
     }
 

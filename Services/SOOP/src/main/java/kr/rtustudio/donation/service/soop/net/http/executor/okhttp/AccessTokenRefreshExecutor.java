@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import kr.rtustudio.donation.service.soop.exception.HttpResponseParseException;
 import kr.rtustudio.donation.service.soop.net.data.AccessTokenRefreshRequest;
 import kr.rtustudio.donation.service.soop.net.data.AccessTokenRefreshResponse;
-import kr.rtustudio.donation.service.soop.net.http.client.SOOPHttpClient;
+import kr.rtustudio.donation.service.soop.net.http.client.SoopHttpClient;
 import kr.rtustudio.donation.service.soop.net.http.executor.HttpRequestExecutor;
 import kr.rtustudio.donation.service.soop.utils.Constants;
 import kr.rtustudio.donation.service.soop.utils.HttpResponseParser;
@@ -22,7 +22,7 @@ public class AccessTokenRefreshExecutor implements HttpRequestExecutor<AccessTok
 
     @Override
     public @NotNull Optional<AccessTokenRefreshResponse> execute(
-            @NotNull SOOPHttpClient<OkHttpClient> client, @NotNull AccessTokenRefreshRequest requestInst) {
+            @NotNull SoopHttpClient<OkHttpClient> client, @NotNull AccessTokenRefreshRequest requestInst) {
 
         JsonObject requestJson = new JsonObject();
         requestJson.addProperty("grant_type", requestInst.grantType());

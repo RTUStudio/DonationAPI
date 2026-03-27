@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j(topic = "DonationAPI/SOOP")
-public class SOOPLiveChecker implements LiveStatusChecker {
+public class SoopLiveChecker implements LiveStatusChecker {
 
     private static final String LIVE_API_URL = "https://live.sooplive.co.kr/afreeca/player_live_api.php?bjid=%s";
     private static final String CHANNEL_URL = "https://play.sooplive.co.kr/%s";
