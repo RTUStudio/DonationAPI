@@ -13,6 +13,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,7 +81,7 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
         return connections.get(uuid);
     }
 
-    public ConcurrentHashMap<UUID, T> getConnections() {
+    public Map<UUID, T> getConnections() {
         return connections;
     }
 

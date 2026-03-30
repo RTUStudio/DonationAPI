@@ -33,4 +33,4 @@ service:
   already_connected: "<yellow>이미 연결되어 있습니다.</yellow>"
   not_connected: "<yellow>연결되어 있지 않습니다.</yellow>"
 donation:
-  notify: "<gold>[{service}]</gold> <yellow>{nickname}</yellow><white>님이 </white><aqua>{amount}원</aqua><white>을 후원했습니다: {message}</white>"
+  notify: "<gold>[{service}]</gold> <yellow>{nickname}</yellow><white>님이 </white><aqua>{amount}{unit}</aqua><white>을(를) 후원했습니다: {message}</white>"

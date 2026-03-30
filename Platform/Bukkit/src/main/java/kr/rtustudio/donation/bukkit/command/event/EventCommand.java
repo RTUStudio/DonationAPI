@@ -22,14 +22,14 @@ public class EventCommand extends RSCommand<BukkitDonationAPI> {
 
     @Override
     protected Result execute(CommandArgs args) {
-        if (!(getSender() instanceof Player player)) return Result.ONLY_PLAYER;
+        if (!(getSender() instanceof Player)) return Result.ONLY_PLAYER;
 
         if (args.length() < 4) return Result.WRONG_USAGE;
 
         String targetPlayerName = args.get(1);
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
         if (targetPlayer == null || !targetPlayer.isOnline()) {
-            notifier.announce("<red>해당 플레이어를 찾을 수 없습니다.</red>");
+            notifier.announce(message.get(getSender(), "event.player_not_found"));
             return Result.FAILURE;
         }
 
@@ -38,11 +38,11 @@ public class EventCommand extends RSCommand<BukkitDonationAPI> {
         try {
             amount = Integer.parseInt(amountStr);
         } catch (NumberFormatException e) {
-            notifier.announce("<red>가격은 숫자로 입력해주세요.</red>");
+            notifier.announce(message.get(getSender(), "event.invalid_amount"));
             return Result.FAILURE;
         }
 
-        String message = String.join(" ", Arrays.copyOfRange(args.args(), 3, args.args().length));
+        String donationMessage = String.join(" ", Arrays.copyOfRange(args.args(), 3, args.args().length));
 
         Donation donation = new Donation(
                 targetPlayer.getUniqueId(),
@@ -52,14 +52,15 @@ public class EventCommand extends RSCommand<BukkitDonationAPI> {
                 targetPlayer.getName(),
                 "DonationAPI",
                 "DonationAPI",
-                message,
+                donationMessage,
                 amount
         );
 
         DonationEvent event = new DonationEvent(targetPlayer, donation);
         Bukkit.getPluginManager().callEvent(event);
 
-        notifier.announce("<green>후원 이벤트가 발생했습니다. (대상: " + targetPlayer.getName() + ")</green>");
+        notifier.announce(message.get(getSender(), "event.success")
+                .replace("{player}", targetPlayer.getName()));
         return Result.SUCCESS;
     }
 

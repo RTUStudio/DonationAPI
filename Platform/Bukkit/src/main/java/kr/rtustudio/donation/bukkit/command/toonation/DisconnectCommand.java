@@ -25,11 +25,13 @@ public class DisconnectCommand extends RSCommand<BukkitDonationAPI> {
     protected Result execute(CommandArgs args) {
         if (!(getSender() instanceof Player player)) return Result.ONLY_PLAYER;
 
-        // The logic for disconnection should be here, as per the user's implied intent
-        // from the "Code Edit" snippet, though the instruction was only to add the brace.
-        // I'm adding the logic here to make the code syntactically correct and functional
-        // based on the provided snippet's content.
-        connectionManager.disconnect(player.getUniqueId(), Services.Toonation);
-        return Result.SUCCESS;
+        try {
+            connectionManager.disconnect(player.getUniqueId(), Services.Toonation);
+            notifier.announce(message.get(player, "disconnect.success"));
+            return Result.SUCCESS;
+        } catch (Exception e) {
+            notifier.announce(message.get(player, "disconnect.fail"));
+            return Result.FAILURE;
+        }
     }
 }

@@ -7,7 +7,6 @@ import kr.rtustudio.donation.common.DonationType;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.common.net.WebSocketClient;
 import kr.rtustudio.donation.service.toonation.ToonationService;
-import kr.rtustudio.donation.service.toonation.data.ToonationPlayer;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.WebSocket;
 import org.jetbrains.annotations.NotNull;

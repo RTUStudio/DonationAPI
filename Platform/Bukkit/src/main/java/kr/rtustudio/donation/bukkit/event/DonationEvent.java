@@ -60,6 +60,14 @@ public class DonationEvent extends Event implements Cancellable {
         return donation.amount();
     }
 
+    public String getUnit() {
+        return donation.unit();
+    }
+
+    public int getPrice() {
+        return donation.price();
+    }
+
     public @NotNull HandlerList getHandlers() {
         return handlers;
     }

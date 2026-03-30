@@ -33,7 +33,7 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
             return Result.FAILURE;
         }
 
-        String authUrl = config.getBaseUri() + "/auth/login/soop?user=" + player.getUniqueId();
+        String authUrl = config.getBaseUri() + "/auth/soop/login?user=" + player.getUniqueId();
 
         notifier.announce(message.get(player, "soop.connect.warning"));
 

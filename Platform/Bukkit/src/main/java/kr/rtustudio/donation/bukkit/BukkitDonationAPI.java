@@ -19,6 +19,7 @@ import kr.rtustudio.donation.bukkit.platform.ServiceBuilder;
 import kr.rtustudio.donation.service.ssapi.data.SSAPIPlayer;
 import kr.rtustudio.donation.common.Donation;
 import kr.rtustudio.donation.common.DonationAPI;
+import kr.rtustudio.donation.common.Platform;
 
 import kr.rtustudio.donation.service.chzzk.ChzzkService;
 import kr.rtustudio.donation.service.chzzk.data.ChzzkPlayer;
@@ -30,6 +31,7 @@ import kr.rtustudio.donation.service.ssapi.SSAPIService;
 import kr.rtustudio.donation.service.youtube.YoutubeService;
 import kr.rtustudio.donation.service.youtube.data.YoutubePlayer;
 import kr.rtustudio.donation.service.cime.live.CimeLiveChecker;
+import kr.rtustudio.donation.common.live.LiveStatusChecker;
 import kr.rtustudio.donation.service.soop.live.SoopLiveChecker;
 import kr.rtustudio.donation.service.chzzk.live.ChzzkLiveChecker;
 import kr.rtustudio.donation.service.youtube.live.YoutubeLiveChecker;
@@ -37,6 +39,7 @@ import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.toonation.ToonationService;
 import kr.rtustudio.donation.service.toonation.data.ToonationPlayer;
 import kr.rtustudio.configurate.model.ConfigPath;
+import kr.rtustudio.configurate.model.ConfigurationPart;
 import kr.rtustudio.framework.bukkit.api.RSPlugin;
 import kr.rtustudio.framework.bukkit.api.configuration.internal.translation.message.MessageTranslation;
 import kr.rtustudio.framework.bukkit.api.player.Notifier;
@@ -48,6 +51,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class BukkitDonationAPI extends RSPlugin {
 
@@ -69,6 +73,7 @@ public class BukkitDonationAPI extends RSPlugin {
     @Getter
     private LiveStatusManager liveStatusManager;
 
+    private final List<ServiceBuilder<?, ?>> services = new ArrayList<>();
     private GlobalConfig globalConfig;
     private MessageTranslation message;
 
@@ -78,8 +83,6 @@ public class BukkitDonationAPI extends RSPlugin {
         loadLibrary("com.squareup.okhttp3:okhttp:4.12.0");
         loadLibrary("org.xerial.snappy:snappy-java:1.1.10.8");
     }
-
-    private final List<ServiceBuilder<?, ?>> services = new ArrayList<>();
 
     @Override
     protected void load() {
@@ -96,7 +99,19 @@ public class BukkitDonationAPI extends RSPlugin {
         initializeListeners();
         initializeCommands();
         initializePlaceholder();
+        applyPlatformSettings();
         setupServices();
+    }
+
+    private void applyPlatformSettings() {
+        if (globalConfig == null || globalConfig.getPlatforms() == null) return;
+        GlobalConfig.PlatformSettings settings = globalConfig.getPlatforms();
+        for (Platform platform : Platform.values()) {
+            GlobalConfig.PlatformSettings.PlatformInfo info = settings.get(platform);
+            if (info == null) continue;
+            if (info.getUnit() != null) platform.setUnit(info.getUnit());
+            if (info.getRate() > 0) platform.setRate(info.getRate());
+        }
     }
 
     private void initializeStorage() {
@@ -147,11 +162,16 @@ public class BukkitDonationAPI extends RSPlugin {
     }
 
     public void reloadServices() {
+        if (liveStatusManager != null) liveStatusManager.shutdown();
         if (donationAPI != null) donationAPI.close();
         if (platformRegistry != null) platformRegistry.shutdown();
         services.clear();
+        globalConfig = getConfiguration(GlobalConfig.class);
+        message = getConfiguration().getMessage();
+        applyPlatformSettings();
         platformRegistry = new PlatformRegistry();
         connectionManager = new PlatformConnectionManager(platformRegistry);
+        liveStatusManager = new LiveStatusManager(platformRegistry);
         setupServices();
     }
 
@@ -216,24 +236,18 @@ public class BukkitDonationAPI extends RSPlugin {
     }
 
     private void registerLiveCheckers() {
-        CimeConfig cimeConfig = getConfiguration(CimeConfig.class);
-        if (cimeConfig != null && cimeConfig.isEnabled()) {
-            liveStatusManager.registerChecker(Services.Cime, new CimeLiveChecker(), cimeConfig.getLiveCheckInterval());
-        }
+        registerLiveChecker(CimeConfig.class, Services.Cime, new CimeLiveChecker(), CimeConfig::getLiveCheckInterval);
+        registerLiveChecker(SoopConfig.class, Services.SOOP, new SoopLiveChecker(), SoopConfig::getLiveCheckInterval);
+        registerLiveChecker(ChzzkConfig.class, Services.Chzzk, new ChzzkLiveChecker(), ChzzkConfig::getLiveCheckInterval);
+        registerLiveChecker(YoutubeConfig.class, Services.Youtube, new YoutubeLiveChecker(), YoutubeConfig::getLiveCheckInterval);
+    }
 
-        SoopConfig soopConfig = getConfiguration(SoopConfig.class);
-        if (soopConfig != null && soopConfig.isEnabled()) {
-            liveStatusManager.registerChecker(Services.SOOP, new SoopLiveChecker(), soopConfig.getLiveCheckInterval());
-        }
-
-        ChzzkConfig chzzkConfig = getConfiguration(ChzzkConfig.class);
-        if (chzzkConfig != null && chzzkConfig.isEnabled()) {
-            liveStatusManager.registerChecker(Services.Chzzk, new ChzzkLiveChecker(), chzzkConfig.getLiveCheckInterval());
-        }
-
-        YoutubeConfig youtubeConfig = getConfiguration(YoutubeConfig.class);
-        if (youtubeConfig != null && youtubeConfig.isEnabled()) {
-            liveStatusManager.registerChecker(Services.Youtube, new YoutubeLiveChecker(), youtubeConfig.getLiveCheckInterval());
+    private <C extends ConfigurationPart & ServiceBuilder.EnabledConfig> void registerLiveChecker(
+            Class<C> configClass, Services service, LiveStatusChecker checker, Function<C, Long> intervalExtractor
+    ) {
+        C config = getConfiguration(configClass);
+        if (config != null && config.isEnabled()) {
+            liveStatusManager.registerChecker(service, checker, intervalExtractor.apply(config));
         }
     }
 
@@ -260,11 +274,14 @@ public class BukkitDonationAPI extends RSPlugin {
             if (!event.isCancelled() && player != null && player.isOnline()) {
                 if (globalConfig != null && globalConfig.isDonationNotify()) {
                     Notifier notifier = Notifier.of(BukkitDonationAPI.this);
+                    String donationMessage = donation.message() != null ? donation.message() : "";
                     String msg = message.get(player, "donation.notify")
                             .replace("{service}", donation.service().name())
                             .replace("{nickname}", donation.nickname())
                             .replace("{amount}", String.valueOf(donation.amount()))
-                            .replace("{message}", donation.message());
+                            .replace("{price}", String.valueOf(donation.price()))
+                            .replace("{unit}", donation.unit())
+                            .replace("{message}", donationMessage);
                     notifier.announce(player, msg);
                 }
             }

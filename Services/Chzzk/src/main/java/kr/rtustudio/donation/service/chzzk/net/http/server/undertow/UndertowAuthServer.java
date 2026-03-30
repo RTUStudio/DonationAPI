@@ -37,8 +37,8 @@ public class UndertowAuthServer implements AuthServer {
         this.chzzkAuthServer = chzzkAuthServer;
         this.handler = handler;
 
-        routing.get("/auth/login/chzzk", new AuthLoginChzzkHandler(this));
-        routing.get("/auth/callback", new AuthCallbackHandler(this));
+        routing.get("/auth/chzzk/login", new AuthLoginChzzkHandler(this));
+        routing.get("/auth/chzzk/callback", new AuthCallbackHandler(this));
 
         PathHandler pathHandler = new PathHandler(sessionHandler);
         pathHandler.addPrefixPath("/", routing);

@@ -45,7 +45,7 @@ public class AuthLoginChzzkHandler implements HttpHandler {
         HttpUrl url = HttpUrl.get("https://chzzk.naver.com/account-interlock")
                 .newBuilder()
                 .addQueryParameter("clientId", chzzk.getClientId())
-                .addQueryParameter("redirectUri", chzzk.getBaseUri() + "/auth/callback")
+                .addQueryParameter("redirectUri", chzzk.getBaseUri() + "/auth/chzzk/callback")
                 .addQueryParameter("state", state)
                 .build();
 

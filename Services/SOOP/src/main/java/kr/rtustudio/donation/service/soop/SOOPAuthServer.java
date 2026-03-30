@@ -48,8 +48,8 @@ public class SoopAuthServer {
         this.port = port;
         this.handler = handler;
 
-        routing.get("/auth/login/soop", new AuthLoginSoopHandler(this));
-        routing.get("/auth/callback/soop", new AuthCallbackSoopHandler(this));
+        routing.get("/auth/soop/login", new AuthLoginSoopHandler(this));
+        routing.get("/auth/soop/callback", new AuthCallbackSoopHandler(this));
 
         PathHandler pathHandler = new PathHandler(sessionHandler);
         pathHandler.addPrefixPath("/", routing);

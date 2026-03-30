@@ -50,7 +50,9 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
                 notifier.announce(player, message.get(player, "connect.success"));
                 return Result.SUCCESS;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to connect YouTube for " + player.getName() + ": " + e.getMessage());
+        }
         
         notifier.announce(player, message.get(player, "connect.fail"));
         return Result.FAILURE;

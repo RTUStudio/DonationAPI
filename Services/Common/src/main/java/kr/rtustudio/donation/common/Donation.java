@@ -25,4 +25,22 @@ public record Donation(
         nickname = nickname != null ? nickname : "익명의 후원자";
         message = message != null ? message : "";
     }
+
+    /**
+     * 플랫폼 후원 단위명을 반환합니다.
+     *
+     * @return 단위명 (개, 치즈, 원, 캐시, 빔)
+     */
+    public String unit() {
+        return platform.unit();
+    }
+
+    /**
+     * 총 금액(원)을 반환합니다. (amount × platform.rate())
+     *
+     * @return 총 후원 금액 (원)
+     */
+    public int price() {
+        return amount * platform.rate();
+    }
 }

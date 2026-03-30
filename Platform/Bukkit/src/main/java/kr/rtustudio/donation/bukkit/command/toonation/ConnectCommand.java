@@ -28,15 +28,12 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
             return Result.FAILURE;
         }
 
-        String input = args.get(2);
-        String key = input;
-        
+        String key = args.get(2);
+
         // 링크 형식이면 마지막 경로 추출
-        if (input.contains("/")) {
-            key = input.substring(input.lastIndexOf('/') + 1);
-            if (key.contains("?")) {
-                key = key.substring(0, key.indexOf('?'));
-            }
+        if (key.contains("/")) {
+            key = key.substring(key.lastIndexOf('/') + 1);
+            if (key.contains("?")) key = key.substring(0, key.indexOf('?'));
         }
 
         ToonationPlayer data = new ToonationPlayer(player.getUniqueId(), key, key, "");

@@ -52,11 +52,7 @@ public class PlatformConnectionManager {
      * @param uuid 플레이어 UUID
      */
     public void loadAll(UUID uuid) {
-        registry.getEnabledPlatforms().forEach(platform -> {
-            if (platform instanceof AbstractDonationPlatform<?> abstractPlatform) {
-                abstractPlatform.load(uuid);
-            }
-        });
+        registry.getEnabledPlatforms().forEach(platform -> platform.load(uuid));
     }
 
     /**

@@ -72,7 +72,7 @@ public class LiveStatusManager {
     }
 
     /**
-     * 캐싱된 라이브 상태를 조회합니다.
+     * 캐싱된 라이브 상태를 채널 식별자로 조회합니다.
      *
      * @param service   서비스 타입
      * @param channelId 채널 식별자
@@ -80,6 +80,29 @@ public class LiveStatusManager {
      */
     public LiveStatus getLiveStatus(Services service, String channelId) {
         return cache.get(service.name() + ":" + channelId);
+    }
+
+    /**
+     * 캐싱된 라이브 상태를 플레이어 UUID로 조회합니다.
+     * <p>
+     * 연결된 플레이어의 채널 식별자를 자동으로 조회하여 라이브 상태를 반환합니다.
+     *
+     * @param service 서비스 타입
+     * @param uuid    플레이어 UUID
+     * @return 캐싱된 라이브 상태 (연결되지 않았거나 없으면 null)
+     */
+    public LiveStatus getLiveStatus(Services service, UUID uuid) {
+        var platform = registry.getPlatform(service);
+        if (platform instanceof AbstractDonationPlatform<?> abstractPlatform) {
+            UserData data = abstractPlatform.getConnection(uuid);
+            if (data != null) {
+                String channelId = data.channelId();
+                if (channelId != null && !channelId.isEmpty()) {
+                    return getLiveStatus(service, channelId);
+                }
+            }
+        }
+        return null;
     }
 
     /**

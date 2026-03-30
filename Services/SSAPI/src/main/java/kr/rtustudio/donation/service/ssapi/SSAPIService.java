@@ -203,6 +203,7 @@ public class SSAPIService extends AbstractService<SSAPIPlayer> {
             log.error("unknown platform in donation: {}", data.platform());
             return null;
         }
+        int count = data.count() > 0 ? data.count() : data.amount();
         return new Donation(
                 null,
                 getType(),
@@ -212,7 +213,7 @@ public class SSAPIService extends AbstractService<SSAPIPlayer> {
                 data.userId(),
                 data.nickname(),
                 data.message(),
-                data.amount()
+                count
         );
     }
 
