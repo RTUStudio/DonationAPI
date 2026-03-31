@@ -71,7 +71,7 @@ public class ChzzkAuthServerImpl implements ChzzkAuthServer, ChzzkEventHandlerHo
                         chzzk.getHttpRequestExecutorFactory().create("access_token_grant");
 
                 if (requester.isEmpty()) {
-                    log.error("Chzzk access_token_grant executor not found");
+                    log.error("CHZZK access_token_grant executor not found");
                     return false;
                 }
 
@@ -79,7 +79,7 @@ public class ChzzkAuthServerImpl implements ChzzkAuthServer, ChzzkEventHandlerHo
                 Optional<AccessTokenGrantResponse> responseInst = requester.get().execute(ChzzkHttpClient.okhttp(), requestInst);
 
                 if (responseInst.isEmpty()) {
-                    log.error("Chzzk grant token failed: empty response");
+                    log.error("CHZZK grant token failed: empty response");
                     return false;
                 }
 

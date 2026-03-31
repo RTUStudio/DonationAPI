@@ -8,11 +8,11 @@ import java.util.List;
 public enum Services {
 
     SSAPI("SSAPI", Platform.CHZZK, Platform.SOOP),
-    Chzzk("CHZZK", Platform.CHZZK),
+    CHZZK("CHZZK", Platform.CHZZK),
     SOOP("SOOP", Platform.SOOP),
     Youtube("Youtube", Platform.YOUTUBE),
     Toonation("Toonation", Platform.TOONATION),
-    Cime("CIME", Platform.CIME);
+    CIME("CIME", Platform.CIME);
 
     @Getter
     private final String storage;

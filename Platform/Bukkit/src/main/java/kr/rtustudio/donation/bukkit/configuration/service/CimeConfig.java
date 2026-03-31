@@ -13,6 +13,9 @@ public class CimeConfig extends ConfigurationPart implements kr.rtustudio.donati
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;
 
+    @Comment("브랜드 색상 (HEX)")
+    private String color = "#8A2BE2";
+
     @Comment("라이브 상태 확인 주기 (ms)")
     private long liveCheckInterval = 30000;
 

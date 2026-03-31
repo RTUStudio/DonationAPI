@@ -6,8 +6,18 @@ disconnect:
   success: "<green>연동이 해제되었습니다.</green>"
   fail: "<red>연동 해제에 실패했습니다.</red>"
 connection:
-  success: "<green>{service} 서비스와 연결되었습니다. (스트리머: {id})</green>"
-  failed: "<red>{service} 서비스 연결에 실패했습니다.</red>"
+  trying: "{service} 연결 시도 중..."
+  trying_id: "{service} 연결 시도 중... ({id})"
+  activated: "{service} 후원 연동이 활성화되었습니다!"
+  waiting: "{service} 후원 연동을 활성화하기 위해 라이브 대기 중..."
+  token_expired: "<red>{service} 인증이 만료되었습니다. 후원 연동을 다시 해주세요.</red>"
+service_name:
+  CHZZK: "치지직"
+  SOOP: "숲"
+  Youtube: "유튜브"
+  Toonation: "투네이션"
+  CIME: "씨미"
+  SSAPI: "SSAPI"
 ssapi:
   connect:
     success: "<green>SSAPI 연동에 성공했습니다.</green>"

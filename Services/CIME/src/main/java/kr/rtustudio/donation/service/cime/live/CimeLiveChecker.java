@@ -12,7 +12,7 @@ import okhttp3.Response;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j(topic = "DonationAPI/Cime")
+@Slf4j(topic = "DonationAPI/CIME")
 public class CimeLiveChecker implements LiveStatusChecker {
 
     private static final String LIVE_API_URL = "https://prod.ci.me/api/app/channels/%s/live";
@@ -46,7 +46,7 @@ public class CimeLiveChecker implements LiveStatusChecker {
                     return LiveStatus.online(title, viewCount, url);
                 }
             } catch (Exception e) {
-                log.warn("Failed to check Cime live status for {}: {}", channelSlug, e.getMessage());
+                log.warn("Failed to check CIME live status for {}: {}", channelSlug, e.getMessage());
                 return LiveStatus.offline(url);
             }
         });

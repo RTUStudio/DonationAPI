@@ -1,13 +1,11 @@
 package kr.rtustudio.donation.service.soop.net.http.executor.okhttp;
 
 import com.google.gson.reflect.TypeToken;
-import kr.rtustudio.donation.service.soop.exception.HttpResponseParseException;
 import kr.rtustudio.donation.service.soop.net.data.StationInfoRequest;
 import kr.rtustudio.donation.service.soop.net.data.StationInfoResponse;
 import kr.rtustudio.donation.service.soop.net.http.client.SoopHttpClient;
 import kr.rtustudio.donation.service.soop.net.http.executor.HttpRequestExecutor;
 import kr.rtustudio.donation.service.soop.utils.Constants;
-import kr.rtustudio.donation.service.soop.utils.HttpResponseParser;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,9 +29,16 @@ public class StationInfoExecutor implements HttpRequestExecutor<StationInfoReque
                 .build();
 
         try (Response response = client.getNativeHttpClient().newCall(request).execute()) {
-            return HttpResponseParser.parse(response, new TypeToken<>() {
-            });
-        } catch (IOException | HttpResponseParseException e) {
+            if (response.body() != null) {
+                String body = response.body().string();
+                com.google.gson.JsonObject json = com.google.gson.JsonParser.parseString(body).getAsJsonObject();
+                if (json.has("data")) {
+                    return Optional.ofNullable(Constants.GSON.fromJson(
+                            json.get("data"), new TypeToken<StationInfoResponse>() {}.getType()));
+                }
+            }
+            return Optional.empty();
+        } catch (IOException e) {
             throw new RuntimeException("Failed to execute StationInfo request", e);
         }
     }

@@ -14,10 +14,14 @@ import java.util.UUID;
  */
 public record ToonationPlayer(
         UUID uuid,
-        String channelId,
         String alertKey,
         String payload
 ) implements UserData {
+
+    @Override
+    public String channelId() {
+        return alertKey;
+    }
 
     @Override
     public Platform platform() {

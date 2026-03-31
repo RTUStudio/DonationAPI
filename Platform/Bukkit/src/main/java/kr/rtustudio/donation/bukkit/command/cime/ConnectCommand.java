@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
 
     private static final Pattern CHANNEL_SLUG_PATTERN = Pattern.compile("\"channelSlug\":\"([^\"]+)\"");
-    private static final Pattern CHANNEL_ID_PATTERN = Pattern.compile("\"channelId\":\"([^\"]+)\"");
 
     private final PlatformConnectionManager connectionManager;
     private final OkHttpClient httpClient = new OkHttpClient.Builder()
@@ -51,9 +50,9 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
         String input = args.get(2);
 
         // 이미 연결된 경우 기존 연결 해제
-        connectionManager.disconnect(player.getUniqueId(), Services.Cime);
+        connectionManager.disconnect(player.getUniqueId(), Services.CIME);
 
-        CimeService cimeService = plugin.getDonationAPI().get(Services.Cime, CimeService.class);
+        CimeService cimeService = plugin.getDonationAPI().get(Services.CIME, CimeService.class);
         if (cimeService == null) {
             notifier.announce(message.get(player, "service.disabled"));
             return Result.FAILURE;
@@ -67,13 +66,13 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
                     notifier.announce(player, message.get(player, "connect.fail"));
                     return;
                 }
-                CimePlayer data = new CimePlayer(player.getUniqueId(), parsed[0], parsed[1], parsed[2]);
+                CimePlayer data = new CimePlayer(player.getUniqueId(), parsed[0], parsed[1]);
                 boolean success = cimeService.reconnect(player.getUniqueId(), data);
                 if (success) {
                     notifier.announce(player, message.get(player, "connect.success")
-                            .replace("{service}", "Cime")
+                            .replace("{service}", "CIME")
                             .replace("{platform}", "CIME")
-                            .replace("{id}", parsed[2]));
+                            .replace("{id}", parsed[1]));
                 } else {
                     notifier.announce(player, message.get(player, "connect.fail"));
                 }
@@ -88,12 +87,12 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
             if (key.contains("?")) key = key.substring(0, key.indexOf('?'));
         }
 
-        CimePlayer data = new CimePlayer(player.getUniqueId(), key, key, key);
+        CimePlayer data = new CimePlayer(player.getUniqueId(), key, key);
         boolean success = cimeService.reconnect(player.getUniqueId(), data);
 
         if (success) {
             notifier.announce(message.get(player, "connect.success")
-                    .replace("{service}", "Cime")
+                    .replace("{service}", "CIME")
                     .replace("{platform}", "CIME")
                     .replace("{id}", key.substring(0, Math.min(8, key.length())) + "..."));
             return Result.SUCCESS;
@@ -104,10 +103,10 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
     }
 
     /**
-     * 알람 링크의 HTML에서 channelId, alertKey, channelSlug를 파싱합니다.
+     * 알람 링크의 HTML에서 alertKey, channelSlug를 파싱합니다.
      *
      * @param url 씨미 알람 링크
-     * @return [channelId, alertKey, channelSlug] 또는 null
+     * @return [alertKey, channelSlug] 또는 null
      */
     private String[] parseAlertLink(String url) {
         try {
@@ -121,18 +120,13 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
                 String body = response.body() != null ? response.body().string() : "";
 
                 String channelSlug = null;
-                String channelId = null;
 
                 Matcher slugMatcher = CHANNEL_SLUG_PATTERN.matcher(body);
                 if (slugMatcher.find()) channelSlug = slugMatcher.group(1);
 
-                Matcher idMatcher = CHANNEL_ID_PATTERN.matcher(body);
-                if (idMatcher.find()) channelId = idMatcher.group(1);
-
                 if (channelSlug == null) return null;
-                if (channelId == null) channelId = alertKey;
 
-                return new String[]{channelId, alertKey, channelSlug};
+                return new String[]{alertKey, channelSlug};
             }
         } catch (Exception e) {
             return null;

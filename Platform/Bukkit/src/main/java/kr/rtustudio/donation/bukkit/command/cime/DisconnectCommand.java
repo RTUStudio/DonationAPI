@@ -26,7 +26,7 @@ public class DisconnectCommand extends RSCommand<BukkitDonationAPI> {
         if (!(getSender() instanceof Player player)) return Result.ONLY_PLAYER;
 
         try {
-            connectionManager.disconnect(player.getUniqueId(), Services.Cime);
+            connectionManager.disconnect(player.getUniqueId(), Services.CIME);
             notifier.announce(message.get(player, "disconnect.success"));
             return Result.SUCCESS;
         } catch (Exception e) {

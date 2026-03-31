@@ -48,11 +48,16 @@ public abstract class WebSocketClient extends WebSocketListener {
     public void connect() {
         if (closed) return;
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        Request.Builder builder = new Request.Builder().url(url);
+        configureRequest(builder);
 
-        this.webSocket = SHARED_HTTP_CLIENT.newWebSocket(request, this);
+        this.webSocket = SHARED_HTTP_CLIENT.newWebSocket(builder.build(), this);
+    }
+
+    /**
+     * 서브클래스에서 Request.Builder에 헤더 등을 추가할 수 있습니다.
+     */
+    protected void configureRequest(Request.Builder builder) {
     }
 
     @Override

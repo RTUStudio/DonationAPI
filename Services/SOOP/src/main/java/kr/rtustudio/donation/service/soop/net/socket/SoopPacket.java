@@ -11,23 +11,28 @@ import java.util.List;
 
 public class SoopPacket {
 
-    public static final byte SEPARATOR = 0x0C;
+    static final byte SEPARATOR = 0x0C;
     private static final byte ESC = 0x1B;
     private static final byte TAB = 0x09;
+    private static final int HEADER_SIZE = 14;
 
     public record ParsedPacket(int serviceCode, int retCode, @NotNull String[] fields) {}
 
     public static @Nullable ParsedPacket parse(@NotNull byte[] data) {
-        if (data.length < 14) return null;
+        if (data.length < HEADER_SIZE) return null;
 
         try {
-            String header = new String(data, 0, 14, StandardCharsets.US_ASCII);
+            String header = new String(data, 0, HEADER_SIZE, StandardCharsets.US_ASCII);
             int serviceCode = Integer.parseInt(header.substring(2, 6));
             int retCode = Integer.parseInt(header.substring(12, 14));
 
+            // JS SDK 호환: body 첫 바이트(leading separator)를 건너뜀
+            int bodyStart = HEADER_SIZE;
+            if (bodyStart < data.length && data[bodyStart] == SEPARATOR) bodyStart++;
+
             List<byte[]> fieldBytes = new ArrayList<>();
             ByteArrayOutputStream current = new ByteArrayOutputStream();
-            for (int i = 14; i < data.length; i++) {
+            for (int i = bodyStart; i < data.length; i++) {
                 if (data[i] == SEPARATOR) {
                     fieldBytes.add(current.toByteArray());
                     current = new ByteArrayOutputStream();
@@ -41,7 +46,6 @@ public class SoopPacket {
             for (int i = 0; i < fieldBytes.size(); i++) {
                 fields[i] = new String(fieldBytes.get(i), StandardCharsets.UTF_8);
             }
-
             return new ParsedPacket(serviceCode, retCode, fields);
         } catch (NumberFormatException e) {
             return null;
@@ -59,7 +63,6 @@ public class SoopPacket {
         }
 
         byte[] bodyBytes = body.toByteArray();
-
         String headerStr = "" + (char) ESC + (char) TAB
                 + String.format("%04d", serviceCode)
                 + String.format("%06d", bodyBytes.length)
@@ -72,5 +75,4 @@ public class SoopPacket {
 
         return ByteString.of(packet);
     }
-
 }

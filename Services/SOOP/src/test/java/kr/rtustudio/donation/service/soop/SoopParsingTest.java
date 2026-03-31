@@ -33,6 +33,7 @@ public class SoopParsingTest {
     }
 
     @Test
+    @org.junit.jupiter.api.Disabled("SVC_ADCON_EFFECT is currently disabled in SoopMessageParser")
     public void testAdBalloonParsing() {
         // SDK: bjId=t[1], userId=t[2], userNickname=t[3], count=t[9]
         String[] mockFields = new String[]{"", "test_bj", "test_user2", "시청자2", "", "", "", "", "", "10", ""};

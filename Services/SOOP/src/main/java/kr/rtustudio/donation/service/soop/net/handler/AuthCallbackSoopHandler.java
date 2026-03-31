@@ -53,7 +53,7 @@ public class AuthCallbackSoopHandler implements HttpHandler {
             exchange.getResponseSender().send(AuthResponsePage.success(SERVICE_NAME));
         } else {
             exchange.setStatusCode(StatusCodes.OK);
-            exchange.getResponseSender().send(AuthResponsePage.failure(SERVICE_NAME, "방송이 켜져있어야 연동이 가능합니다. 방송을 켠 후 다시 시도해주세요."));
+            exchange.getResponseSender().send(AuthResponsePage.failure(SERVICE_NAME, "연동에 실패했습니다. 잠시 후 다시 시도해주세요."));
         }
     }
 

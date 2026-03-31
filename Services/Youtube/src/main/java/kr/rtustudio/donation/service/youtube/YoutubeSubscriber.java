@@ -26,11 +26,16 @@ public class YoutubeSubscriber {
         }
 
         playerToHandle.put(uuid, handle);
+
+        if (service.getHandler() != null && service.getHandler().messenger() != null) {
+            service.getHandler().messenger().send(uuid, "connection.trying", handle);
+        }
+
         YoutubeClient client = activeClients.computeIfAbsent(handle, h -> {
             try {
                 YoutubeClient newClient = new YoutubeClient(service, h, service.getConfig().getPollingIntervalMs());
                 newClient.start();
-                log.info("Started new YouTube polling task for handle: {}", h);
+                log.debug("Started new YouTube polling task for handle: {}", h);
                 return newClient;
             } catch (Exception e) {
                 log.error("Failed to connect to YouTube Live Chat for user: {} ({})", h, e.getMessage());
@@ -40,11 +45,19 @@ public class YoutubeSubscriber {
 
         if (client == null) {
             playerToHandle.remove(uuid);
+            if (service.getHandler() != null && service.getHandler().messenger() != null) {
+                service.getHandler().messenger().send(uuid, "connection.waiting", null);
+            }
             return false;
         }
 
         client.addSubscriber(uuid);
-        log.info("Registered YouTube subscriber for Handle: {} (UUID: {})", handle, uuid);
+        log.debug("Registered YouTube subscriber for Handle: {} (UUID: {})", handle, uuid);
+
+        if (service.getHandler() != null && service.getHandler().messenger() != null) {
+            service.getHandler().messenger().send(uuid, "connection.activated", null);
+        }
+
         return true;
     }
 
@@ -57,10 +70,10 @@ public class YoutubeSubscriber {
                 if (client.getSubscribersCount() == 0) {
                     client.close();
                     activeClients.remove(handle);
-                    log.info("Stopped YouTube polling task for handle: {} (no more subscribers)", handle);
+                    log.debug("Stopped YouTube polling task for handle: {} (no more subscribers)", handle);
                 }
             }
-            log.info("Disconnected YouTube subscriber for UUID: {}", uuid);
+            log.debug("Disconnected YouTube subscriber for UUID: {}", uuid);
         }
     }
 
@@ -68,6 +81,6 @@ public class YoutubeSubscriber {
         activeClients.values().forEach(YoutubeClient::close);
         activeClients.clear();
         playerToHandle.clear();
-        log.info("Closed all YouTube subscribers");
+        log.debug("Closed all YouTube subscribers");
     }
 }

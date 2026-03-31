@@ -56,7 +56,7 @@ public class CimeConnectionTest {
 
         UUID dummyUuid = UUID.randomUUID();
         // register 
-        service.reconnect(dummyUuid, new CimePlayer(dummyUuid, "test_channel", TEST_CIME_ALERT_KEY, "test_channel"));
+        service.reconnect(dummyUuid, new CimePlayer(dummyUuid, TEST_CIME_ALERT_KEY, TEST_CIME_ALERT_KEY));
 
         // 30초 대기
         long startTime = System.currentTimeMillis();

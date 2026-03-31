@@ -36,7 +36,7 @@ public class ConnectCommand extends RSCommand<BukkitDonationAPI> {
             if (key.contains("?")) key = key.substring(0, key.indexOf('?'));
         }
 
-        ToonationPlayer data = new ToonationPlayer(player.getUniqueId(), key, key, "");
+        ToonationPlayer data = new ToonationPlayer(player.getUniqueId(), key, "");
 
         plugin.getConnectionManager().connect(player.getUniqueId(), Services.Toonation, data);
         return Result.SUCCESS;

@@ -6,6 +6,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * 치지직 플레이어 데이터
+ *
+ * @param uuid      플레이어 UUID
+ * @param channelId 채널 고유 ID
+ * @param token     OAuth 토큰
+ */
 public record ChzzkPlayer(UUID uuid, String channelId, ChzzkToken token) implements UserData {
 
     @Override

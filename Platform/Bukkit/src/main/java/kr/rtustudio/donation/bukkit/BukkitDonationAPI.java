@@ -14,6 +14,8 @@ import kr.rtustudio.donation.bukkit.handler.PlayerJoinQuit;
 import kr.rtustudio.donation.bukkit.manager.DonationManager;
 import kr.rtustudio.donation.bukkit.manager.LiveStatusManager;
 import kr.rtustudio.donation.bukkit.manager.PlatformConnectionManager;
+import kr.rtustudio.donation.bukkit.platform.AbstractDonationPlatform;
+import kr.rtustudio.donation.bukkit.platform.DonationPlatform;
 import kr.rtustudio.donation.bukkit.platform.PlatformRegistry;
 import kr.rtustudio.donation.bukkit.platform.ServiceBuilder;
 import kr.rtustudio.donation.service.ssapi.data.SSAPIPlayer;
@@ -123,12 +125,12 @@ public class BukkitDonationAPI extends RSPlugin {
 
     private void initializeConfigurations() {
         registerConfiguration(GlobalConfig.class, ConfigPath.of("Global"));
-        registerConfiguration(SSAPIConfig.class, ConfigPath.of("Config", "Services", "SSAPI"));
-        registerConfiguration(ChzzkConfig.class, ConfigPath.of("Config", "Services", "Chzzk"));
-        registerConfiguration(SoopConfig.class, ConfigPath.of("Config", "Services", "SOOP"));
-        registerConfiguration(CimeConfig.class, ConfigPath.of("Config", "Services", "Cime"));
-        registerConfiguration(ToonationConfig.class, ConfigPath.of("Config", "Services", "Toonation"));
-        registerConfiguration(YoutubeConfig.class, ConfigPath.of("Config", "Services", "Youtube"));
+        registerConfiguration(SSAPIConfig.class, ConfigPath.of("Services", "SSAPI"));
+        registerConfiguration(ChzzkConfig.class, ConfigPath.of("Services", "CHZZK"));
+        registerConfiguration(SoopConfig.class, ConfigPath.of("Services", "SOOP"));
+        registerConfiguration(CimeConfig.class, ConfigPath.of("Services", "CIME"));
+        registerConfiguration(ToonationConfig.class, ConfigPath.of("Services", "Toonation"));
+        registerConfiguration(YoutubeConfig.class, ConfigPath.of("Services", "Youtube"));
     }
 
     private void initializeManagers() {
@@ -183,17 +185,29 @@ public class BukkitDonationAPI extends RSPlugin {
                 .config(SSAPIConfig.class)
                 .data(SSAPIPlayer.class)
                 .factory(SSAPIService::new)
-                .build(this)
+                .build(this), true
         );
 
         // 치지직
-        register(ServiceBuilder.builder()
+        var chzzkBuilder = ServiceBuilder.builder()
                 .config(ChzzkConfig.class)
                 .data(ChzzkPlayer.class)
                 .factory(ChzzkService::new)
-                .reconnect((service, data) -> service.reconnect(data.uuid(), data.token()))
-                .build(this)
-        );
+                .reconnect((service, data) -> {
+                    // refresh_token은 일회용이므로 갱신 시 DB에 즉시 반영
+                    service.setTokenRefreshCallback((uuid, newToken) -> {
+                        ChzzkPlayer updated = new ChzzkPlayer(uuid, data.channelId(), newToken);
+                        DonationPlatform<?> platform = platformRegistry.getPlatform(Services.CHZZK);
+                        if (platform instanceof AbstractDonationPlatform<?> abstractPlatform) {
+                            @SuppressWarnings("unchecked")
+                            var chzzkPlatform = (AbstractDonationPlatform<ChzzkPlayer>) abstractPlatform;
+                            chzzkPlatform.save(uuid, updated);
+                        }
+                    });
+                    return service.reconnect(data.uuid(), data.token());
+                })
+                .build(this);
+        register(chzzkBuilder);
 
         // SOOP
         register(ServiceBuilder.builder()
@@ -219,7 +233,7 @@ public class BukkitDonationAPI extends RSPlugin {
                 .data(ToonationPlayer.class)
                 .factory(ToonationService::new)
                 .reconnect((service, data) -> service.reconnect(data.uuid(), data))
-                .build(this)
+                .build(this), true
         );
 
         // Youtube
@@ -236,9 +250,9 @@ public class BukkitDonationAPI extends RSPlugin {
     }
 
     private void registerLiveCheckers() {
-        registerLiveChecker(CimeConfig.class, Services.Cime, new CimeLiveChecker(), CimeConfig::getLiveCheckInterval);
+        registerLiveChecker(CimeConfig.class, Services.CIME, new CimeLiveChecker(), CimeConfig::getLiveCheckInterval);
         registerLiveChecker(SoopConfig.class, Services.SOOP, new SoopLiveChecker(), SoopConfig::getLiveCheckInterval);
-        registerLiveChecker(ChzzkConfig.class, Services.Chzzk, new ChzzkLiveChecker(), ChzzkConfig::getLiveCheckInterval);
+        registerLiveChecker(ChzzkConfig.class, Services.CHZZK, new ChzzkLiveChecker(), ChzzkConfig::getLiveCheckInterval);
         registerLiveChecker(YoutubeConfig.class, Services.Youtube, new YoutubeLiveChecker(), YoutubeConfig::getLiveCheckInterval);
     }
 
@@ -247,13 +261,22 @@ public class BukkitDonationAPI extends RSPlugin {
     ) {
         C config = getConfiguration(configClass);
         if (config != null && config.isEnabled()) {
-            liveStatusManager.registerChecker(service, checker, intervalExtractor.apply(config));
+            long interval = intervalExtractor.apply(config);
+            liveStatusManager.registerChecker(service, checker, interval);
+            getLogger().info("Service %s is registered with live checker (%dms)".formatted(service, interval));
         }
     }
 
     private void register(ServiceBuilder<?, ?> builder) {
         builder.register(donationAPI, platformRegistry);
         services.add(builder);
+    }
+
+    private void register(ServiceBuilder<?, ?> builder, boolean log) {
+        register(builder);
+        if (log) {
+            getLogger().info("Service %s is registered".formatted(builder.getService().getType()));
+        }
     }
 
     public void handleDonation(Donation donation) {
@@ -274,7 +297,7 @@ public class BukkitDonationAPI extends RSPlugin {
             if (!event.isCancelled() && player != null && player.isOnline()) {
                 if (globalConfig != null && globalConfig.isDonationNotify()) {
                     Notifier notifier = Notifier.of(BukkitDonationAPI.this);
-                    String donationMessage = donation.message() != null ? donation.message() : "";
+                    String donationMessage = donation.message();
                     String msg = message.get(player, "donation.notify")
                             .replace("{service}", donation.service().name())
                             .replace("{nickname}", donation.nickname())

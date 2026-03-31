@@ -64,7 +64,8 @@ public class ChatInfoExecutor implements HttpRequestExecutor<ChatInfoRequest, Ch
             ChatInfoResponse chatInfo = Constants.GSON.fromJson(data.get(0), new TypeToken<ChatInfoResponse>() {}.getType());
             return Optional.ofNullable(chatInfo);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to execute ChatInfo request", e);
+            log.warn("Failed to execute ChatInfo request: {}", e.getMessage());
+            return Optional.empty();
         }
     }
 

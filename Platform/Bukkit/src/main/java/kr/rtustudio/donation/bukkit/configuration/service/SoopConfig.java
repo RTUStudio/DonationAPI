@@ -13,6 +13,9 @@ public class SoopConfig extends ConfigurationPart implements kr.rtustudio.donati
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;
 
+    @Comment("브랜드 색상 (HEX)")
+    private String color = "#0050FF";
+
     @Comment("클라이언트 ID")
     private String clientId = "00000000000000000000000000000000";
 
@@ -43,8 +46,6 @@ public class SoopConfig extends ConfigurationPart implements kr.rtustudio.donati
         private Keepalive keepalive;
         @Comment("재연결 설정 섹션")
         private Reconnection reconnection;
-
-
 
         @Getter
         public class Keepalive extends ConfigurationPart implements KeepaliveOption {

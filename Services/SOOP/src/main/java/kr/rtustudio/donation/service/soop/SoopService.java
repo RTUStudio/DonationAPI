@@ -12,6 +12,7 @@ import kr.rtustudio.donation.service.soop.net.SoopAuthServerHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
@@ -20,16 +21,24 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j(topic = "DonationAPI/SOOP")
 public class SoopService extends AbstractService<SoopPlayer> implements kr.rtustudio.donation.service.Disconnectable {
 
+    private static final long LIVE_POLL_INTERVAL_SECONDS = 30;
+
     @Getter
     private final SoopConfig config;
 
     @Getter
     private final Map<String, SoopToken> tokenStore = new ConcurrentHashMap<>();
 
+    @Getter
+    private final Map<String, String> stationNameStore = new ConcurrentHashMap<>();
+
     private SoopSubscriber subscriber;
     private SoopAuthServer authServer;
     @Getter
     private SoopApiClient apiClient;
+    @Getter
+    @Nullable
+    private SoopLiveMonitor liveMonitor;
 
     public SoopService(SoopConfig config, ServiceHandler<SoopPlayer> handler) {
         super(handler);
@@ -47,6 +56,7 @@ public class SoopService extends AbstractService<SoopPlayer> implements kr.rtust
 
         this.subscriber = new SoopSubscriber(this);
         this.apiClient = new SoopApiClient(config.getClientId(), config.getClientSecret());
+        this.liveMonitor = new SoopLiveMonitor(this, subscriber);
         this.authServer = new SoopAuthServer(
                 config.getClientId(),
                 config.getClientSecret(),
@@ -61,7 +71,8 @@ public class SoopService extends AbstractService<SoopPlayer> implements kr.rtust
                 }
         );
         authServer.start();
-        log.info("SOOP service started");
+        liveMonitor.start(LIVE_POLL_INTERVAL_SECONDS);
+        log.debug("SOOP service started");
     }
 
     private boolean handleAuthSuccess(@NotNull AuthResult result) {
@@ -78,13 +89,15 @@ public class SoopService extends AbstractService<SoopPlayer> implements kr.rtust
             return false;
         }
 
-        String userId = stationInfo.get().stationName() != null ? stationInfo.get().stationName() : "unknown";
-        tokenStore.put(userId, token);
-        boolean connected = subscriber.onUserRegistered(userId, result.user());
-        if (connected) {
-            log.info("Registered SOOP subscriber for bjId: {} (UUID: {})", stationInfo.get().stationName(), result.user());
+        String bjId = extractBjId(stationInfo.get().profileImage());
+        if (bjId == null) {
+            log.error("Failed to extract bjId from profile image: {}", stationInfo.get().profileImage());
+            return false;
         }
-        return connected;
+        String stationName = stationInfo.get().stationName() != null ? stationInfo.get().stationName() : bjId;
+        tokenStore.put(bjId, token);
+        stationNameStore.put(bjId, stationName);
+        return subscriber.onUserRegistered(bjId, result.user(), stationName);
     }
 
     public boolean reconnect(@NotNull UUID uuid, @NotNull SoopToken token) {
@@ -97,9 +110,15 @@ public class SoopService extends AbstractService<SoopPlayer> implements kr.rtust
             SoopToken newToken = new SoopToken(tokenResponse.accessToken(), tokenResponse.refreshToken());
 
             return apiClient.getStationInfo(newToken.accessToken()).map(stationInfo -> {
-                String userId = stationInfo.stationName() != null ? stationInfo.stationName() : "unknown";
-                tokenStore.put(userId, newToken);
-                subscriber.onUserRegistered(userId, uuid.toString());
+                String bjId = extractBjId(stationInfo.profileImage());
+                if (bjId == null) {
+                    log.error("Failed to extract bjId from profile image: {}", stationInfo.profileImage());
+                    return false;
+                }
+                String stationName = stationInfo.stationName() != null ? stationInfo.stationName() : bjId;
+                tokenStore.put(bjId, newToken);
+                stationNameStore.put(bjId, stationName);
+                subscriber.onUserRegistered(bjId, uuid.toString(), stationName);
                 return true;
             }).orElse(false);
         }).orElseGet(() -> {
@@ -117,6 +136,10 @@ public class SoopService extends AbstractService<SoopPlayer> implements kr.rtust
 
     @Override
     public void close() {
+        if (liveMonitor != null) {
+            liveMonitor.closeAll();
+            liveMonitor = null;
+        }
         if (subscriber != null) {
             subscriber.closeAll();
             subscriber = null;
@@ -126,5 +149,19 @@ public class SoopService extends AbstractService<SoopPlayer> implements kr.rtust
             authServer = null;
         }
         tokenStore.clear();
+        stationNameStore.clear();
+    }
+
+    /**
+     * 프로필 이미지 URL에서 실제 bjId를 추출합니다.
+     * URL 형식: https://profile.img.sooplive.com/LOGO/xx/bjId/bjId.jpg
+     */
+    private static @Nullable String extractBjId(@Nullable String profileImageUrl) {
+        if (profileImageUrl == null || profileImageUrl.isEmpty()) return null;
+        int lastSlash = profileImageUrl.lastIndexOf('/');
+        if (lastSlash < 0) return null;
+        String filename = profileImageUrl.substring(lastSlash + 1);
+        int dot = filename.lastIndexOf('.');
+        return dot > 0 ? filename.substring(0, dot) : filename;
     }
 }

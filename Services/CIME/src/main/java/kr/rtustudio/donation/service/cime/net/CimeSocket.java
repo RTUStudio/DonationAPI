@@ -12,9 +12,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j(topic = "DonationAPI/Cime")
+@Slf4j(topic = "DonationAPI/CIME")
 public class CimeSocket extends WebSocketClient {
-
+    
     private static final String WS_BASE_URL = "wss://apigw.prod.ci.me/";
     private static final String ALERT_TYPE = "DONATION_CHAT";
 
@@ -79,7 +79,7 @@ public class CimeSocket extends WebSocketClient {
             JsonObject raw = JsonParser.parseString(text).getAsJsonObject();
             parseDonation(raw);
         } catch (Exception e) {
-            log.debug("Failed to parse cime message: {}", text, e);
+            log.debug("Failed to parse CIME message: {}", text, e);
         }
     }
 

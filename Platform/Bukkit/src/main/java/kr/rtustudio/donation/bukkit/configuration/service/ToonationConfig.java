@@ -13,6 +13,9 @@ public class ToonationConfig extends ConfigurationPart implements kr.rtustudio.d
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;
 
+    @Comment("브랜드 색상 (HEX)")
+    private String color = "#00C7ED";
+
     @Comment("소켓 옵션")
     private Socket socket;
 

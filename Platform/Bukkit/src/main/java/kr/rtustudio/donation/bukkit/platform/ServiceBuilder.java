@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
 import kr.rtustudio.donation.bukkit.platform.adapter.UUIDTypeAdapter;
-import kr.rtustudio.donation.common.Donation;
+
 import kr.rtustudio.donation.common.DonationAPI;
 import kr.rtustudio.donation.service.Disconnectable;
 import kr.rtustudio.donation.service.ServiceHandler;
@@ -13,13 +13,15 @@ import kr.rtustudio.donation.service.Service;
 import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.data.UserData;
 import kr.rtustudio.configurate.model.ConfigurationPart;
+import kr.rtustudio.framework.bukkit.api.player.Notifier;
 import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 /**
  * 서비스 + 플랫폼 통합 빌더
@@ -79,6 +81,7 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
      */
     public interface EnabledConfig {
         boolean isEnabled();
+        String getColor();
     }
 
     /**
@@ -185,7 +188,27 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
             final Service[] serviceHolder = new Service[1];
             ServiceHandler<D> handler = new ServiceHandler<>(
                     plugin::handleDonation,
-                    player -> plugin.getConnectionManager().connect(player.uuid(), serviceHolder[0].getType(), player)
+                    player -> plugin.getConnectionManager().connect(player.uuid(), serviceHolder[0].getType(), player),
+                    null,
+                    (UUID uuid, String msgKey, String extra) -> {
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            Player p = Bukkit.getPlayer(uuid);
+                            if (p == null || !p.isOnline()) return;
+                            Notifier notifier = Notifier.of(plugin);
+                            String serviceName = plugin.getConfiguration().getMessage()
+                                    .get(p, "service_name." + serviceHolder[0].getType().name());
+                            String color = enabledConfig.getColor();
+                            String coloredName = "<color:" + color + ">" + serviceName + "</color>";
+                            String key = msgKey;
+                            if ("connection.trying".equals(msgKey) && extra != null && !extra.isEmpty()) {
+                                key = "connection.trying_id";
+                            }
+                            String message = plugin.getConfiguration().getMessage().get(p, key)
+                                    .replace("{service}", coloredName)
+                                    .replace("{id}", extra != null ? extra : "");
+                            notifier.announce(p, message);
+                        });
+                    }
             );
 
             // 서비스 생성
@@ -248,13 +271,13 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
         }
 
         @Override
-        public boolean isEnabled() {
-            return config.isEnabled();
+        protected Class<T> dataClass() {
+            return dataClass;
         }
 
         @Override
-        protected Class<T> dataClass() {
-            return dataClass;
+        public boolean isEnabled() {
+            return config.isEnabled();
         }
 
         @Override
@@ -264,6 +287,13 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
                 return data.platform() == platform;
             }
             return false;
+        }
+
+        @Override
+        protected void onRegister(UUID uuid, T data) {
+            if (reconnectCallback != null) {
+                reconnectCallback.apply(uuid, data);
+            }
         }
 
         @Override

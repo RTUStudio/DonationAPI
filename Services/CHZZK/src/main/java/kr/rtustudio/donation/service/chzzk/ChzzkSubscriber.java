@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j(topic = "DonationAPI/Chzzk")
+@Slf4j(topic = "DonationAPI/CHZZK")
 public class ChzzkSubscriber implements ChzzkEventHandler {
 
     private final ChzzkService service;
@@ -65,12 +65,19 @@ public class ChzzkSubscriber implements ChzzkEventHandler {
                     if (service.getHandler() != null && service.getHandler().success() != null) {
                         service.getHandler().success().accept(new ChzzkPlayer(uuid, channelId, tokenOpt.get()));
                     }
+                    if (service.getHandler() != null && service.getHandler().messenger() != null) {
+                        service.getHandler().messenger().send(uuid, "connection.trying", channelOpt.get().name());
+                        service.getHandler().messenger().send(uuid, "connection.activated", null);
+                    }
                     return true;
                 }
 
                 channelSubscribers.computeIfAbsent(channelId, k -> ConcurrentHashMap.newKeySet()).add(uuid);
                 activeSessions.put(channelId, chzzk);
                 registered = true;
+            } else {
+                log.warn("Channel or token not available for player {}: channel={}, token={}",
+                        uuid, channelOpt.isPresent(), tokenOpt.isPresent());
             }
         } catch (Exception e) {
             log.error("Failed to get current channel for player {}", uuid, e);
@@ -91,12 +98,23 @@ public class ChzzkSubscriber implements ChzzkEventHandler {
         }
 
         String finalChannelId = channelOpt.get().id();
+        String channelName = channelOpt.get().name();
+
+        if (service.getHandler() != null && service.getHandler().messenger() != null) {
+            service.getHandler().messenger().send(uuid, "connection.trying", channelName);
+        }
+
         chzzk.getSession().connectAsync()
                 .thenAccept(v -> {
                     Set<UUID> subs = channelSubscribers.get(finalChannelId);
-                    if (subs != null && service.getHandler() != null && service.getHandler().success() != null) {
+                    if (subs != null && service.getHandler() != null) {
                         for (UUID subUuid : subs) {
-                            service.getHandler().success().accept(new ChzzkPlayer(subUuid, finalChannelId, tokenOpt.get()));
+                            if (service.getHandler().success() != null) {
+                                service.getHandler().success().accept(new ChzzkPlayer(subUuid, finalChannelId, tokenOpt.get()));
+                            }
+                            if (service.getHandler().messenger() != null) {
+                                service.getHandler().messenger().send(subUuid, "connection.activated", null);
+                            }
                         }
                     }
                 })

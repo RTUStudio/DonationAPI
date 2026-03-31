@@ -100,20 +100,20 @@ public class DonationPlaceholder extends PlaceholderWrapper<BukkitDonationAPI> {
 
         // 1-arg: 연결 상태
         return switch (key) {
-            case "chzzk" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Chzzk));
+            case "chzzk" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.CHZZK));
             case "soop" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.SOOP));
             case "toonation" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Toonation));
             case "youtube" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Youtube));
-            case "cime" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Cime));
+            case "cime" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.CIME));
             default -> "";
         };
     }
 
     private Services resolveService(String type) {
         return switch (type) {
-            case "cime" -> Services.Cime;
+            case "cime" -> Services.CIME;
             case "soop" -> Services.SOOP;
-            case "chzzk" -> Services.Chzzk;
+            case "chzzk" -> Services.CHZZK;
             case "youtube" -> Services.Youtube;
             default -> null;
         };

@@ -13,6 +13,9 @@ public class ChzzkConfig extends ConfigurationPart implements kr.rtustudio.donat
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;
 
+    @Comment("브랜드 색상 (HEX)")
+    private String color = "#00FFA3";
+
     @Comment("클라이언트 ID")
     private String clientId = "00000000-0000-0000-0000-000000000000";
 
@@ -26,7 +29,7 @@ public class ChzzkConfig extends ConfigurationPart implements kr.rtustudio.donat
     private String host = "0.0.0.0";
 
     @Comment("포트")
-    private int port = 20260;
+    private int port = 12345;
 
     @Comment("라이브 상태 확인 주기 (ms)")
     private long liveCheckInterval = 15000;
@@ -43,8 +46,6 @@ public class ChzzkConfig extends ConfigurationPart implements kr.rtustudio.donat
         private Keepalive keepalive;
         @Comment("재연결 설정 섹션")
         private Reconnection reconnection;
-
-
 
         @Getter
         public class Keepalive extends ConfigurationPart implements KeepaliveOption {

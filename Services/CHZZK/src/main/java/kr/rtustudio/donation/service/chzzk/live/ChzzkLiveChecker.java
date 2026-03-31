@@ -49,7 +49,7 @@ public class ChzzkLiveChecker implements LiveStatusChecker {
                     return LiveStatus.offline(url);
                 }
             } catch (Exception e) {
-                log.warn("Failed to check Chzzk live status for {}: {}", channelId, e.getMessage());
+                log.warn("Failed to check CHZZK live status for {}: {}", channelId, e.getMessage());
                 return LiveStatus.offline(url);
             }
         });

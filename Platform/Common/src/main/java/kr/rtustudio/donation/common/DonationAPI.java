@@ -31,7 +31,7 @@ public class DonationAPI {
         }
         services.put(type, service);
         service.start();
-        log.info("Service {} registered", type);
+        log.debug("Service {} registered", type);
     }
 
     /**

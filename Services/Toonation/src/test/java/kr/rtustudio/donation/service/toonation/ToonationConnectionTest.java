@@ -56,7 +56,7 @@ public class ToonationConnectionTest {
 
         UUID dummyUuid = UUID.randomUUID();
         // register
-        service.reconnect(dummyUuid, new ToonationPlayer(dummyUuid, "test_channel", "test_alert_key", TEST_TOONATION_PAYLOAD));
+        service.reconnect(dummyUuid, new ToonationPlayer(dummyUuid, "test_alert_key", TEST_TOONATION_PAYLOAD));
 
         // 30초 대기
         long startTime = System.currentTimeMillis();

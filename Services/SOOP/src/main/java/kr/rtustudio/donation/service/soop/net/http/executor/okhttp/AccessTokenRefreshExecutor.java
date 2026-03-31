@@ -41,7 +41,7 @@ public class AccessTokenRefreshExecutor implements HttpRequestExecutor<AccessTok
             return HttpResponseParser.parseFlat(response, new TypeToken<>() {
             });
         } catch (IOException | HttpResponseParseException e) {
-            throw new RuntimeException(e);
+            return Optional.empty();
         }
     }
 

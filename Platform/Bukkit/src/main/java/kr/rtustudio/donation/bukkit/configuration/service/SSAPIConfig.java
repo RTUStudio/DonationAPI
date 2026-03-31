@@ -13,6 +13,9 @@ public class SSAPIConfig extends ConfigurationPart implements kr.rtustudio.donat
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;
 
+    @Comment("브랜드 색상 (HEX)")
+    private String color = "#FFFFFF";
+
     @Comment("SSAPI API 키")
     private String apiKey = "";
 

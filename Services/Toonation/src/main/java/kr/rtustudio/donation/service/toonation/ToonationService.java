@@ -33,7 +33,7 @@ public class ToonationService extends AbstractService<ToonationPlayer> implement
     public void start() {
         if (!config.isEnabled()) return;
         this.subscriber = new ToonationSubscriber(this);
-        log.info("Toonation service started");
+        log.debug("Toonation service started");
     }
 
     public boolean reconnect(@NotNull UUID uuid, @NotNull ToonationPlayer player) {

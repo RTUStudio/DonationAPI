@@ -12,6 +12,9 @@ public class YoutubeConfig extends ConfigurationPart implements kr.rtustudio.don
     @Comment("서비스 활성화 여부")
     private boolean enabled = true;
 
+    @Comment("브랜드 색상 (HEX)")
+    private String color = "#FF0000";
+
     @Comment("유튜브 라이브챗 폴링 간격 (ms)")
     private int pollingIntervalMs = 5000;
 

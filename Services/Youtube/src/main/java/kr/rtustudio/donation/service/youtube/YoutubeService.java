@@ -33,7 +33,7 @@ public class YoutubeService extends AbstractService<YoutubePlayer> implements Di
     public void start() {
         if (!config.isEnabled()) return;
         this.subscriber = new YoutubeSubscriber(this);
-        log.info("Youtube service started");
+        log.debug("Youtube service started");
     }
 
     public boolean reconnect(@NotNull UUID uuid, @NotNull YoutubePlayer player) {

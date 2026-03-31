@@ -7,4 +7,8 @@ public interface ServiceConfig {
 
     boolean isEnabled();
 
+    default String getColor() {
+        return "#FFFFFF";
+    }
+
 }

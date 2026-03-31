@@ -32,4 +32,13 @@ public interface UserData {
      * @return 스트리머 ID
      */
     String channelId();
+
+    /**
+     * 스트리머의 채널 이름이나 닉네임을 반환합니다.
+     *
+     * @return 닉네임. 지원하지 않을 경우 식별자와 동일함.
+     */
+    default String channelName() {
+        return channelId();
+    }
 }

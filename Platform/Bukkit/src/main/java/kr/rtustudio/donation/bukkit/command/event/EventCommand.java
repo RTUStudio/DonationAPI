@@ -46,7 +46,7 @@ public class EventCommand extends RSCommand<BukkitDonationAPI> {
 
         Donation donation = new Donation(
                 targetPlayer.getUniqueId(),
-                Services.Chzzk,
+                Services.CHZZK,
                 Platform.CHZZK,
                 DonationType.CHAT,
                 targetPlayer.getName(),

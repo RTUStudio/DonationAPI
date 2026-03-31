@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j(topic = "DonationAPI/SOOP")
 public class SoopLiveChecker implements LiveStatusChecker {
 
-    private static final String LIVE_API_URL = "https://live.sooplive.co.kr/afreeca/player_live_api.php?bjid=%s";
-    private static final String CHANNEL_URL = "https://play.sooplive.co.kr/%s";
+    private static final String LIVE_API_URL = "https://live.sooplive.com/afreeca/player_live_api.php?bjid=%s";
+    private static final String CHANNEL_URL = "https://play.sooplive.com/%s";
     private static final MediaType FORM = MediaType.get("application/x-www-form-urlencoded");
 
     private final OkHttpClient httpClient = new OkHttpClient.Builder()

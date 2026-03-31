@@ -7,10 +7,13 @@ import kr.rtustudio.donation.service.chzzk.configuration.ChzzkConfig;
 import kr.rtustudio.donation.service.chzzk.data.ChzzkPlayer;
 import kr.rtustudio.donation.service.chzzk.data.ChzzkToken;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 @Slf4j(topic = "DonationAPI/Chzzk")
 public class ChzzkService extends AbstractService<ChzzkPlayer> implements kr.rtustudio.donation.service.Disconnectable {
@@ -20,6 +23,14 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> implements kr.rtu
     private ChzzkSubscriber subscriber;
     private ChzzkAuthServer authServer;
 
+    /**
+     * 토큰 갱신 시 호출되는 콜백 (UUID, 새 ChzzkToken)
+     * DB에 갱신된 토큰을 저장하는 용도
+     */
+    @Setter
+    @Nullable
+    private BiConsumer<UUID, ChzzkToken> tokenRefreshCallback;
+
     public ChzzkService(ChzzkConfig config, ServiceHandler<ChzzkPlayer> handler) {
         super(handler);
         this.config = config;
@@ -27,7 +38,7 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> implements kr.rtu
 
     @Override
     public Services getType() {
-        return Services.Chzzk;
+        return Services.CHZZK;
     }
 
     @Override
@@ -44,7 +55,7 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> implements kr.rtu
                 .addChzzkEventHandler(subscriber)
                 .build();
         authServer.start();
-        log.info("Chzzk service started");
+        log.debug("CHZZK service started");
     }
 
     public boolean reconnect(@NotNull UUID uuid, @NotNull ChzzkToken token) {
@@ -63,13 +74,27 @@ public class ChzzkService extends AbstractService<ChzzkPlayer> implements kr.rtu
 
         try {
             chzzk.refreshToken();
+            // 토큰 갱신 성공 시 DB에 새 토큰 저장
+            chzzk.getToken().ifPresent(newToken -> {
+                if (tokenRefreshCallback != null) {
+                    tokenRefreshCallback.accept(uuid, newToken);
+                    log.info("Updated refreshed token in storage for player {}", uuid);
+                }
+            });
         } catch (Exception e) {
-            log.error("Failed to refresh token for player {}, token may be expired", uuid, e);
+            log.warn("Token refresh failed for player {}, trying with existing token: {}", uuid, e.getMessage());
+        }
+
+        if (chzzk.getToken().isEmpty()) {
+            log.warn("Token is null after refresh for player {}", uuid);
             return false;
         }
 
-        subscriber.onUserRegistered(chzzk, uuid.toString());
-        return true;
+        boolean result = subscriber.onUserRegistered(chzzk, uuid.toString());
+        if (!result) {
+            log.warn("Failed to register player {} after token refresh", uuid);
+        }
+        return result;
     }
 
     @Override

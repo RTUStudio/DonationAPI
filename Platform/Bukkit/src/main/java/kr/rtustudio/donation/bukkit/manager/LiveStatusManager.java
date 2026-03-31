@@ -47,7 +47,7 @@ public class LiveStatusManager {
     public void registerChecker(Services service, LiveStatusChecker checker, long intervalMs) {
         checkers.put(service, checker);
         scheduler.scheduleAtFixedRate(() -> pollService(service, checker), intervalMs, intervalMs, TimeUnit.MILLISECONDS);
-        log.info("Registered live status checker for {} (interval: {}ms)", service.name(), intervalMs);
+        log.debug("Registered live status checker for {} (interval: {}ms)", service.name(), intervalMs);
     }
 
     private void pollService(Services service, LiveStatusChecker checker) {

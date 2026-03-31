@@ -13,8 +13,10 @@ import kr.rtustudio.storage.Storage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 후원 플레이어 관리자
@@ -27,6 +29,7 @@ public class DonationManager {
 
     private final BukkitDonationAPI plugin;
     private final DonationModule module;
+    private final Set<UUID> knownUsers = ConcurrentHashMap.newKeySet();
 
     public DonationManager(BukkitDonationAPI plugin) {
         this.plugin = plugin;
@@ -36,9 +39,13 @@ public class DonationManager {
     public CompletableFuture<Void> load(UUID uuid) {
         Storage storage = plugin.getStorage("User");
         return storage.get(JSON.of("uuid", uuid.toString())).thenAccept(result -> {
-            DonationEntity entity = result.isEmpty()
-                    ? new DonationEntity(uuid)
-                    : new DonationEntity(uuid, GSON.fromJson(result.getFirst(), PlatformStatusComponent.class));
+            DonationEntity entity;
+            if (result.isEmpty()) {
+                entity = new DonationEntity(uuid);
+            } else {
+                entity = new DonationEntity(uuid, GSON.fromJson(result.getFirst(), PlatformStatusComponent.class));
+                knownUsers.add(uuid);
+            }
             module.addPlayer(uuid, entity);
         });
     }
@@ -96,12 +103,12 @@ public class DonationManager {
         JsonObject data = GSON.toJsonTree(component).getAsJsonObject();
         data.addProperty("uuid", uuid.toString());
 
-        storage.get(JSON.of("uuid", uuid.toString())).thenAccept(result -> {
-            if (result == null || result.isEmpty()) {
-                storage.add(data);
-            } else {
-                storage.set(JSON.of("uuid", uuid.toString()).get(), data);
-            }
-        });
+        JSON query = JSON.of("uuid", uuid.toString());
+        if (knownUsers.contains(uuid)) {
+            storage.set(query.get(), data);
+        } else {
+            knownUsers.add(uuid);
+            storage.add(data);
+        }
     }
 }

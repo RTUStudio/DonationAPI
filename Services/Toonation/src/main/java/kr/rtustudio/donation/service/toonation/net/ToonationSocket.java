@@ -27,7 +27,7 @@ public class ToonationSocket extends WebSocketClient {
 
     public ToonationSocket(ToonationService service, String alertKey, String payload, Runnable successCallback) {
         super("Toonation-" + (alertKey.length() > 8 ? alertKey.substring(0, 8) : alertKey),
-                "wss://toon.at:8071/" + payload,
+                "wss://ws.toon.at/" + payload,
                 service.getConfig().getSocket(),
                 () -> {
                     if (successCallback != null) successCallback.run();
@@ -35,6 +35,11 @@ public class ToonationSocket extends WebSocketClient {
                 null);
         this.service = service;
         this.payload = payload;
+    }
+
+    @Override
+    protected void configureRequest(okhttp3.Request.Builder builder) {
+        builder.header("Origin", "https://toon.at");
     }
 
     public String getPayload() {

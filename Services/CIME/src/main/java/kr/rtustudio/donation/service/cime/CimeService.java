@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-@Slf4j(topic = "DonationAPI/Cime")
+@Slf4j(topic = "DonationAPI/CIME")
 public class CimeService extends AbstractService<CimePlayer> implements Disconnectable {
 
     @Getter
@@ -26,14 +26,14 @@ public class CimeService extends AbstractService<CimePlayer> implements Disconne
 
     @Override
     public Services getType() {
-        return Services.Cime;
+        return Services.CIME;
     }
 
     @Override
     public void start() {
         if (!config.isEnabled()) return;
         this.subscriber = new CimeSubscriber(this);
-        log.info("Cime service started");
+        log.debug("CIME service started");
     }
 
     public boolean reconnect(@NotNull UUID uuid, @NotNull CimePlayer player) {

@@ -21,10 +21,10 @@ public class SoopMessageParser {
             // TODO: 필요 시 활성화
             // case SoopServiceCode.SVC_SENDBALLOONSUB -> donation("BALLOON_GIFTED", SoopDonationType.BALLOON_GIFTED, get(f, 1), get(f, 3), get(f, 4), num(f, 5), null);
             // case SoopServiceCode.SVC_VODBALLOON -> donation("BALLOON_GIFTED", SoopDonationType.BALLOON_GIFTED, get(f, 0), get(f, 1), get(f, 2), num(f, 3), null);
-            // case SoopServiceCode.SVC_VIDEO_BALLOON -> donation("VIDEOBALLOON_GIFTED", SoopDonationType.BALLOON_GIFTED, get(f, 1), get(f, 2), get(f, 3), num(f, 4), null);
+            // case SoopServiceCode.SVC_VIDEO_BALLOON -> donation("BALLOON_GIFTED", SoopDonationType.BALLOON_GIFTED, get(f, 1), get(f, 2), get(f, 3), num(f, 4), null);
             // case SoopServiceCode.SVC_SENDFANLETTER -> donation("STICKER_GIFTED", SoopDonationType.STICKER_GIFTED, get(f, 0), get(f, 2), get(f, 3), num(f, 7), null);
             // case SoopServiceCode.SVC_SENDFANLETTERSUB -> donation("STICKER_GIFTED", SoopDonationType.STICKER_GIFTED, get(f, 1), get(f, 3), get(f, 4), num(f, 8), null);
-            case SoopServiceCode.SVC_ADCON_EFFECT -> donation("ADBALLOON_GIFTED", SoopDonationType.AD_BALLOON_GIFTED, get(f, 1), get(f, 2), get(f, 3), num(f, 9), null);
+            // case SoopServiceCode.SVC_ADCON_EFFECT -> donation("ADBALLOON_GIFTED", SoopDonationType.AD_BALLOON_GIFTED, get(f, 1), get(f, 2), get(f, 3), num(f, 9), null);
             // case SoopServiceCode.SVC_STATION_ADCON -> donation("ADBALLOON_GIFTED", SoopDonationType.AD_BALLOON_GIFTED, get(f, 0), get(f, 1), get(f, 2), num(f, 3), null);
             // case SoopServiceCode.SVC_SENDQUICKVIEW -> donation("QUICKVIEW_GIFTED", SoopDonationType.QUICKVIEW_GIFTED, null, get(f, 1), get(f, 2), 1, null);
             // case SoopServiceCode.SVC_FOLLOW_ITEM -> donation("SUBSCRIBED", SoopDonationType.SUBSCRIBED, get(f, 1), get(f, 2), get(f, 3), 1, null);

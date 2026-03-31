@@ -10,7 +10,6 @@ import kr.rtustudio.donation.service.chzzk.net.data.*;
 import kr.rtustudio.donation.service.chzzk.Chzzk;
 import kr.rtustudio.donation.service.chzzk.ChzzkSession;
 import kr.rtustudio.donation.service.chzzk.ChzzkTokenMutator;
-import kr.rtustudio.donation.service.chzzk.data.*;
 import kr.rtustudio.donation.service.chzzk.event.ChzzkEventHandler;
 import kr.rtustudio.donation.service.chzzk.event.ChzzkEventHandlerHolder;
 import kr.rtustudio.donation.service.chzzk.exception.InvalidTokenException;
@@ -21,6 +20,7 @@ import kr.rtustudio.donation.service.chzzk.net.http.factory.HttpRequestExecutorF
 import kr.rtustudio.donation.service.chzzk.net.http.factory.impl.HttpRequestExecutorFactoryImpl;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +34,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Getter
 @Setter
+@Slf4j(topic = "DonationAPI/CHZZK")
 public class ChzzkImpl implements Chzzk, ChzzkTokenMutator, ChzzkEventHandlerHolder {
 
     private final @NotNull String clientId;
@@ -89,9 +90,13 @@ public class ChzzkImpl implements Chzzk, ChzzkTokenMutator, ChzzkEventHandlerHol
         executor.map(it -> it.execute(httpClient, requestInst))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .ifPresent(response -> {
-                    this.token = new ChzzkToken(response.accessToken(), response.refreshToken());
-                });
+                .ifPresentOrElse(
+                        response -> {
+                            this.token = new ChzzkToken(response.accessToken(), response.refreshToken());
+                            log.info("Token refreshed successfully");
+                        },
+                        () -> log.warn("Token refresh API returned empty response, continuing with existing token")
+                );
 
         handlers.forEach(handler -> handler.onRefreshToken(this));
     }

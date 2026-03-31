@@ -9,6 +9,7 @@ import kr.rtustudio.donation.service.chzzk.net.http.client.ChzzkHttpClient;
 import kr.rtustudio.donation.service.chzzk.net.http.executor.HttpRequestExecutor;
 import kr.rtustudio.donation.service.chzzk.utils.Constants;
 import kr.rtustudio.donation.service.chzzk.utils.HttpResponseParser;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.Optional;
 
+@Slf4j(topic = "DonationAPI/CHZZK")
 public class AccessTokenRefreshExecutor implements HttpRequestExecutor<AccessTokenRefreshRequest, AccessTokenRefreshResponse, OkHttpClient> {
 
     @Override
@@ -38,9 +40,15 @@ public class AccessTokenRefreshExecutor implements HttpRequestExecutor<AccessTok
                 .build();
 
         try (Response response = client.getNativeHttpClient().newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String responseBody = response.body() != null ? response.body().string() : "null";
+                log.warn("Token refresh HTTP failed: status={}, body={}", response.code(), responseBody);
+                return Optional.empty();
+            }
             return HttpResponseParser.parse(response, new TypeToken<>() {
             });
         } catch (IOException | HttpResponseParseException e) {
+            log.error("Token refresh exception", e);
             throw new RuntimeException(e);
         }
     }

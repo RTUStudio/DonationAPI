@@ -1,5 +1,7 @@
 package kr.rtustudio.donation.service.soop.net.socket;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import kr.rtustudio.donation.common.configuration.SocketOption;
 import kr.rtustudio.donation.service.soop.data.SoopDonationMessage;
 import kr.rtustudio.donation.service.soop.net.data.ChatInfoResponse;
@@ -10,6 +12,7 @@ import okio.ByteString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -37,9 +40,9 @@ public class SoopChatSocket extends WebSocketListener {
     private final @NotNull String wsUrl;
     private final @NotNull SocketOption socketOption;
     private final @NotNull SoopChatSocketHandler handler;
+    private final ScheduledExecutorService scheduler;
     private @Nullable WebSocket webSocket;
     private @Nullable ScheduledFuture<?> keepAliveFuture;
-    private final ScheduledExecutorService scheduler;
 
     @Getter
     private volatile boolean connected = false;
@@ -73,9 +76,10 @@ public class SoopChatSocket extends WebSocketListener {
         Request request = new Request.Builder()
                 .url(wsUrl)
                 .header("Sec-WebSocket-Protocol", "chat")
+                .header("Origin", "https://play.sooplive.com")
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36")
                 .build();
 
-        log.info("Started new SOOP WebSocket for bjId: {}", bjId);
         OkHttpClient client = SHARED_HTTP_CLIENT.newBuilder()
                 .readTimeout(socketOption.getTimeout(), TimeUnit.MILLISECONDS)
                 .build();
@@ -99,20 +103,30 @@ public class SoopChatSocket extends WebSocketListener {
         }
     }
 
+    // ── WebSocket Callbacks ──
+
     @Override
     public void onOpen(@NotNull WebSocket ws, @NotNull Response response) {
-        log.info("SOOP socket connected for bjId: {}", bjId);
-        // SDK: e.push(l), e.push(ticket), e.push(l), e.push(flag1), e.push(l)
-        ws.send(SoopPacket.encode(SoopServiceCode.SVC_SDK_LOGIN, "", ticket, "", "", ""));
+        // SVC_LOGIN: 비로그인(게스트) 연결 — SDK 필드 구조: [sep, sep, sep, "16", sep]
+        ws.send(SoopPacket.encode(SoopServiceCode.SVC_LOGIN, "", "", "16", ""));
+    }
+
+    @Override
+    public void onMessage(@NotNull WebSocket ws, @NotNull String text) {
+        handleRawMessage(ws, text.getBytes(StandardCharsets.ISO_8859_1));
     }
 
     @Override
     public void onMessage(@NotNull WebSocket ws, @NotNull ByteString bytes) {
-        SoopPacket.ParsedPacket packet = SoopPacket.parse(bytes.toByteArray());
-        if (packet == null || packet.retCode() < 0) return;
+        handleRawMessage(ws, bytes.toByteArray());
+    }
+
+    private void handleRawMessage(@NotNull WebSocket ws, byte[] raw) {
+        SoopPacket.ParsedPacket packet = SoopPacket.parse(raw);
+        if (packet == null) return;
+        if (packet.retCode() < 0) return;
 
         if (packet.serviceCode() == SoopServiceCode.SVC_CLOSE_BROAD) {
-            log.info("Broadcast closed for bjId: {}, disconnecting", bjId);
             disconnect();
             return;
         }
@@ -121,24 +135,8 @@ public class SoopChatSocket extends WebSocketListener {
         if (parsed == null) return;
 
         switch (parsed.action()) {
-            case "LOGIN" -> {
-                log.info("Login OK for bjId: {}, joining room: {}", bjId, chatNo);
-                // SDK: e.push(l), e.push(roomId), e.push(l), e.push(ticket), e.push(l), e.push(5), e.push(l), e.push(""), e.push(l), e.push(logInfo), e.push(l)
-                ws.send(SoopPacket.encode(SoopServiceCode.SVC_JOINCH,
-                        "", String.valueOf(chatNo), "", ticket, "", "5", "", "", "", ""));
-                if (socketOption.getKeepalive().isEnabled()) {
-                    long interval = socketOption.getKeepalive().getInterval();
-                    keepAliveFuture = scheduler.scheduleAtFixedRate(() -> {
-                        if (webSocket != null && connected) {
-                            webSocket.send(SoopPacket.encode(SoopServiceCode.SVC_KEEPALIVE, ""));
-                        }
-                    }, interval, interval, TimeUnit.MILLISECONDS);
-                }
-                connected = true;
-                handler.onConnected(this);
-            }
+            case "LOGIN" -> handleLogin(ws, packet);
             case "JOIN" -> {
-                log.info("Joined room for bjId: {}", bjId);
                 joined = true;
                 handler.onJoined(this);
             }
@@ -150,23 +148,55 @@ public class SoopChatSocket extends WebSocketListener {
         }
     }
 
-    @Override
-    public void onClosing(@NotNull WebSocket ws, int code, @NotNull String reason) {
-        log.info("SOOP socket closing for bjId: {}: {} {}", bjId, code, reason);
+    private void handleLogin(@NotNull WebSocket ws, @NotNull SoopPacket.ParsedPacket packet) {
+        // LOGIN 응답에 JSON 오류가 포함되었는지 검증
+        for (String field : packet.fields()) {
+            if (!field.startsWith("{")) continue;
+            try {
+                JsonObject json = JsonParser.parseString(field).getAsJsonObject();
+                if (json.has("error")) {
+                    log.error("[Socket] Login failed: bjId={}, error={}", bjId, json.get("error").getAsString());
+                    disconnect();
+                    return;
+                }
+                if (json.has("result") && json.get("result").getAsInt() < 0) {
+                    log.error("[Socket] Login failed: bjId={}, result={}", bjId, json.get("result").getAsInt());
+                    disconnect();
+                    return;
+                }
+            } catch (Exception ignored) {}
+        }
+
+        // JOINCH 전송
+        ws.send(SoopPacket.encode(SoopServiceCode.SVC_JOINCH,
+                String.valueOf(chatNo), ticket, "5", "", "", ""));
+
+        // Keepalive 시작
+        if (socketOption.getKeepalive().isEnabled()) {
+            long interval = socketOption.getKeepalive().getInterval();
+            keepAliveFuture = scheduler.scheduleAtFixedRate(() -> {
+                if (webSocket != null && connected) {
+                    webSocket.send(SoopPacket.encode(SoopServiceCode.SVC_KEEPALIVE, ""));
+                }
+            }, interval, interval, TimeUnit.MILLISECONDS);
+        }
+        connected = true;
+        handler.onConnected(this);
     }
 
     @Override
+    public void onClosing(@NotNull WebSocket ws, int code, @NotNull String reason) {}
+
+    @Override
     public void onClosed(@NotNull WebSocket ws, int code, @NotNull String reason) {
-        log.info("SOOP socket closed for bjId: {}: {} {}", bjId, code, reason);
         stopKeepAlive();
         handler.onDisconnected(this);
     }
 
     @Override
     public void onFailure(@NotNull WebSocket ws, @NotNull Throwable t, @Nullable Response response) {
-        log.error("SOOP socket failure for bjId: {}: {}", bjId, t.getMessage());
+        log.warn("[Socket] Connection failure: bjId={}, error={}", bjId, t.getMessage());
         stopKeepAlive();
         handler.onError(this, t);
     }
-
 }

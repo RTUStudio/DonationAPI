@@ -3,19 +3,17 @@ package kr.rtustudio.donation.bukkit.platform;
 import com.google.gson.Gson;
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
 import kr.rtustudio.donation.bukkit.manager.DonationManager;
-import kr.rtustudio.donation.common.Platform;
-import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.donation.service.data.UserData;
 import kr.rtustudio.storage.JSON;
 import kr.rtustudio.framework.bukkit.api.player.Notifier;
 import kr.rtustudio.storage.Storage;
-import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import com.google.gson.JsonObject;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 /**
  * 후원 플랫폼 추상 클래스
@@ -51,9 +49,8 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
             connections.put(uuid, data);
             save(uuid, data);
             donationManager.markConnected(uuid, getService());
-            announce(uuid, data);
             onRegister(uuid, data);
-            plugin.getLogger().info("%s connected to %s(%s)".formatted(uuid, getService(), data.platform()));
+            plugin.getLogger().fine("%s connected to %s(%s)".formatted(uuid, getService(), data.platform()));
             return true;
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to connect player " + uuid + " to " + getService() + ": " + e.getMessage());
@@ -103,30 +100,41 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
                         donationManager.resetDonationStatus(uuid, getService());
                         return;
                     }
-                    T data = gson.fromJson(result.getFirst(), dataClass());
-                    if (onReconnect(uuid, data)) {
-                        connections.put(uuid, data);
-                        donationManager.markConnected(uuid, getService());
-                    } else {
-                        connections.remove(uuid);
+                    try {
+                        T data = gson.fromJson(result.getFirst(), dataClass());
+                        if (data == null) {
+                            plugin.getLogger().warning("[%s] Failed to deserialize data for %s".formatted(getService(), uuid));
+                            donationManager.resetDonationStatus(uuid, getService());
+                            return;
+                        }
+                        plugin.getLogger().info("[%s] Reconnecting %s...".formatted(getService(), uuid));
+                        if (onReconnect(uuid, data)) {
+                            donationManager.markConnected(uuid, getService());
+                            plugin.getLogger().info("[%s] Reconnected %s successfully".formatted(getService(), uuid));
+                        } else {
+                            connections.remove(uuid);
+                            donationManager.resetDonationStatus(uuid, getService());
+                            plugin.getLogger().warning("[%s] Reconnect failed for %s".formatted(getService(), uuid));
+                            sendTokenExpiredMessage(uuid);
+                        }
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("[%s] Exception during reconnect for %s: %s".formatted(getService(), uuid, e.getMessage()));
                         donationManager.resetDonationStatus(uuid, getService());
+                        sendTokenExpiredMessage(uuid);
                     }
                 });
     }
 
-    private void announce(UUID uuid, T data) {
-        Player player = Bukkit.getPlayer(uuid);
-        if (player == null || !player.isOnline()) return;
-        announce(player, getService(), data.platform(), data.channelId());
-    }
-
-    private void announce(Player player, Services service, Platform platform, String streamerId) {
-        String message = plugin.getConfiguration().getMessage()
-                .get(player, "connection.success")
-                .replace("{service}", service.name())
-                .replace("{platform}", platform.name())
-                .replace("{id}", streamerId);
-        notifier.announce(player, message);
+    private void sendTokenExpiredMessage(UUID uuid) {
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null || !player.isOnline()) return;
+            String serviceName = plugin.getConfiguration().getMessage()
+                    .get(player, "service_name." + getService().name());
+            String msg = plugin.getConfiguration().getMessage().get(player, "connection.token_expired")
+                    .replace("{service}", serviceName);
+            notifier.announce(player, msg);
+        });
     }
 
     protected void onRegister(UUID uuid, T data) {
@@ -136,14 +144,15 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
         return true;
     }
 
-    protected void save(UUID uuid, T data) {
+    public void save(UUID uuid, T data) {
         JSON query = JSON.of("uuid", uuid.toString());
+        JsonObject jsonData = gson.toJsonTree(data).getAsJsonObject();
 
         getStorage().get(query).thenAccept(result -> {
             if (result == null || result.isEmpty()) {
-                getStorage().add(gson.toJsonTree(data).getAsJsonObject());
+                getStorage().add(jsonData);
             } else {
-                getStorage().set(query.get(), gson.toJsonTree(data).getAsJsonObject());
+                getStorage().set(query.get(), jsonData);
             }
         });
     }

@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * 플레이어별 독립 WebSocket 세션을 관리합니다.
  */
-@Slf4j(topic = "DonationAPI/Cime")
+@Slf4j(topic = "DonationAPI/CIME")
 public class CimeSubscriber {
 
     private final CimeService service;
@@ -56,7 +56,7 @@ public class CimeSubscriber {
                             for (UUID subUuid : s.getSubscribers()) {
                                 Donation donation = new Donation(
                                         subUuid,
-                                        Services.Cime,
+                                        Services.CIME,
                                         Platform.CIME,
                                         DonationType.CHAT,
                                         key,
@@ -72,9 +72,14 @@ public class CimeSubscriber {
                     () -> {
                         // 첫 연결 시
                         CimeSocket s = activeSockets.get(key);
-                        if (s != null && service.getHandler() != null && service.getHandler().success() != null) {
+                        if (s != null && service.getHandler() != null) {
                             for (UUID subUuid : s.getSubscribers()) {
-                                service.getHandler().success().accept(new CimePlayer(subUuid, key, key, key));
+                                if (service.getHandler().success() != null) {
+                                    service.getHandler().success().accept(new CimePlayer(subUuid, key, key));
+                                }
+                                if (service.getHandler().messenger() != null) {
+                                    service.getHandler().messenger().send(subUuid, "connection.activated", null);
+                                }
                             }
                         }
                     },
@@ -89,15 +94,24 @@ public class CimeSubscriber {
                     }
             );
             newSocket.connect();
-            log.info("Started new Cime WebSocket for alertKey: {}", key);
+            log.debug("Started new CIME WebSocket for alertKey: {}", key);
             return newSocket;
         });
 
         socket.addSubscriber(uuid);
-        log.info("Registered Cime subscriber for alertKey: {} (UUID: {})", alertKey, uuid);
+        log.debug("Registered CIME subscriber for alertKey: {} (UUID: {})", alertKey, uuid);
 
-        if (socket.isConnected() && service.getHandler() != null && service.getHandler().success() != null) {
-            service.getHandler().success().accept(new CimePlayer(uuid, alertKey, alertKey, alertKey));
+        if (service.getHandler() != null && service.getHandler().messenger() != null) {
+            service.getHandler().messenger().send(uuid, "connection.trying", null);
+        }
+
+        if (socket.isConnected()) {
+            if (service.getHandler() != null && service.getHandler().success() != null) {
+                service.getHandler().success().accept(new CimePlayer(uuid, alertKey, alertKey));
+            }
+            if (service.getHandler() != null && service.getHandler().messenger() != null) {
+                service.getHandler().messenger().send(uuid, "connection.activated", null);
+            }
         }
 
         return true;
@@ -117,10 +131,10 @@ public class CimeSubscriber {
                 if (socket.getSubscribersCount() == 0) {
                     socket.close();
                     activeSockets.remove(alertKey);
-                    log.info("Stopped Cime WebSocket for alertKey: {} (no more subscribers)", alertKey);
+                    log.debug("Stopped CIME WebSocket for alertKey: {} (no more subscribers)", alertKey);
                 }
             }
-            log.info("Disconnected Cime subscriber for UUID: {}", uuid);
+            log.debug("Disconnected CIME subscriber for UUID: {}", uuid);
         }
     }
 
