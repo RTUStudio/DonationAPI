@@ -28,6 +28,7 @@ public class SoopConnectionTest {
             @Override public String getBaseUri() { return "http://localhost:8080/login"; }
             @Override public String getHost() { return "127.0.0.1"; }
             @Override public int getPort() { return 8080; }
+            @Override public long getLiveCheckInterval() { return 30000; }
             @Override public SocketOption getSocket() {
                 return new SocketOption() {
                     @Override public int getTimeout() { return 3000; }

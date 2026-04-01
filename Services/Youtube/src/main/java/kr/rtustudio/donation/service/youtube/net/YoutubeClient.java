@@ -63,11 +63,15 @@ public class YoutubeClient extends PollingClient {
 
         switch (item.getType()) {
             case PAID_MESSAGE, PAID_STICKER, TICKER_PAID_MESSAGE -> {
-                String amountStr = item.getPurchaseAmount() != null ? item.getPurchaseAmount().replaceAll("[^0-9]", "") : "";
-                if (!amountStr.isEmpty()) {
-                    amount = Integer.parseInt(amountStr);
+                String rawAmount = item.getPurchaseAmount();
+                // 한국 원화(₩) 후원만 처리 (타 국가 통화 무시)
+                if (rawAmount != null && rawAmount.contains("₩")) {
+                    String amountStr = rawAmount.replaceAll("[^0-9]", "");
+                    if (!amountStr.isEmpty()) {
+                        amount = Integer.parseInt(amountStr);
+                        isDonation = true;
+                    }
                 }
-                isDonation = true;
             }
             case NEW_MEMBER_MESSAGE -> {
                 isDonation = true;

@@ -1,11 +1,7 @@
 package kr.rtustudio.donation.service;
 
-import kr.rtustudio.donation.common.Donation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.UUID;
-import java.util.function.Consumer;
 
 /**
  * 서비스 추상 클래스

@@ -1,6 +1,8 @@
 package kr.rtustudio.donation.bukkit.command.cime;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
+import kr.rtustudio.donation.bukkit.command.DisconnectCommand;
+import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 
 /**
@@ -13,6 +15,6 @@ public class CimeCommand extends RSCommand<BukkitDonationAPI> {
     public CimeCommand(BukkitDonationAPI plugin) {
         super(plugin, "cime");
         registerCommand(new ConnectCommand(plugin));
-        registerCommand(new DisconnectCommand(plugin));
+        registerCommand(new DisconnectCommand(plugin, Services.CIME));
     }
 }

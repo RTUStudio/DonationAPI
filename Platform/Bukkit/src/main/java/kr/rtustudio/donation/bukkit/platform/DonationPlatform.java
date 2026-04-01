@@ -66,6 +66,14 @@ public interface DonationPlatform<T extends UserData> {
     void shutdown();
 
     /**
+     * 플레이어가 플랫폼에 연결되어 있는지 확인합니다.
+     *
+     * @param uuid 플레이어 UUID
+     * @return 연결 여부
+     */
+    boolean isConnected(UUID uuid);
+
+    /**
      * 플레이어가 플랫폼에서 활성 상태인지 확인합니다.
      * 활성 상태란 연결되어 있고 후원을 받을 수 있는 상태를 의미합니다.
      *

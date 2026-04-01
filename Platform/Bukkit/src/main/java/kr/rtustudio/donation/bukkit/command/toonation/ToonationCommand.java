@@ -1,6 +1,8 @@
 package kr.rtustudio.donation.bukkit.command.toonation;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
+import kr.rtustudio.donation.bukkit.command.DisconnectCommand;
+import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 
 /**
@@ -13,6 +15,6 @@ public class ToonationCommand extends RSCommand<BukkitDonationAPI> {
     public ToonationCommand(BukkitDonationAPI plugin) {
         super(plugin, "toonation");
         registerCommand(new ConnectCommand(plugin));
-        registerCommand(new DisconnectCommand(plugin));
+        registerCommand(new DisconnectCommand(plugin, Services.Toonation));
     }
 }

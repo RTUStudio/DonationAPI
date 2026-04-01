@@ -3,11 +3,9 @@ package kr.rtustudio.donation.bukkit.integration;
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
 import kr.rtustudio.donation.bukkit.manager.DonationManager;
 import kr.rtustudio.donation.bukkit.manager.LiveStatusManager;
-import kr.rtustudio.donation.bukkit.platform.AbstractDonationPlatform;
 import kr.rtustudio.donation.common.Platform;
 import kr.rtustudio.donation.common.data.LiveStatus;
 import kr.rtustudio.donation.service.Services;
-import kr.rtustudio.donation.service.data.UserData;
 import kr.rtustudio.framework.bukkit.api.integration.wrapper.PlaceholderArgs;
 import kr.rtustudio.framework.bukkit.api.integration.wrapper.PlaceholderWrapper;
 import org.bukkit.OfflinePlayer;
@@ -71,27 +69,27 @@ public class DonationPlaceholder extends PlaceholderWrapper<BukkitDonationAPI> {
                     default -> "";
                 };
                 case "live" -> {
-                    Services service = resolveService(type);
+                    Services service = Services.from(type);
                     if (service == null) yield "";
-                    LiveStatus status = getLiveStatusForPlayer(player, service);
+                    LiveStatus status = liveStatusManager.getLiveStatus(service, player.getUniqueId());
                     yield status != null ? String.valueOf(status.live()) : "false";
                 }
                 case "title" -> {
-                    Services service = resolveService(type);
+                    Services service = Services.from(type);
                     if (service == null) yield "";
-                    LiveStatus status = getLiveStatusForPlayer(player, service);
+                    LiveStatus status = liveStatusManager.getLiveStatus(service, player.getUniqueId());
                     yield status != null && status.title() != null ? status.title() : "";
                 }
                 case "viewers" -> {
-                    Services service = resolveService(type);
+                    Services service = Services.from(type);
                     if (service == null) yield "";
-                    LiveStatus status = getLiveStatusForPlayer(player, service);
+                    LiveStatus status = liveStatusManager.getLiveStatus(service, player.getUniqueId());
                     yield status != null ? String.valueOf(status.viewerCount()) : "0";
                 }
                 case "url" -> {
-                    Services service = resolveService(type);
+                    Services service = Services.from(type);
                     if (service == null) yield "";
-                    LiveStatus status = getLiveStatusForPlayer(player, service);
+                    LiveStatus status = liveStatusManager.getLiveStatus(service, player.getUniqueId());
                     yield status != null ? status.channelUrl() : "";
                 }
                 default -> "";
@@ -99,34 +97,10 @@ public class DonationPlaceholder extends PlaceholderWrapper<BukkitDonationAPI> {
         }
 
         // 1-arg: 연결 상태
-        return switch (key) {
-            case "chzzk" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.CHZZK));
-            case "soop" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.SOOP));
-            case "toonation" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Toonation));
-            case "youtube" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.Youtube));
-            case "cime" -> String.valueOf(donationManager.isActive(player.getUniqueId(), Services.CIME));
-            default -> "";
-        };
-    }
-
-    private Services resolveService(String type) {
-        return switch (type) {
-            case "cime" -> Services.CIME;
-            case "soop" -> Services.SOOP;
-            case "chzzk" -> Services.CHZZK;
-            case "youtube" -> Services.Youtube;
-            default -> null;
-        };
-    }
-
-    private LiveStatus getLiveStatusForPlayer(OfflinePlayer player, Services service) {
-        var platform = plugin.getPlatformRegistry().getPlatform(service);
-        if (platform instanceof AbstractDonationPlatform<?> abstractPlatform) {
-            UserData data = abstractPlatform.getConnection(player.getUniqueId());
-            if (data != null) {
-                return liveStatusManager.getLiveStatus(service, data.channelId());
-            }
+        Services service = Services.from(key);
+        if (service != null) {
+            return String.valueOf(donationManager.isActive(player.getUniqueId(), service));
         }
-        return null;
+        return "";
     }
 }

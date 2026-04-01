@@ -106,7 +106,7 @@ public abstract class WebSocketClient extends WebSocketListener {
         scheduleReconnect(delay);
     }
 
-    private void scheduleReconnect(long delayMillis) {
+    private synchronized void scheduleReconnect(long delayMillis) {
         if (closed) return;
         if (executor == null || executor.isShutdown()) {
             executor = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -131,7 +131,7 @@ public abstract class WebSocketClient extends WebSocketListener {
         closeExecutors();
     }
 
-    private void closeExecutors() {
+    private synchronized void closeExecutors() {
         if (executor != null) {
             executor.shutdownNow();
             executor = null;

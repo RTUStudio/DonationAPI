@@ -111,10 +111,13 @@ public class SSAPIService extends AbstractService<SSAPIPlayer> {
                     if (args[0] instanceof byte[] compressed) {
                         String json = Snappy.uncompressString(compressed);
                         DonationData donationData = GSON.fromJson(json, DonationData.class);
-                        if (getHandler() != null && getHandler().donation() != null) {
-                            Donation donation = toDonation(donationData);
-                            if (donation != null) getHandler().donation().accept(donation);
-                        } else log.error("parse failed: {}", json);
+                        if (getHandler() == null || getHandler().donation() == null) {
+                            log.error("donation handler not registered");
+                            return;
+                        }
+                        Donation donation = toDonation(donationData);
+                        if (donation != null) getHandler().donation().accept(donation);
+                        else log.error("parse failed: {}", json);
                     } else log.error("cast failed: {}", Arrays.toString(args));
                 } else log.error("empty payload: {}", Arrays.toString(args));
             } catch (Exception e) {
@@ -177,9 +180,12 @@ public class SSAPIService extends AbstractService<SSAPIPlayer> {
                     return null;
                 }
                 return info;
-            } catch (IOException | InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.error("info request error {} | error= {}", url, e.getMessage());
                 Thread.currentThread().interrupt();
+                return null;
+            } catch (IOException e) {
+                log.error("info request error {} | error= {}", url, e.getMessage());
                 return null;
             }
         }, httpExecutor);
@@ -289,9 +295,12 @@ public class SSAPIService extends AbstractService<SSAPIPlayer> {
                 return api;
             }
             return new ResponseResult(0, "");
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error("{} request error {} | error= {}", method.toLowerCase(), url, e.getMessage());
             Thread.currentThread().interrupt();
+            return new ResponseResult(1, e.getMessage());
+        } catch (IOException e) {
+            log.error("{} request error {} | error= {}", method.toLowerCase(), url, e.getMessage());
             return new ResponseResult(1, e.getMessage());
         }
     }

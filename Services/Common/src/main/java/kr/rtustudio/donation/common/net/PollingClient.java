@@ -20,7 +20,7 @@ public abstract class PollingClient {
     }
 
     public void start() {
-        if (closed) return;
+        if (closed || executorService != null) return;
         this.executorService = Executors.newScheduledThreadPool(1, r -> {
             Thread t = new Thread(r, clientName + "-Poller");
             t.setDaemon(true);

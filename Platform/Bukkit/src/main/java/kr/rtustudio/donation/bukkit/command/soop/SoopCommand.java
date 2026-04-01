@@ -1,6 +1,8 @@
 package kr.rtustudio.donation.bukkit.command.soop;
 
 import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
+import kr.rtustudio.donation.bukkit.command.DisconnectCommand;
+import kr.rtustudio.donation.service.Services;
 import kr.rtustudio.framework.bukkit.api.command.RSCommand;
 
 /**
@@ -13,6 +15,6 @@ public class SoopCommand extends RSCommand<BukkitDonationAPI> {
     public SoopCommand(BukkitDonationAPI plugin) {
         super(plugin, "soop");
         registerCommand(new ConnectCommand(plugin));
-        registerCommand(new DisconnectCommand(plugin));
+        registerCommand(new DisconnectCommand(plugin, Services.SOOP));
     }
 }

@@ -12,12 +12,7 @@ public class PlatformStatusComponent {
     private final Map<Services, Status> statuses = new ConcurrentHashMap<>();
 
     public void markConnected(Services service) {
-        Status status = statuses.get(service);
-        if (status == null) {
-            status = new Status();
-            statuses.put(service, status);
-        }
-        status.setConnected(true);
+        statuses.computeIfAbsent(service, k -> new Status()).setConnected(true);
     }
 
     public void markDisconnected(Services service) {

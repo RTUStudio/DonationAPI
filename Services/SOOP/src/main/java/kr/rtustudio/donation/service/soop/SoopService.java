@@ -17,11 +17,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j(topic = "DonationAPI/SOOP")
 public class SoopService extends AbstractService<SoopPlayer> implements kr.rtustudio.donation.service.Disconnectable {
-
-    private static final long LIVE_POLL_INTERVAL_SECONDS = 30;
 
     @Getter
     private final SoopConfig config;
@@ -71,7 +70,7 @@ public class SoopService extends AbstractService<SoopPlayer> implements kr.rtust
                 }
         );
         authServer.start();
-        liveMonitor.start(LIVE_POLL_INTERVAL_SECONDS);
+        liveMonitor.start(TimeUnit.MILLISECONDS.toSeconds(config.getLiveCheckInterval()));
         log.debug("SOOP service started");
     }
 

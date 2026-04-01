@@ -1,6 +1,5 @@
 package kr.rtustudio.donation.bukkit.manager;
 
-import kr.rtustudio.donation.bukkit.platform.AbstractDonationPlatform;
 import kr.rtustudio.donation.bukkit.platform.DonationPlatform;
 import kr.rtustudio.donation.bukkit.platform.PlatformRegistry;
 import kr.rtustudio.donation.service.data.UserData;
@@ -64,6 +63,6 @@ public class PlatformConnectionManager {
      */
     public boolean isConnected(UUID uuid, Services service) {
         DonationPlatform<?> platform = registry.getPlatform(service);
-        return platform instanceof AbstractDonationPlatform<?> abstractPlatform && abstractPlatform.isConnected(uuid);
+        return platform != null && platform.isConnected(uuid);
     }
 }

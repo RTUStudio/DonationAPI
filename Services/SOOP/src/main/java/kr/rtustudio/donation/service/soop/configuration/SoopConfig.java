@@ -13,4 +13,6 @@ public interface SoopConfig extends SocketServiceConfig {
     String getHost();
 
     int getPort();
+
+    long getLiveCheckInterval();
 }

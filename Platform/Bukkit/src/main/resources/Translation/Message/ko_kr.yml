@@ -2,6 +2,7 @@ connect:
   success: "<green>연동에 성공했습니다.</green>"
   fail: "<red>연동에 실패했습니다.</red>"
   unsupported: "<red>지원하지 않는 플랫폼입니다.</red>"
+  connecting: "<yellow>연동 중입니다...</yellow>"
 disconnect:
   success: "<green>연동이 해제되었습니다.</green>"
   fail: "<red>연동 해제에 실패했습니다.</red>"
@@ -18,6 +19,13 @@ service_name:
   Toonation: "투네이션"
   CIME: "씨미"
   SSAPI: "SSAPI"
+service:
+  unavailable: "<red>서비스를 사용할 수 없습니다.</red>"
+  disabled: "<red>서비스가 비활성화되어 있습니다.</red>"
+  not_enabled: "<red>서비스가 활성화되어 있지 않습니다.</red>"
+  not_implemented: "<red>아직 구현되지 않은 기능입니다.</red>"
+  already_connected: "<yellow>이미 연결되어 있습니다.</yellow>"
+  not_connected: "<yellow>연결되어 있지 않습니다.</yellow>"
 ssapi:
   connect:
     success: "<green>SSAPI 연동에 성공했습니다.</green>"
@@ -38,9 +46,15 @@ soop:
     warning: "<red>링크를 열기 전에 방송에서 화면을 가려주세요</red>"
     link: "<white>이 메세지를 클릭하면 API 연동 페이지 링크가 복사됩니다!</white>"
     copied: "클릭하면 링크가 복사됩니다"
-service:
-  not_implemented: "<red>아직 구현되지 않은 기능입니다.</red>"
-  already_connected: "<yellow>이미 연결되어 있습니다.</yellow>"
-  not_connected: "<yellow>연결되어 있지 않습니다.</yellow>"
+cime:
+  usage: "<yellow>사용법: /후원API 씨미 연동 <알람 링크 또는 alertKey></yellow>"
+toonation:
+  usage: "<yellow>사용법: /후원API 투네이션 연동 <알람 링크 또는 alertKey></yellow>"
+youtube:
+  usage: "<yellow>사용법: /후원API 유튜브 연동 <핸들명></yellow>"
+event:
+  player_not_found: "<red>플레이어를 찾을 수 없습니다.</red>"
+  invalid_amount: "<red>올바른 숫자를 입력해주세요.</red>"
+  success: "<green>{player}님에게 후원 이벤트를 발생시켰습니다.</green>"
 donation:
   notify: "<gold>[{service}]</gold> <yellow>{nickname}</yellow><white>님이 </white><aqua>{amount}{unit}</aqua><white>을(를) 후원했습니다: {message}</white>"

@@ -14,7 +14,7 @@
 치지직, 숲, 투네이션 등 **6개 후원 플랫폼**을 하나의 통합 API로 관리하는 Bukkit 플러그인입니다.  
 WebSocket 기반 실시간 후원 수신, 다중 플랫폼·다중 채널 동시 연결을 지원합니다.
 
-> **필수 의존성**: [RSFramework](https://github.com/RTUStudio/RSFramework) 4.7.7 이상
+> **필수 의존성**: [RSFramework](https://github.com/RTUStudio/RSFramework) 4.7.9 이상
 
 ---
 

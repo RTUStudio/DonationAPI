@@ -7,6 +7,7 @@ import kr.rtustudio.donation.bukkit.BukkitDonationAPI;
 import kr.rtustudio.donation.bukkit.platform.adapter.UUIDTypeAdapter;
 
 import kr.rtustudio.donation.common.DonationAPI;
+import kr.rtustudio.donation.common.configuration.ServiceConfig;
 import kr.rtustudio.donation.service.Disconnectable;
 import kr.rtustudio.donation.service.ServiceHandler;
 import kr.rtustudio.donation.service.Service;
@@ -73,15 +74,6 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
      */
     public static Builder<ConfigurationPart> builder() {
         return new Builder<>();
-    }
-
-    /**
-     * 활성화 가능한 설정 인터페이스
-     * 모든 플랫폼 설정은 이 인터페이스를 구현해야 합니다.
-     */
-    public interface EnabledConfig {
-        boolean isEnabled();
-        String getColor();
     }
 
     /**
@@ -180,15 +172,15 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
 
             // 설정 로드
             C configInstance = plugin.getConfiguration().get(parent.configClass);
-            if (!(configInstance instanceof EnabledConfig enabledConfig)) {
-                throw new IllegalStateException("Config must implement ServiceBuilder.EnabledConfig");
+            if (!(configInstance instanceof ServiceConfig enabledConfig)) {
+                throw new IllegalStateException("Config must implement ServiceConfig");
             }
 
             // ServiceHandler 생성
-            final Service[] serviceHolder = new Service[1];
+            final java.util.concurrent.atomic.AtomicReference<Service> serviceHolder = new java.util.concurrent.atomic.AtomicReference<>();
             ServiceHandler<D> handler = new ServiceHandler<>(
                     plugin::handleDonation,
-                    player -> plugin.getConnectionManager().connect(player.uuid(), serviceHolder[0].getType(), player),
+                    player -> plugin.getConnectionManager().connect(player.uuid(), serviceHolder.get().getType(), player),
                     null,
                     (UUID uuid, String msgKey, String extra) -> {
                         Bukkit.getScheduler().runTask(plugin, () -> {
@@ -196,7 +188,7 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
                             if (p == null || !p.isOnline()) return;
                             Notifier notifier = Notifier.of(plugin);
                             String serviceName = plugin.getConfiguration().getMessage()
-                                    .get(p, "service_name." + serviceHolder[0].getType().name());
+                                    .get(p, "service_name." + serviceHolder.get().getType().name());
                             String color = enabledConfig.getColor();
                             String coloredName = "<color:" + color + ">" + serviceName + "</color>";
                             String key = msgKey;
@@ -213,7 +205,7 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
 
             // 서비스 생성
             S service = factory.create(configInstance, handler);
-            serviceHolder[0] = service;
+            serviceHolder.set(service);
 
             Services serviceType = service.getType();
 
@@ -247,14 +239,14 @@ public class ServiceBuilder<D extends UserData, S extends Service> {
 
         private final Services service;
         private final Class<T> dataClass;
-        private final EnabledConfig config;
+        private final ServiceConfig config;
         private final BiFunction<UUID, T, Boolean> reconnectCallback;
 
         Platform(
                 BukkitDonationAPI plugin,
                 Services service,
                 Class<T> dataClass,
-                EnabledConfig config,
+                ServiceConfig config,
                 Gson serializer,
                 BiFunction<UUID, T, Boolean> reconnectCallback
         ) {

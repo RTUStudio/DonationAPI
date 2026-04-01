@@ -1,7 +1,5 @@
 package kr.rtustudio.donation.common;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
 public enum Platform {
@@ -11,42 +9,21 @@ public enum Platform {
     TOONATION("캐시", 1),
     CIME("빔", 1);
 
-    private static final Object2ObjectMap<String, Platform> INDEX = new Object2ObjectOpenHashMap<>();
+    private static final java.util.Map<String, Platform> INDEX = java.util.stream.Stream.of(values())
+            .collect(java.util.stream.Collectors.toUnmodifiableMap(Enum::name, p -> p));
 
-    static {
-        for (Platform type : values()) INDEX.put(type.name(), type);
-    }
-
-    private String unit;
-    private int rate;
+    private final String unit;
+    private final int rate;
 
     Platform(String unit, int rate) {
         this.unit = unit;
         this.rate = rate;
     }
 
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public void setRate(int rate) {
-        this.rate = rate;
-    }
-
-    /**
-     * 플랫폼 후원 단위명을 반환합니다.
-     *
-     * @return 단위명 (치즈, 별풍선, 원, 캐시, 빔)
-     */
     public String unit() {
         return unit;
     }
 
-    /**
-     * 1 단위당 원(₩) 환산 비율을 반환합니다.
-     *
-     * @return 원 환산 비율 (숲 별풍선: 100, 나머지: 1)
-     */
     public int rate() {
         return rate;
     }

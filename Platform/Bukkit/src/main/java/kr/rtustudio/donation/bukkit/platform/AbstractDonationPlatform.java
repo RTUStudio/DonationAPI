@@ -158,12 +158,6 @@ public abstract class AbstractDonationPlatform<T extends UserData> implements Do
     }
 
     private void delete(UUID uuid) {
-        JSON query = JSON.of("uuid", uuid.toString());
-
-        getStorage().get(query).thenAccept(result -> {
-            if (result != null && !result.isEmpty()) {
-                getStorage().set(query, JSON.of());
-            }
-        });
+        getStorage().set(JSON.of("uuid", uuid.toString()), JSON.of());
     }
 }

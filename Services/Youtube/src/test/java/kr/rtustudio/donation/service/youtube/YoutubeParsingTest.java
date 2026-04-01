@@ -10,16 +10,22 @@ public class YoutubeParsingTest {
 
     @Test
     public void testYoutubeAmountExtraction() {
-        // YoutubeClient 내부의 금액 추출 로직 단위 테스트
+        // YoutubeClient 내부의 금액 추출 및 통화 필터링 로직 단위 테스트
         String krwAmountStr = "₩5,000";
-        String cleanedKrw = krwAmountStr.replaceAll("[^0-9]", "");
-        int amountKrw = cleanedKrw.isEmpty() ? 0 : Integer.parseInt(cleanedKrw);
+        int amountKrw = 0;
+        if (krwAmountStr.contains("₩")) {
+            String cleanedKrw = krwAmountStr.replaceAll("[^0-9]", "");
+            amountKrw = cleanedKrw.isEmpty() ? 0 : Integer.parseInt(cleanedKrw);
+        }
         assertEquals(5000, amountKrw);
 
         String usdAmountStr = "$100.00";
-        String cleanedUsd = usdAmountStr.replaceAll("[^0-9]", "");
-        int amountUsd = cleanedUsd.isEmpty() ? 0 : Integer.parseInt(cleanedUsd);
-        assertEquals(10000, amountUsd); // $100.00 -> 10000 
+        int amountUsd = 0;
+        if (usdAmountStr.contains("₩")) {
+            String cleanedUsd = usdAmountStr.replaceAll("[^0-9]", "");
+            amountUsd = cleanedUsd.isEmpty() ? 0 : Integer.parseInt(cleanedUsd);
+        }
+        assertEquals(0, amountUsd); // 달러는 필터링되어 0원(무시) 처리
     }
 
     @Test

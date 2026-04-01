@@ -18,11 +18,10 @@ import kr.rtustudio.donation.bukkit.platform.AbstractDonationPlatform;
 import kr.rtustudio.donation.bukkit.platform.DonationPlatform;
 import kr.rtustudio.donation.bukkit.platform.PlatformRegistry;
 import kr.rtustudio.donation.bukkit.platform.ServiceBuilder;
+import kr.rtustudio.donation.common.configuration.ServiceConfig;
 import kr.rtustudio.donation.service.ssapi.data.SSAPIPlayer;
 import kr.rtustudio.donation.common.Donation;
 import kr.rtustudio.donation.common.DonationAPI;
-import kr.rtustudio.donation.common.Platform;
-
 import kr.rtustudio.donation.service.chzzk.ChzzkService;
 import kr.rtustudio.donation.service.chzzk.data.ChzzkPlayer;
 import kr.rtustudio.donation.service.cime.CimeService;
@@ -101,19 +100,7 @@ public class BukkitDonationAPI extends RSPlugin {
         initializeListeners();
         initializeCommands();
         initializePlaceholder();
-        applyPlatformSettings();
         setupServices();
-    }
-
-    private void applyPlatformSettings() {
-        if (globalConfig == null || globalConfig.getPlatforms() == null) return;
-        GlobalConfig.PlatformSettings settings = globalConfig.getPlatforms();
-        for (Platform platform : Platform.values()) {
-            GlobalConfig.PlatformSettings.PlatformInfo info = settings.get(platform);
-            if (info == null) continue;
-            if (info.getUnit() != null) platform.setUnit(info.getUnit());
-            if (info.getRate() > 0) platform.setRate(info.getRate());
-        }
     }
 
     private void initializeStorage() {
@@ -170,7 +157,6 @@ public class BukkitDonationAPI extends RSPlugin {
         services.clear();
         globalConfig = getConfiguration(GlobalConfig.class);
         message = getConfiguration().getMessage();
-        applyPlatformSettings();
         platformRegistry = new PlatformRegistry();
         connectionManager = new PlatformConnectionManager(platformRegistry);
         liveStatusManager = new LiveStatusManager(platformRegistry);
@@ -256,7 +242,7 @@ public class BukkitDonationAPI extends RSPlugin {
         registerLiveChecker(YoutubeConfig.class, Services.Youtube, new YoutubeLiveChecker(), YoutubeConfig::getLiveCheckInterval);
     }
 
-    private <C extends ConfigurationPart & ServiceBuilder.EnabledConfig> void registerLiveChecker(
+    private <C extends ConfigurationPart & ServiceConfig> void registerLiveChecker(
             Class<C> configClass, Services service, LiveStatusChecker checker, Function<C, Long> intervalExtractor
     ) {
         C config = getConfiguration(configClass);
