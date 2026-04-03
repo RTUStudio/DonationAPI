@@ -83,7 +83,7 @@ WebSocket 기반 실시간 후원 수신, 다중 플랫폼·다중 채널 동시
 <td>일반 후원</td>
 </tr>
 <tr>
-<td><strong>씨메 (Cime)</strong></td>
+<td><strong>씨미 (Cime)</strong></td>
 <td>🟡 비공식</td>
 <td>HTTP API 폴링</td>
 <td>일반 후원</td>
@@ -152,7 +152,7 @@ WebSocket 기반 실시간 후원 수신, 다중 플랫폼·다중 채널 동시
 | `%donationapi_chzzk%` | 치지직 연결 상태 (`true`/`false`) |
 | `%donationapi_soop%` | 숲 연결 상태 |
 | `%donationapi_toonation%` | 투네이션 연결 상태 |
-| `%donationapi_cime%` | 씨메 연결 상태 |
+| `%donationapi_cime%` | 씨미 연결 상태 |
 | `%donationapi_youtube%` | 유튜브 연결 상태 |
 | `%donationapi_ssapi_chzzk%` | SSAPI 치지직 연결 상태 |
 | `%donationapi_ssapi_soop%` | SSAPI 숲 연결 상태 |
@@ -163,16 +163,16 @@ WebSocket 기반 실시간 후원 수신, 다중 플랫폼·다중 채널 동시
 |-------------|--------|
 | `%donationapi_live_chzzk%` | 치지직 방송 중 여부 |
 | `%donationapi_live_soop%` | 숲 방송 중 여부 |
-| `%donationapi_live_cime%` | 씨메 방송 중 여부 |
+| `%donationapi_live_cime%` | 씨미 방송 중 여부 |
 | `%donationapi_live_youtube%` | 유튜브 방송 중 여부 |
 | `%donationapi_title_chzzk%` | 치지직 방송 제목 |
 | `%donationapi_title_soop%` | 숲 방송 제목 |
-| `%donationapi_title_cime%` | 씨메 방송 제목 |
+| `%donationapi_title_cime%` | 씨미 방송 제목 |
 | `%donationapi_viewers_chzzk%` | 치지직 시청자 수 |
 | `%donationapi_viewers_soop%` | 숲 시청자 수 |
 | `%donationapi_url_chzzk%` | 치지직 채널 URL |
 | `%donationapi_url_soop%` | 숲 채널 URL |
-| `%donationapi_url_cime%` | 씨메 채널 URL |
+| `%donationapi_url_cime%` | 씨미 채널 URL |
 | `%donationapi_url_youtube%` | 유튜브 채널 URL |
 
 ---
@@ -249,7 +249,7 @@ public record Donation(
 | 치지직 | 치즈 | `1` | `1000` | `1,000원` |
 | 숲 | 별풍선 | `100` | `5` | `500원` |
 | 투네이션 | 캐시 | `1` | `5000` | `5,000원` |
-| 씨메 | 빔 | `1` | `1000` | `1,000원` |
+| 씨미 | 빔 | `1` | `1000` | `1,000원` |
 | 유튜브 | 원 | `1` | `1000` | `1,000원` |
 
 > 단위와 환산 비율은 `GlobalConfig`에서 플랫폼별로 커스텀 설정이 가능합니다.
@@ -317,7 +317,7 @@ DonationAPI/
 │   ├── SOOP/                    # 숲 OpenAPI + 바이너리 소켓
 │   ├── SSAPI/                   # SSAPI Socket.io 통합
 │   ├── Toonation/               # 투네이션 WebSocket
-│   ├── CIME/                    # 씨메 HTTP 폴링
+│   ├── CIME/                    # 씨미 HTTP 폴링
 │   └── Youtube/                 # 유튜브 라이브챗 폴링
 │
 └── Platform/                    # 프레임워크 종속 어댑터
